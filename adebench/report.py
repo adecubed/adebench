@@ -17,7 +17,7 @@ STATUSES = ("PASS", "FAIL", "ERROR", "SKIP")
 # Everything that changes what a run measures. Two runs are comparable only
 # if all of it is equal.
 COMPARABILITY_KEYS = ("adapter", "door", "cases_hash", "sections", "voice_cut", "voice_sources",
-                      "events_block", "sandbox_test", "repo", "weights", "max_card")
+                      "events_block", "sandbox_test", "sandbox_enabled", "repo", "weights", "max_card")
 
 
 def cases_hash() -> str:

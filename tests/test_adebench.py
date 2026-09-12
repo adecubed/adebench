@@ -270,6 +270,26 @@ def test_delta_ignores_runs_with_another_setup(cases):
     assert r4["delta"]["total"] == 0.0  # same sections in another order: comparable
 
 
+def test_cli_no_sandbox_test_is_another_setup(cases, tmp_path, monkeypatch):
+    """Same --sandbox-test path, once run and once switched off with
+    --no-sandbox-test: 10/10 then 'not measured' must not become a -10 delta."""
+    from adebench.__main__ import main
+    script = tmp_path / "fake_sandbox.py"
+    script.write_text("print('  PASS  something works')\nprint('1/1 passed')\n", encoding="utf-8")
+    monkeypatch.setattr(adapter, "_current", None)
+    common = ["--adapter", "tests.test_adebench:Fake", "--cases", str(cases),
+              "--history", str(cases / "history"), "--sections", "updates", "--sandbox-test", str(script)]
+    assert main(common) == 0
+    assert main(common + ["--no-sandbox-test"]) == 0
+    runs = sorted((cases / "history").glob("*.json"))
+    assert len(runs) == 2
+    first, second = (json.loads(p.read_text(encoding="utf-8")) for p in runs)
+    assert first["total"] == 10.0 and first["config"]["sandbox_enabled"] is True
+    assert second["measured_weight"] == 0 and second["config"]["sandbox_enabled"] is False
+    assert second["config"]["fingerprint"] != first["config"]["fingerprint"]
+    assert second["delta"]["total"] is None  # another setup: no delta, no fake regression
+
+
 # ─── the HTTP client never returns an error body as an answer ───────────────
 
 class _Server500(BaseHTTPRequestHandler):

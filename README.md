@@ -143,6 +143,7 @@ Options:
 | `--repo` / `ADEBENCH_REPO` | repository root for the file-search section |
 | `--sandbox-test` / `ADEBENCH_SANDBOX_TEST` | sandbox test script of the fact-update mechanism (prints `N/M passed`) |
 | `--sections a b` | run only some sections (the report says what was not run) |
+| `--no-sandbox-test` | skip the sandbox test; recorded in the setup fingerprint, so such a run is never compared with one that ran it |
 | `--validation` | write a validation sheet for the golden set (see below) |
 | `ADEBENCH_VOICE_SOURCES`, `ADEBENCH_VOICE_CUT`, `ADEBENCH_EVENTS_BLOCK` | the voice client's sources, cut and events block, if yours differ |
 | `ADEBENCH_MAX_CARD` | max length of an entity card (default 900) |

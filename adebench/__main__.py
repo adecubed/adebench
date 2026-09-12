@@ -102,13 +102,17 @@ def main(argv: list[str] | None = None) -> int:
     results.append(sections.doors())
     print(" ok")
 
+    # the sandbox test as it was EFFECTIVELY used: a path that --no-sandbox-test
+    # switched off must not look like the same setup as a run that ran it
+    sandbox_enabled = bool(CFG.sandbox_test) and not args.no_sandbox_test
     config = {"adapter": CFG.adapter, "brain_url": CFG.brain_url, "door": CFG.door,
               "cases_hash": report.cases_hash(),
               "voice_sources": CFG.voice_sources, "voice_cut": CFG.voice_cut,
               "events_block": CFG.events_block, "weights": sections.WEIGHTS, "max_card": CFG.max_card,
               "cases": str(CFG.cases),
               "repo": str(CFG.repo) if CFG.repo else None,
-              "sandbox_test": str(CFG.sandbox_test) if CFG.sandbox_test else None,
+              "sandbox_test": str(CFG.sandbox_test) if sandbox_enabled else None,
+              "sandbox_enabled": sandbox_enabled,
               "sections": chosen, "duration_s": round(time.perf_counter() - t_start)}
     config["fingerprint"] = report.fingerprint(config)
     if args.no_report:
