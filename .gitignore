@@ -1,0 +1,12 @@
+# run reports (they contain excerpts of your memory)
+storico/
+# your real golden set and validation sheets live outside the repo;
+# if you keep them here, keep them out of git
+casi/locale/
+casi/**/validazione.md
+__pycache__/
+*.pyc
+.venv/
+dist/
+build/
+*.egg-info/

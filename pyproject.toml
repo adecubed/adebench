@@ -1,0 +1,19 @@
+[project]
+name = "adebench"
+version = "0.1.0"
+description = "A benchmark for an ADE Brain, on its own terms: what the voice client hears, entity cards, fact updates, age, live state, abstention, file search, graph."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [{name = "Adecubed"}]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/adecubed/adebench"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["adebench"]
