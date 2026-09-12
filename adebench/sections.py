@@ -24,6 +24,7 @@ import re
 import statistics
 import subprocess
 import sys
+import time
 import uuid
 from typing import Callable
 
@@ -104,6 +105,21 @@ def _load(name: str):
     return json.loads((CFG.cases / name).read_text(encoding="utf-8"))
 
 
+def duplicate_chunks(text: str, min_chars: int = 40) -> int:
+    """How many lines of the delivered text repeat an earlier one (after
+    normalising whitespace and case; short lines ignored). Every repeated
+    chunk is budget spent twice on the same information."""
+    seen, dup = set(), 0
+    for line in text.splitlines():
+        norm = " ".join(line.split()).lower().strip(" -•·✦▣↻+⇒⚠◆[]")
+        if len(norm) < min_chars:
+            continue
+        if norm in seen:
+            dup += 1
+        seen.add(norm)
+    return dup
+
+
 # ─── A. The door ─────────────────────────────────────────────────────────────
 
 def door() -> dict:
@@ -155,7 +171,8 @@ def door() -> dict:
         margin = (budget - last) if (budget and last >= 0 and not missing) else None
         return _case(q["question"], not missing and card_ok and not stale, note.strip(), position=pos,
                      margin=margin, chars=len(text), ms=round(r.get("_ms", 0)),
-                     stale=bool(stale), validated=q.get("validated", False))
+                     stale=bool(stale), duplicates=duplicate_chunks(text),
+                     validated=q.get("validated", False))
 
     for q in questions:
         cases.append(_try(q["question"], lambda q=q: _one(q)))
@@ -172,8 +189,14 @@ def door() -> dict:
         "passes_within_300_chars_of_the_edge": sum(1 for m in margins if m < 300),
         "questions_with_forbidden_values": sum(1 for q in questions if q.get("forbidden")),
         "stale_values_delivered": sum(1 for c in cases if c.get("stale")),
+        # budget spent on nothing: text before the answer, and repeated chunks
+        "chars_before_answer_mean": round(statistics.mean(positions)) if positions else None,
+        "duplicate_chunks_total": sum(c.get("duplicates", 0) for c in cases),
     }
     warnings = []
+    if measures["duplicate_chunks_total"]:
+        warnings.append(f"{measures['duplicate_chunks_total']} repeated chunks across the delivered texts: "
+                        "budget spent twice on the same information")
     if measures["stale_values_delivered"]:
         warnings.append(f"{measures['stale_values_delivered']} answers delivered a retired value next to the "
                         "current one: the model has to guess which is true")
@@ -370,11 +393,28 @@ def live_state() -> dict:
             "canary written to working memory", ada.working_write("adebench", "adebench_canary", value, 1))))
 
         def _find() -> list[dict]:
-            text, r = ada.door_text(f"parola d'ordine canarino adebench {token}", CFG.door)
-            wm = r.get("working", [])
-            return [_case("the canary just written is found through the retrieval door",
-                          any(token in str(e.get("value", "")) for e in wm)),
+            # write-to-serve latency: poll until the canary is served, up to
+            # the budget. "Update latency after a write" is a number, not a
+            # yes/no: a memory with async indexing pays here.
+            t0 = time.perf_counter()
+            deadline = t0 + CFG.write_to_serve_max_s
+            text, wm, served_ms = "", [], None
+            while True:
+                text, r = ada.door_text(f"parola d'ordine canarino adebench {token}", CFG.door)
+                wm = r.get("working", [])
+                if any(token in str(e.get("value", "")) for e in wm):
+                    served_ms = round((time.perf_counter() - t0) * 1000)
+                    break
+                if time.perf_counter() >= deadline:
+                    break
+                time.sleep(1)
+            latency["ms"] = served_ms
+            return [_case("the canary just written is served through the retrieval door",
+                          served_ms is not None,
+                          f"write-to-serve {served_ms} ms" if served_ms is not None
+                          else f"not served within {CFG.write_to_serve_max_s} s"),
                     _case(f"…and reaches the text of door '{CFG.door}'", token in text)]
+        latency: dict = {"ms": None}
         try:
             cases.extend(_find())
         except Exception as e:  # noqa: BLE001
@@ -392,7 +432,9 @@ def live_state() -> dict:
         cases.append(_case(f"{CFG.live_state_key} refreshed less than {CFG.live_state_max_minutes} minutes ago",
                            age is not None and age <= CFG.live_state_max_minutes,
                            f"{age:.0f} min" if age is not None else "key absent"))
-    return _section("live_state", cases, {"live_state_age_min": None if age is None else round(age)})
+    return _section("live_state", cases, {"live_state_age_min": None if age is None else round(age),
+                                          "write_to_serve_ms": latency["ms"],
+                                          "write_to_serve_budget_s": CFG.write_to_serve_max_s})
 
 
 # ─── F. Abstention ───────────────────────────────────────────────────────────

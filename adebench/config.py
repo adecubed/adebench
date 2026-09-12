@@ -47,6 +47,10 @@ class Config:
     live_state_session: str = os.environ.get("ADEBENCH_LIVE_STATE_SESSION", "global")
     live_state_key: str = os.environ.get("ADEBENCH_LIVE_STATE_KEY", "mail_non_lette")
     live_state_max_minutes: int = int(os.environ.get("ADEBENCH_LIVE_STATE_MINUTES", "30"))
+    # Write-to-serve latency: how long the canary may take to become
+    # retrievable after the write (polled every second). A memory with
+    # asynchronous indexing pays here; the number is reported either way.
+    write_to_serve_max_s: int = int(os.environ.get("ADEBENCH_WRITE_TO_SERVE_S", "30"))
     # How many alias→card and file-search cases to sample per run.
     alias_sample: int = 8
     file_sample: int = 15

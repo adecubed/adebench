@@ -99,6 +99,7 @@ def cases(tmp_path, monkeypatch):
     monkeypatch.setattr(CFG, "door", "only")
     monkeypatch.setattr(CFG, "sandbox_test", None)
     monkeypatch.setattr(CFG, "repo", None)
+    monkeypatch.setattr(CFG, "write_to_serve_max_s", 0)  # no polling in tests unless asked
     return tmp_path
 
 
@@ -253,6 +254,37 @@ def test_door_with_right_and_wrong_expectation(cases):
     assert sections.door()["score"] == 0.0
 
 
+# ─── write-to-serve latency ─────────────────────────────────────────────────
+
+def test_write_to_serve_latency_is_measured(cases, monkeypatch):
+    class Slow(Fake):
+        """Serves a just-written value only from the second ask (async index)."""
+        def __init__(self):
+            super().__init__(answer={"summary": "x"})
+            self.asks = 0
+        def door_text(self, q, door):
+            self.asks += 1
+            if self.asks >= 2 and self.working:
+                v = next(iter(self.working.values()))
+                return v, {"summary": v, "working": [{"key": "k", "value": v}]}
+            return "nothing yet", {"summary": "nothing yet", "working": []}
+    _use(Slow())
+    monkeypatch.setattr(CFG, "write_to_serve_max_s", 5)
+    monkeypatch.setattr(sections.time, "sleep", lambda s: None)
+    s = sections.live_state()
+    served = next(c for c in s["cases"] if c["case"].startswith("the canary just written"))
+    assert served["status"] == "PASS" and "write-to-serve" in served["note"]
+    assert s["measures"]["write_to_serve_ms"] is not None
+
+
+def test_canary_never_served_is_a_fail_with_the_budget_in_the_note(cases, monkeypatch):
+    _use(Fake(answer={"summary": "nothing", "working": []}))
+    monkeypatch.setattr(CFG, "write_to_serve_max_s", 0)
+    s = sections.live_state()
+    served = next(c for c in s["cases"] if c["case"].startswith("the canary just written"))
+    assert served["status"] == "FAIL" and "not served within" in served["note"]
+
+
 # ─── stale values delivered next to the current one ────────────────────────
 
 def test_stale_value_beside_the_current_one_is_a_fail(cases):
@@ -265,6 +297,23 @@ def test_stale_value_beside_the_current_one_is_a_fail(cases):
     assert s["measures"]["stale_values_delivered"] == 1
     _use(Fake(answer={"summary": "La porta e' 8766."}))
     assert sections.door()["cases"][0]["status"] == "PASS"
+
+
+# ─── duplicate chunks: budget spent twice ───────────────────────────────────
+
+def test_duplicate_chunks_counts_repeated_lines():
+    a = "  ✦ Il Brain ascolta sulla porta 8766 e parte prima dei client."
+    b = "  · il  brain ascolta sulla porta 8766 e parte prima dei client."  # same after normalising
+    text = "\n".join([a, "  ✦ un'altra riga abbastanza lunga da contare come pezzo di testo", b, "corta"])
+    assert sections.duplicate_chunks(text) == 1
+    assert sections.duplicate_chunks("una sola riga lunga abbastanza da essere contata una volta") == 0
+
+
+def test_door_reports_duplicates(cases):
+    line = "La porta 8766 e' quella del Brain, e questa riga si ripete identica due volte."
+    _use(Fake(answer={"summary": line + "\n" + line}))
+    s = sections.door()
+    assert s["cases"][0]["duplicates"] == 1 and s["measures"]["duplicate_chunks_total"] == 1
 
 
 # ─── margin and pressure ────────────────────────────────────────────────────
@@ -394,6 +443,11 @@ def test_synthetic_example_matches_reference(tmp_path, monkeypatch):
 
 class _Server500(BaseHTTPRequestHandler):
     def _answer(self):
+        # drain the request body first: answering before the client has
+        # finished sending makes Windows abort the connection (WinError 10053)
+        n = int(self.headers.get("Content-Length") or 0)
+        if n:
+            self.rfile.read(n)
         self.send_response(500)
         self.send_header("Content-Type", "application/json")
         self.end_headers()

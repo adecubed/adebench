@@ -1,4 +1,4 @@
-# adebench — 2026-09-12T17:04:22
+# adebench — 2026-09-12T19:28:43
 
 **Score: 90.0 / 100**
 Cases: 48 PASS · 5 FAIL · 0 ERROR · 0 SKIP
@@ -28,6 +28,8 @@ Adapter `examples.synthetic:SyntheticAdapter` · door `chat` · cases `0f9a4640d
 - passes_within_300_chars_of_the_edge: `0`
 - questions_with_forbidden_values: `1`
 - stale_values_delivered: `1`
+- chars_before_answer_mean: `212`
+- duplicate_chunks_total: `0`
 
 - ⚠ 1 answers delivered a retired value next to the current one: the model has to guess which is true
 
@@ -63,6 +65,8 @@ Not passed:
 ## live_state
 
 - live_state_age_min: `7`
+- write_to_serve_ms: `0`
+- write_to_serve_budget_s: `30`
 
 ## abstention
 

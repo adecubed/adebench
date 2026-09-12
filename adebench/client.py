@@ -46,7 +46,10 @@ def _req(method: str, path: str, body: dict | None = None, params: dict | None =
         with urllib.request.urlopen(req, timeout=timeout) as r:
             raw = r.read()
     except urllib.error.HTTPError as e:
-        raw = e.read()
+        try:
+            raw = e.read()
+        except OSError:  # body unreadable (socket closed early): still an error response
+            raw = b""
         ms = (time.perf_counter() - t0) * 1000
         traces.append({"door": path, "ms": ms, "chars": len(raw), "http": e.code})
         raise ErrorResponse(path, e.code, raw[:300].decode("utf-8", "ignore")) from e
