@@ -1,12 +1,13 @@
-# run reports (they contain excerpts of your memory)
-storico/
+# run reports (they contain your golden-set questions and failed-case notes)
+history/
 # your real golden set and validation sheets live outside the repo;
 # if you keep them here, keep them out of git
-casi/locale/
-casi/**/validazione.md
+cases/local/
+cases/**/validation.md
 __pycache__/
 *.pyc
 .venv/
 dist/
 build/
 *.egg-info/
+.pytest_cache/

@@ -1,7 +1,7 @@
 [project]
 name = "adebench"
-version = "0.1.0"
-description = "A benchmark for an ADE Brain, on its own terms: what the voice client hears, entity cards, fact updates, age, live state, abstention, file search, graph."
+version = "0.2.0"
+description = "A benchmark for personal AI memory, on its own terms: what the client actually receives, entity cards, fact updates, age, live state, abstention, file search, graph. ADE Brain first, any memory via adapter."
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}

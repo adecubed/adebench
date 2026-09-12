@@ -1,0 +1,10 @@
+[
+ {"question": "Su che porta risponde il Brain?", "expected": [["8766"]], "entity": "brain", "validated": false},
+ {"question": "Quali sono i livelli della memoria del Brain?", "expected": [["working"], ["episodic", "episodica"], ["semantic", "semantica"]], "entity": "brain", "validated": false},
+ {"question": "Quale modello usa il distiller per distillare i fatti?", "expected": [["Flash", "Gemini"]], "validated": false},
+ {"question": "Che cos'e' MCP?", "expected": [["Model Context Protocol"]], "entity": "mcp", "validated": false},
+ {"question": "Cosa fa il consolidamento della memoria semantica?", "expected": [["fond*", "merge", "duplicat*", "unisc*"]], "validated": false},
+ {"question": "Cosa succede ai fatti semantici che non vengono rinforzati?", "expected": [["decad*", "floor", "garbage", "archiv*"]], "validated": false},
+ {"question": "Cos'e' GigaMail?", "expected": [["MCP"], ["PyPI", "open source", "github"]], "entity": "gigamail", "validated": false},
+ {"question": "Cos'e' Sofia?", "expected": [["voce", "vocale", "assistente"]], "entity": "sofia", "validated": false}
+]

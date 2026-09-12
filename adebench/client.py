@@ -14,23 +14,23 @@ from typing import Any
 
 from adebench.config import CFG
 
-# Every call leaves a trace (endpoint, ms, chars): latency and noise per
-# door come from here, without instrumenting the sections.
-tracce: list[dict] = []
+# Every call leaves a trace (endpoint, ms, chars, http): latency and noise
+# per door come from here, without instrumenting the sections.
+traces: list[dict] = []
 
 
-class BrainSpento(RuntimeError):
+class ServiceDown(RuntimeError):
     """The memory service did not answer (connection refused, timeout)."""
 
 
-class RispostaErrore(RuntimeError):
+class ErrorResponse(RuntimeError):
     """The memory service answered with an HTTP error. Raised, never returned:
     an error body must not be mistaken for an answer (a 500 on /sofia/ask
     used to score as perfect abstention)."""
 
-    def __init__(self, path: str, codice: int, corpo: str):
-        super().__init__(f"HTTP {codice} su {path}: {corpo[:120]}")
-        self.path, self.codice, self.corpo = path, codice, corpo
+    def __init__(self, path: str, code: int, body: str):
+        super().__init__(f"HTTP {code} on {path}: {body[:120]}")
+        self.path, self.code, self.body = path, code, body
 
 
 def _req(method: str, path: str, body: dict | None = None, params: dict | None = None,
@@ -48,12 +48,12 @@ def _req(method: str, path: str, body: dict | None = None, params: dict | None =
     except urllib.error.HTTPError as e:
         raw = e.read()
         ms = (time.perf_counter() - t0) * 1000
-        tracce.append({"porta": path, "ms": ms, "chars": len(raw), "http": e.code})
-        raise RispostaErrore(path, e.code, raw[:300].decode("utf-8", "ignore")) from e
+        traces.append({"door": path, "ms": ms, "chars": len(raw), "http": e.code})
+        raise ErrorResponse(path, e.code, raw[:300].decode("utf-8", "ignore")) from e
     except Exception as e:  # noqa: BLE001
-        raise BrainSpento(f"{method} {path}: {e}") from e
+        raise ServiceDown(f"{method} {path}: {e}") from e
     ms = (time.perf_counter() - t0) * 1000
-    tracce.append({"porta": path, "ms": ms, "chars": len(raw), "http": 200})
+    traces.append({"door": path, "ms": ms, "chars": len(raw), "http": 200})
     try:
         return json.loads(raw.decode("utf-8")), ms
     except Exception:  # noqa: BLE001
@@ -82,19 +82,19 @@ def ask(query: str, sources: list[str], include_raw: bool = True) -> dict:
     r["_ms"] = ms
     # noise is measured on the TEXT sent to the client, not on the JSON
     # (which, with include_raw, also carries the raw hits)
-    if tracce:
-        tracce[-1]["chars"] = len(r.get("summary") or "")
+    if traces:
+        traces[-1]["chars"] = len(r.get("summary") or "")
     return r
 
 
-def riscalda() -> float | None:
+def warm_up() -> float | None:
     """The first /sofia/ask after boot loads the embedder and the vector
     store and can take more than 90 s: paid here, outside the measures."""
     try:
         _, ms = _req("POST", "/sofia/ask", body={"query": "ciao", "sources": ["semantic"]}, timeout=300)
-    except BrainSpento:
+    except (ServiceDown, ErrorResponse):
         return None
-    tracce.pop()
+    traces.pop()
     return ms
 
 
@@ -104,14 +104,14 @@ def health() -> dict:
     try:
         r = get("/brain/health")
         return r if isinstance(r, dict) else {}
-    except (BrainSpento, RispostaErrore):
+    except (ServiceDown, ErrorResponse):
         return {}
 
 
 def debug() -> dict:
     try:
         r = get("/sofia/ask/debug")
-    except RispostaErrore:
+    except ErrorResponse:
         return {}
     return r if isinstance(r, dict) else {}
 
@@ -126,7 +126,7 @@ def db_dir() -> Path:
     if _db_dir is None:
         d = debug().get("DB_DIR")
         if not d:
-            raise BrainSpento("DB_DIR unknown: /sofia/ask/debug does not answer")
+            raise ServiceDown("DB_DIR unknown: /sofia/ask/debug does not answer")
         _db_dir = Path(d)
     return _db_dir
 
@@ -145,5 +145,5 @@ def sql(db: str, query: str, *args) -> list[dict]:
         conn.close()
 
 
-def colonne(db: str, tabella: str) -> set[str]:
-    return {r["name"] for r in sql(db, f"PRAGMA table_info({tabella})")}
+def columns(db: str, table: str) -> set[str]:
+    return {r["name"] for r in sql(db, f"PRAGMA table_info({table})")}
