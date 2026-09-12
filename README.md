@@ -40,7 +40,31 @@ context). The third axis — how much text the memory injects — is measured on
 because 90 % accuracy at 500 characters and 90 % at 5,000 are not the same thing.
 
 Every run writes a JSON and a Markdown report to the history folder, with the delta against
-the previous run, so the question becomes: *does the Brain remember better than yesterday?*
+the previous **comparable** run (same adapter, same door, same golden set), so the question
+becomes: *does the Brain remember better than yesterday?*
+
+### How a point is earned
+
+Every check ends in one of four states, and the report counts them:
+
+| State | Meaning | Effect on the score |
+|---|---|---|
+| `PASS` | the check ran, had evidence, and the memory did the right thing | earns |
+| `FAIL` | the check ran, had evidence, and the memory did not | does not earn |
+| `ERROR` | the memory did not answer (HTTP error, exception, empty response) | does not earn — a broken service never looks like a good one |
+| `SKIP` | this memory has no such feature, or there is no data to check against | leaves the score entirely |
+
+A section with no `PASS`/`FAIL`/`ERROR` case is *not measured*: its weight leaves the
+denominator, and the report says `score / measured weight` with the coverage next to it.
+Absence of evidence is never a point. Expected words match whole tokens: `8766` does not
+match `18766`, `0.2.4` does not match `10.2.4`.
+
+Two limits, stated plainly. The abstention section checks what retrieval hands to the
+model on invented entities, not the sentence the assistant finally says: that would need an
+LLM judge and would stop being deterministic. And the fact-update section scores only the
+sandbox test of the mechanism (`--collaudo`); the historical trace of past updates is
+reported, never scored, because an update that happened once does not prove the mechanism
+works today.
 
 ## Doors
 
@@ -133,7 +157,8 @@ repository (it contains facts about you). Each question looks like:
 ```
 
 `attese` is a list of groups; every group must be present, any alternative inside a group
-counts. `entita` (optional) requires that entity's card to be part of the answer.
+counts. Alternatives match whole tokens; end one with `*` to accept a prefix
+(`"anonimizz*"` matches *anonimizza* and *anonimizzazione*). `entita` (optional) requires that entity's card to be part of the answer.
 `validata` is a human flag: the benchmark keeps warning until every question has been
 checked by the person who owns the Brain. `python -m adebench --validazione` writes a sheet
 with each question, the expectations and the first 600 characters the voice model would
@@ -170,6 +195,18 @@ This is the first version, and it is published to ask exactly that. Things alrea
 
 Open an issue with what you would measure about a personal assistant's memory that this
 does not.
+
+## Tests
+
+```bash
+pip install pytest
+python -m pytest -q
+```
+
+The tests need no memory service: a fake adapter drives the sections and a local HTTP
+server plays a broken Brain. They guard the ways a score could lie — an error counted as a
+pass, a missing feature counted as a success, a substring counted as a match, two runs
+overwriting each other, a delta between two different setups. They run in CI on every push.
 
 ## License
 

@@ -13,7 +13,7 @@ ORDINE = ["porta", "schede", "aggiornamento", "tempo", "stato_vivo",
           "astensione", "ricerca_file", "grafo"]
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="adebench", description="Benchmark of a personal AI memory, on its own terms.")
     ap.add_argument("--adattatore", help=f"'module:Class' adapter (default {CFG.adattatore})")
     ap.add_argument("--brain", help=f"memory service URL (default {CFG.brain_url})")
@@ -27,7 +27,7 @@ def main() -> int:
     ap.add_argument("--senza-report", action="store_true", help="do not save to the history folder")
     ap.add_argument("--validazione", action="store_true",
                     help="write validazione.md next to the cases, with the memory's real answers")
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
     if args.adattatore:
         CFG.adattatore = args.adattatore
     if args.brain:
@@ -56,7 +56,7 @@ def main() -> int:
             return 2
         CFG.porta = porte[0]
     if not ada.health():
-        print(f"memory service off or unreachable at {CFG.brain_url}")
+        print(f"memory service off, unreachable or answering with errors at {CFG.brain_url}")
         return 2
     if args.validazione:
         from adebench.validazione import scrivi_scheda
@@ -88,10 +88,12 @@ def main() -> int:
             else:
                 s = getattr(sezioni, nome)()
         except Exception as e:  # noqa: BLE001
-            s = {"nome": nome, "peso": sezioni.PESI.get(nome, 0), "punteggio": 0.0, "casi": [],
-                 "misure": {}, "avvisi": [f"section failed: {type(e).__name__}: {e}"]}
-        ok = sum(1 for c in s["casi"] if c["ok"])
-        print(f" {ok}/{len(s['casi'])} ({time.perf_counter() - t0:.0f}s)")
+            # a section that blows up is an ERROR with zero points, not a skip
+            s = sezioni._sez(nome, [sezioni._caso(f"sezione {nome}", False,
+                                                  f"{type(e).__name__}: {str(e)[:160]}", stato="ERROR")])
+        k = s.get("conteggi", {})
+        print(f" {k.get('PASS', 0)} PASS {k.get('FAIL', 0)} FAIL {k.get('ERROR', 0)} ERROR {k.get('SKIP', 0)} SKIP "
+              f"({time.perf_counter() - t0:.0f}s)")
         esiti.append(s)
 
     print("  salute…", end="", flush=True)
@@ -102,12 +104,15 @@ def main() -> int:
     print(" ok")
 
     config = {"adattatore": CFG.adattatore, "brain_url": CFG.brain_url, "porta": CFG.porta,
+              "hash_casi": report.hash_casi(),
               "sorgenti_sofia": CFG.sorgenti_sofia, "taglio_sofia": CFG.taglio_sofia,
               "blocco_eventi": CFG.blocco_eventi, "pesi": sezioni.PESI, "casi": str(CFG.casi),
               "repo": str(CFG.repo) if CFG.repo else None, "collaudo": str(CFG.collaudo) if CFG.collaudo else None,
               "sezioni": scelte, "durata_s": round(time.perf_counter() - t_inizio)}
     if args.senza_report:
-        corsa = {"quando": "-", "totale": report.punteggio_totale(esiti), "sezioni": esiti,
+        punti, mis, tot = report.punteggio_totale(esiti)
+        corsa = {"quando": "-", "totale": punti, "peso_misurato": mis, "peso_totale": tot,
+                 "conteggi": report.conteggi(esiti), "config": config, "sezioni": esiti,
                  "delta": {"totale": None, "sezioni": {}}}
         report.stampa(corsa, Path("-"))
         return 0

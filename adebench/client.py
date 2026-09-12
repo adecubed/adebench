@@ -20,7 +20,17 @@ tracce: list[dict] = []
 
 
 class BrainSpento(RuntimeError):
-    pass
+    """The memory service did not answer (connection refused, timeout)."""
+
+
+class RispostaErrore(RuntimeError):
+    """The memory service answered with an HTTP error. Raised, never returned:
+    an error body must not be mistaken for an answer (a 500 on /sofia/ask
+    used to score as perfect abstention)."""
+
+    def __init__(self, path: str, codice: int, corpo: str):
+        super().__init__(f"HTTP {codice} su {path}: {corpo[:120]}")
+        self.path, self.codice, self.corpo = path, codice, corpo
 
 
 def _req(method: str, path: str, body: dict | None = None, params: dict | None = None,
@@ -39,7 +49,7 @@ def _req(method: str, path: str, body: dict | None = None, params: dict | None =
         raw = e.read()
         ms = (time.perf_counter() - t0) * 1000
         tracce.append({"porta": path, "ms": ms, "chars": len(raw), "http": e.code})
-        return {"_errore": f"HTTP {e.code}", "_corpo": raw[:300].decode("utf-8", "ignore")}, ms
+        raise RispostaErrore(path, e.code, raw[:300].decode("utf-8", "ignore")) from e
     except Exception as e:  # noqa: BLE001
         raise BrainSpento(f"{method} {path}: {e}") from e
     ms = (time.perf_counter() - t0) * 1000
@@ -89,15 +99,20 @@ def riscalda() -> float | None:
 
 
 def health() -> dict:
+    """The health payload, or {} when the service is down OR answers with an
+    error status. Only a 200 with a dict counts as alive."""
     try:
         r = get("/brain/health")
         return r if isinstance(r, dict) else {}
-    except BrainSpento:
+    except (BrainSpento, RispostaErrore):
         return {}
 
 
 def debug() -> dict:
-    r = get("/sofia/ask/debug")
+    try:
+        r = get("/sofia/ask/debug")
+    except RispostaErrore:
+        return {}
     return r if isinstance(r, dict) else {}
 
 
