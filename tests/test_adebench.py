@@ -281,9 +281,12 @@ def test_cli_no_sandbox_test_is_another_setup(cases, tmp_path, monkeypatch):
               "--history", str(cases / "history"), "--sections", "updates", "--sandbox-test", str(script)]
     assert main(common) == 0
     assert main(common + ["--no-sandbox-test"]) == 0
-    runs = sorted((cases / "history").glob("*.json"))
+    runs = [json.loads(p.read_text(encoding="utf-8")) for p in (cases / "history").glob("*.json")]
     assert len(runs) == 2
-    first, second = (json.loads(p.read_text(encoding="utf-8")) for p in runs)
+    # pick by the flag, not by file order: in the same second the file names
+    # sort by fingerprint hash, not by time
+    first = next(r for r in runs if r["config"]["sandbox_enabled"])
+    second = next(r for r in runs if not r["config"]["sandbox_enabled"])
     assert first["total"] == 10.0 and first["config"]["sandbox_enabled"] is True
     assert second["measured_weight"] == 0 and second["config"]["sandbox_enabled"] is False
     assert second["config"]["fingerprint"] != first["config"]["fingerprint"]
