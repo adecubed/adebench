@@ -208,6 +208,24 @@ def test_running_one_section_is_not_a_full_score():
     assert "75 not run" in line
 
 
+# ─── mandatory items of a correction ────────────────────────────────────────
+
+def test_mandatory_items_stop_at_the_end_of_the_sentence():
+    text = ("Nella scheda di X non omettere mai: la porta 8766, il modello Nova; il sito su Render. "
+            "NON dire che X cerca investitori: non e' mai partita.")
+    assert sections._mandatory_items(text) == ["la porta 8766", "il modello Nova", "il sito su Render"]
+    assert sections._mandatory_items("never omit: a.b version 1.4.2, twelve tools") == ["a.b version 1.4.2", "twelve tools"]
+    assert sections._mandatory_items("no marker here") == []
+
+
+def test_mandatory_item_tolerates_inflection():
+    card = "Il progetto e' presente nel MCP Registry ed e' montato come server core."
+    assert sections._item_present("presenza nel MCP Registry", card)
+    assert sections._item_present("montata come server core", card)
+    assert not sections._item_present("nerine.io espone una porta MCP pubblica", card)
+    assert not sections._item_present("versione 1.4.2 su PyPI", "versione 1.3.0 su PyPI")
+
+
 # ─── whole-token matching ───────────────────────────────────────────────────
 
 @pytest.mark.parametrize("text,expected,found", [

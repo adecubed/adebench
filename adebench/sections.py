@@ -168,15 +168,38 @@ def _mandatory_items(text: str) -> list[str]:
     m = re.search(r"(?:non omettere mai|never omit)\s*:\s*(.+)$", text, re.IGNORECASE | re.DOTALL)
     if not m:
         return []
-    return [v.strip(" .;") for v in re.split(r"[,;]\s*", m.group(1)) if len(v.strip()) > 3]
+    # the list is ONE sentence: it ends at the first period followed by a
+    # space, so a sentence written after it is not glued to the last item
+    lista = re.split(r"\.\s+", m.group(1), maxsplit=1)[0]
+    return [v.strip(" .;") for v in re.split(r"[,;]\s*", lista) if len(v.strip()) > 3]
+
+
+def _stem(word: str) -> str:
+    """'presenza' and 'presente' share 'prese'; 'montato'/'montata' share
+    'monta'. Numbers, dots and slashes (versions, domains) stay whole."""
+    if not word.isalpha():
+        return word
+    return word[:max(5, len(word) - 2)]
 
 
 def _item_present(item: str, card: str) -> bool:
+    """Every token with a digit (versions, ports, dates) must be in the card
+    exactly — they are the deterministic part of the item; of the other
+    content words (4+ chars) at least 60% must appear, compared by stem so
+    that an inflection does not fail the check."""
     words = [w for w in re.findall(r"[\w./@-]{4,}", item.lower())]
     if not words:
         return True
-    inside = sum(1 for w in words if w in card.lower())
-    return inside / len(words) >= 0.6
+    card_l = card.lower()
+    hard = [w for w in words if any(ch.isdigit() for ch in w)]
+    if any(not present(card_l, [w]) for w in hard):
+        return False
+    soft = [w for w in words if w not in hard]
+    if not soft:
+        return True
+    card_stems = {_stem(w) for w in re.findall(r"[\w./@-]{4,}", card_l)}
+    inside = sum(1 for w in soft if w in card_l or _stem(w) in card_stems)
+    return inside / len(soft) >= 0.6
 
 
 def cards() -> dict:
