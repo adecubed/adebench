@@ -29,6 +29,10 @@ class Config:
         os.environ.get("ADEBENCH_VOICE_SOURCES", "working,semantic,episodic,conversations,files")))
     voice_cut: int = int(os.environ.get("ADEBENCH_VOICE_CUT", "2400"))
     events_block: bool = os.environ.get("ADEBENCH_EVENTS_BLOCK", "1") not in ("0", "false", "no")
+    # Simulated competing payload, in characters, placed where the client
+    # puts its own variable-size blocks (events, long tool responses) before
+    # the cut. 0 = a normal day. Part of the setup fingerprint.
+    pressure: int = int(os.environ.get("ADEBENCH_PRESSURE", "0"))
     # Folder with questions.json and abstention.json (the golden set).
     cases: Path = Path(os.environ.get("ADEBENCH_CASES", str(ROOT / "cases" / "example")))
     # Where the run reports go.

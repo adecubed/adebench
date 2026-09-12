@@ -17,6 +17,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--adapter", help=f"'module:Class' adapter (default {CFG.adapter})")
     ap.add_argument("--brain", help=f"memory service URL (default {CFG.brain_url})")
     ap.add_argument("--door", help="door measured by the 'door' section (the adapter lists them)")
+    ap.add_argument("--pressure", type=int, help="simulated competing payload before the cut, in characters (default 0)")
     ap.add_argument("--cases", help="folder with questions.json and abstention.json")
     ap.add_argument("--history", help="folder for the run reports")
     ap.add_argument("--repo", help="repository root for the file-search section")
@@ -33,6 +34,8 @@ def main(argv: list[str] | None = None) -> int:
         CFG.brain_url = args.brain.rstrip("/")
     if args.door:
         CFG.door = args.door
+    if args.pressure is not None:
+        CFG.pressure = args.pressure
     if args.cases:
         CFG.cases = Path(args.cases)
     if args.history:
@@ -108,7 +111,8 @@ def main(argv: list[str] | None = None) -> int:
     config = {"adapter": CFG.adapter, "brain_url": CFG.brain_url, "door": CFG.door,
               "cases_hash": report.cases_hash(),
               "voice_sources": CFG.voice_sources, "voice_cut": CFG.voice_cut,
-              "events_block": CFG.events_block, "weights": sections.WEIGHTS, "max_card": CFG.max_card,
+              "events_block": CFG.events_block, "pressure": CFG.pressure,
+              "weights": sections.WEIGHTS, "max_card": CFG.max_card,
               # posix form: the same setup must fingerprint the same on Windows and Linux
               "cases": CFG.cases.as_posix(),
               "repo": CFG.repo.as_posix() if CFG.repo else None,

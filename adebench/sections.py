@@ -139,19 +139,33 @@ def door() -> dict:
         if pos >= 0:
             positions.append(pos)
         semantic_seen.extend(r.get("semantic", []))
+        # margin: how far the LAST expected word is from the end of the
+        # delivered text. A pass with 50 characters of margin is one bad
+        # day away from a fail; the report says so instead of hiding it.
+        last = max((text.lower().find(t.lower()) + len(t) for t in found), default=-1)
+        margin = (len(text) - last) if (last >= 0 and not missing) else None
         return _case(q["question"], not missing and card_ok, note.strip(), position=pos,
-                     chars=len(text), ms=round(r.get("_ms", 0)), validated=q.get("validated", False))
+                     margin=margin, chars=len(text), ms=round(r.get("_ms", 0)),
+                     validated=q.get("validated", False))
 
     for q in questions:
         cases.append(_try(q["question"], lambda q=q: _one(q)))
+    margins = [c["margin"] for c in cases if c.get("margin") is not None]
     measures = {
         "door": CFG.door,
+        "pressure_chars": CFG.pressure,
         "questions": len(questions),
         "validated": sum(1 for q in questions if q.get("validated")),
         "mean_answer_position": round(statistics.mean(positions)) if positions else None,
         "mean_door_text_chars": round(statistics.mean(lengths)) if lengths else None,
+        "min_margin_chars": min(margins) if margins else None,
+        "passes_within_300_chars_of_the_edge": sum(1 for m in margins if m < 300),
     }
     warnings = []
+    if measures["passes_within_300_chars_of_the_edge"]:
+        warnings.append(f"{measures['passes_within_300_chars_of_the_edge']} answers pass with less than "
+                        "300 characters of margin before the end of the delivered text: a longer "
+                        "competing payload would drop them (try --pressure)")
     if measures["validated"] < len(questions):
         warnings.append(f"{len(questions) - measures['validated']} golden-set questions not yet "
                         "validated ('validated' field in questions.json; see --validation)")

@@ -14,6 +14,16 @@ from adebench.config import CFG
 DOORS = ("voice", "agent", "raw")
 
 
+def competing_payload(chars: int) -> str:
+    """A simulated block of the size a bad day would put before the answer:
+    a long tool response, an oversized events block, a verbose episode.
+    Deterministic text, clearly labelled, never containing golden words."""
+    if chars <= 0:
+        return ""
+    line = "COMPETING PAYLOAD (simulated, adebench --pressure): lorem ipsum dolor sit amet consectetur "
+    return (line * (chars // len(line) + 1))[:chars] + "\n\n"
+
+
 class AdeAdapter:
     """Doors:
       voice — the voice client (Sofia Server): its sources, its "latest
@@ -77,6 +87,7 @@ class AdeAdapter:
 
     def _as_voice_hears(self, summary: str) -> str:
         events = self._events_block() if CFG.events_block else ""
+        events = competing_payload(CFG.pressure) + events
         if "▣" in summary:
             return (summary + "\n\n" + events)[:CFG.voice_cut]
         return (events + summary)[:CFG.voice_cut]

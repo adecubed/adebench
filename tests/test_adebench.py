@@ -252,6 +252,31 @@ def test_door_with_right_and_wrong_expectation(cases):
     assert sections.door()["score"] == 0.0
 
 
+# ─── margin and pressure ────────────────────────────────────────────────────
+
+def test_door_reports_the_margin_before_the_cut(cases):
+    _use(Fake(answer={"summary": "x" * 100 + " porta 8766 " + "y" * 50}))
+    s = sections.door()
+    c = s["cases"][0]
+    assert c["status"] == "PASS" and c["margin"] == 51  # 50 chars of 'y' plus the space after 8766
+    assert s["measures"]["min_margin_chars"] == 51
+
+
+def test_pressure_is_part_of_the_setup_fingerprint():
+    base = {"adapter": "x:A", "door": "voice", "cases_hash": "h", "sections": ["door"], "pressure": 0}
+    assert report.fingerprint(base) != report.fingerprint({**base, "pressure": 1200})
+
+
+def test_synthetic_chat_door_loses_answers_under_pressure(monkeypatch):
+    from examples.synthetic import SyntheticAdapter
+    ada = SyntheticAdapter()
+    monkeypatch.setattr(CFG, "pressure", 0)
+    text0, _ = ada.door_text("When do backups run?", "chat")
+    monkeypatch.setattr(CFG, "pressure", 1450)
+    text1, _ = ada.door_text("When do backups run?", "chat")
+    assert "03:00" in text0 and "03:00" not in text1  # the same answer falls off the cut on a bad day
+
+
 # ─── history: no collisions, only comparable deltas ─────────────────────────
 
 def _run():

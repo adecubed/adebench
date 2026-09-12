@@ -86,6 +86,21 @@ are door-independent. The ADE adapter exposes three:
 
 No voice assistant? Run with `--door agent`.
 
+### Margin and pressure
+
+The cut is fixed; what competes for the space before it is not. A tool response can be 264
+bytes at the median and 700 KB on a bad day, decided by an argument the model picks at
+runtime (measured by [callwitness](https://github.com/AditiChaudharyy14/callwitness) across
+29 MCP servers). So a door test on a normal payload and a door test on a bad day are two
+different tests, and adebench runs both:
+
+- every passing question reports its **margin**: how many characters separate the last
+  expected word from the end of the delivered text. The report warns when a pass has less
+  than 300 characters of margin — one bad day away from a fail;
+- `--pressure N` (or `ADEBENCH_PRESSURE`) places N characters of simulated competing payload
+  where the client puts its own variable-size blocks, before the cut. It is part of the
+  setup fingerprint, so a run under pressure is never compared with a run without.
+
 ## Other memory systems: write an adapter
 
 The sections never talk to a memory system directly. They call an **adapter** — one class
@@ -162,6 +177,7 @@ Options:
 | `--adapter` / `ADEBENCH_ADAPTER` | `module:Class` adapter (default `adebench.ade:AdeAdapter`) |
 | `--brain` / `ADEBENCH_BRAIN_URL` | memory service URL (default `http://localhost:8766`) |
 | `--door` / `ADEBENCH_DOOR` | door measured by the `door` section (the adapter lists them) |
+| `--pressure` / `ADEBENCH_PRESSURE` | simulated competing payload before the cut, in characters (default 0) |
 | `--cases` / `ADEBENCH_CASES` | folder with `questions.json` and `abstention.json` |
 | `--history` / `ADEBENCH_HISTORY` | where reports go (default `history/`) |
 | `--repo` / `ADEBENCH_REPO` | repository root for the file-search section |

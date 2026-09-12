@@ -159,7 +159,8 @@ class SyntheticAdapter:
     def door_text(self, query: str, door: str) -> tuple[str, dict]:
         r = self._retrieve(query)
         if door == "chat":
-            return r["summary"][:1500], r  # the chat client cuts at 1,500 characters
+            from adebench.ade import competing_payload
+            return (competing_payload(CFG.pressure) + r["summary"])[:1500], r  # the chat client cuts at 1,500
         return r["summary"], r
 
     # ── cards ──
