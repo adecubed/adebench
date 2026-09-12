@@ -109,9 +109,10 @@ def main(argv: list[str] | None = None) -> int:
               "cases_hash": report.cases_hash(),
               "voice_sources": CFG.voice_sources, "voice_cut": CFG.voice_cut,
               "events_block": CFG.events_block, "weights": sections.WEIGHTS, "max_card": CFG.max_card,
-              "cases": str(CFG.cases),
-              "repo": str(CFG.repo) if CFG.repo else None,
-              "sandbox_test": str(CFG.sandbox_test) if sandbox_enabled else None,
+              # posix form: the same setup must fingerprint the same on Windows and Linux
+              "cases": CFG.cases.as_posix(),
+              "repo": CFG.repo.as_posix() if CFG.repo else None,
+              "sandbox_test": CFG.sandbox_test.as_posix() if sandbox_enabled else None,
               "sandbox_enabled": sandbox_enabled,
               "sections": chosen, "duration_s": round(time.perf_counter() - t_start)}
     config["fingerprint"] = report.fingerprint(config)

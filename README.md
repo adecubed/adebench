@@ -121,6 +121,30 @@ The weights are the same for every adapter, so two memory systems benchmarked wi
 golden set are comparable section by section — as long as the door is the same kind of door
 and the coverage is the same.
 
+## Reproducible example, no service needed
+
+`examples/synthetic.py` is a second adapter: a small memory that lives in the process, with
+invented data and **defects put there on purpose**, so the report shows FAIL as well as PASS.
+Anyone can run it in two seconds and get the same number:
+
+```bash
+python -m adebench --adapter examples.synthetic:SyntheticAdapter \
+  --cases examples/synthetic_data/cases --repo examples/synthetic_data/repo \
+  --sandbox-test examples/synthetic_data/sandbox_test.py --history /tmp/adebench-run
+```
+
+Expected: **93.1 / 100**, 49 PASS · 4 FAIL · 0 ERROR · 0 SKIP. The four failures are the
+four defects: a question about a fact the memory never stored, a card missing one mandatory
+item of its correction, an invented plugin that still drags in the calendar card, and an
+entity with no edges in the graph. The full report is committed as
+[`examples/synthetic_report/reference.md`](examples/synthetic_report/reference.md), and a
+test in CI re-runs the example on every push and fails if the total or any section score
+drifts from that reference.
+
+The synthetic memory has no voice assistant: its doors are `chat` (a composed answer cut at
+1,500 characters) and `raw`. It is also the proof that the adapter contract holds for a
+memory that is not an ADE Brain.
+
 ## Run it
 
 Requires Python 3.11+ and a running memory service. No third-party dependencies.
@@ -210,7 +234,8 @@ each other, a delta between two different setups. They run in CI on every push.
 
 This is an early version, published to ask exactly that. Things already on the list:
 
-- a second adapter for a memory system that is not an ADE Brain, to prove the contract holds;
+- an adapter for a real memory system that is not an ADE Brain (the synthetic one proves
+  the contract; a real one would prove the sections);
 - a live update test (write → correct → retrieve the new value → exclude the old one)
   against the running service, once the service exposes a dedup-aware write and a delete;
 - an ingestion adapter to run LongMemEval / LoCoMo against a sandboxed memory and report the

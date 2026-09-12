@@ -1,0 +1,10 @@
+[
+ {"question": "What port does the Brain listen on?", "expected": [["8766"]], "entity": "brain", "validated": true},
+ {"question": "Which model distills the Brain memory?", "expected": [["Nova"]], "entity": "brain", "validated": true},
+ {"question": "Which version of MailBridge is installed for the mailbox?", "expected": [["1.4.2"]], "entity": "mailbox", "validated": true},
+ {"question": "How many tools does the mailbox connector expose?", "expected": [["12"]], "validated": true},
+ {"question": "How often is the calendar read?", "expected": [["15"]], "entity": "calendar", "validated": true},
+ {"question": "Where does the owner live?", "expected": [["Turin"]], "entity": "owner", "validated": true},
+ {"question": "When do backups run?", "expected": [["Sunday*"], ["03:00"]], "validated": true},
+ {"question": "What is the owner's phone number?", "expected": [["+39"]], "validated": true}
+]

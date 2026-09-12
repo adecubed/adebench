@@ -1,0 +1,604 @@
+{
+ "when": "2026-09-12T11:59:40",
+ "total": 93.1,
+ "measured_weight": 100,
+ "not_run_weight": 0,
+ "total_weight": 100,
+ "counts": {
+  "PASS": 49,
+  "FAIL": 4,
+  "ERROR": 0,
+  "SKIP": 0
+ },
+ "config": {
+  "adapter": "examples.synthetic:SyntheticAdapter",
+  "brain_url": "http://localhost:8766",
+  "door": "chat",
+  "cases_hash": "c96e47849f",
+  "voice_sources": [
+   "working",
+   "semantic",
+   "episodic",
+   "conversations",
+   "files"
+  ],
+  "voice_cut": 2400,
+  "events_block": true,
+  "weights": {
+   "door": 25,
+   "cards": 15,
+   "updates": 10,
+   "time": 10,
+   "live_state": 10,
+   "abstention": 10,
+   "file_search": 10,
+   "graph": 10
+  },
+  "max_card": 900,
+  "cases": "examples/synthetic_data/cases",
+  "repo": "examples/synthetic_data/repo",
+  "sandbox_test": "examples/synthetic_data/sandbox_test.py",
+  "sandbox_enabled": true,
+  "sections": [
+   "door",
+   "cards",
+   "updates",
+   "time",
+   "live_state",
+   "abstention",
+   "file_search",
+   "graph"
+  ],
+  "duration_s": 0,
+  "fingerprint": "3462685a4f"
+ },
+ "sections": [
+  {
+   "name": "door",
+   "weight": 25,
+   "score": 0.875,
+   "cases": [
+    {
+     "case": "What port does the Brain listen on?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 214,
+     "chars": 347,
+     "ms": 1,
+     "validated": true
+    },
+    {
+     "case": "Which model distills the Brain memory?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 309,
+     "chars": 352,
+     "ms": 1,
+     "validated": true
+    },
+    {
+     "case": "Which version of MailBridge is installed for the mailbox?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 153,
+     "chars": 526,
+     "ms": 1,
+     "validated": true
+    },
+    {
+     "case": "How many tools does the mailbox connector expose?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 280,
+     "chars": 458,
+     "ms": 1,
+     "validated": true
+    },
+    {
+     "case": "How often is the calendar read?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 210,
+     "chars": 383,
+     "ms": 1,
+     "validated": true
+    },
+    {
+     "case": "Where does the owner live?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 108,
+     "chars": 322,
+     "ms": 1,
+     "validated": true
+    },
+    {
+     "case": "When do backups run?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": -1,
+     "chars": 197,
+     "ms": 1,
+     "validated": true
+    },
+    {
+     "case": "What is the owner's phone number?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "missing +39",
+     "position": -1,
+     "chars": 274,
+     "ms": 1,
+     "validated": true
+    }
+   ],
+   "counts": {
+    "PASS": 7,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "door": "chat",
+    "questions": 8,
+    "validated": 8,
+    "mean_answer_position": 212,
+    "mean_door_text_chars": 357
+   },
+   "warnings": []
+  },
+  {
+   "name": "cards",
+   "weight": 15,
+   "score": 0.9375,
+   "cases": [
+    {
+     "case": "card brain exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card brain within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "202 characters"
+    },
+    {
+     "case": "card brain contains «port 8766»",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card brain contains «the Nova model»",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card brain contains «the three memory levels»",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card mailbox exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card mailbox within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "148 characters"
+    },
+    {
+     "case": "card calendar exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card calendar within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "130 characters"
+    },
+    {
+     "case": "card calendar contains «read every 15 minutes»",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card calendar contains «shared with the team»",
+     "status": "FAIL",
+     "ok": false,
+     "note": ""
+    },
+    {
+     "case": "card owner exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card owner within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "124 characters"
+    },
+    {
+     "case": "alias 'mail_bridge' leads to card mailbox",
+     "status": "PASS",
+     "ok": true,
+     "note": "cards seen: ['card:mailbox']"
+    },
+    {
+     "case": "alias 'agenda' leads to card calendar",
+     "status": "PASS",
+     "ok": true,
+     "note": "cards seen: ['card:calendar']"
+    },
+    {
+     "case": "alias 'the_brain' leads to card brain",
+     "status": "PASS",
+     "ok": true,
+     "note": "cards seen: ['card:brain']"
+    }
+   ],
+   "counts": {
+    "PASS": 15,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "cards": 4,
+    "corrections": 2,
+    "aliases": 3,
+    "aliases_tried": 3
+   },
+   "warnings": []
+  },
+  {
+   "name": "updates",
+   "weight": 10,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "sandbox: a fact that changes one word supersedes the old one",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "sandbox: the old value is gone from the live facts",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "sandbox: the new value is live",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "sandbox: a short fragment does not supersede a rich fact",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    }
+   ],
+   "counts": {
+    "PASS": 4,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "superseded_live": 1,
+    "relation_updates": 1,
+    "archive_by_reason": {
+     "supersede": 1
+    },
+    "v2_share": 1.0,
+    "sandbox_test": "4/4"
+   },
+   "warnings": []
+  },
+  {
+   "name": "time",
+   "weight": 10,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "semantic memories carry their age (5/5)",
+     "status": "PASS",
+     "ok": true,
+     "note": "100%"
+    },
+    {
+     "case": "day filter 2026-09-10 returns only that day's episodes",
+     "status": "PASS",
+     "ok": true,
+     "note": "2 episodes"
+    },
+    {
+     "case": "day filter 2026-09-09 returns only that day's episodes",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 episodes"
+    },
+    {
+     "case": "day filter 2026-09-08 returns only that day's episodes",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 episodes"
+    },
+    {
+     "case": "«cosa ha fatto il pc2?» finds the episodes signed [pc2]",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 episodes in the answer"
+    }
+   ],
+   "counts": {
+    "PASS": 5,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "share_of_memories_with_age": 1.0,
+    "facts_with_event_date": "8/10",
+    "days_tried": [
+     "2026-09-10",
+     "2026-09-09",
+     "2026-09-08"
+    ],
+    "signed_episodes_pc2": 1
+   },
+   "warnings": []
+  },
+  {
+   "name": "live_state",
+   "weight": 10,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "canary written to working memory",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "the canary just written is found through the retrieval door",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "…and reaches the text of door 'chat'",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "cleanup: adebench session empty at the end of the run",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "mail_non_lette refreshed less than 30 minutes ago",
+     "status": "PASS",
+     "ok": true,
+     "note": "7 min"
+    }
+   ],
+   "counts": {
+    "PASS": 5,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "live_state_age_min": 7
+   },
+   "warnings": []
+  },
+  {
+   "name": "abstention",
+   "weight": 10,
+   "score": 0.9167,
+   "cases": [
+    {
+     "case": "What is the Zarpetta module?",
+     "status": "PASS",
+     "ok": true,
+     "note": "flagged unknown: ['module', 'zarpetta']",
+     "fraction": 1.0
+    },
+    {
+     "case": "Who is Ottavio Brambillesco?",
+     "status": "PASS",
+     "ok": true,
+     "note": "flagged unknown: ['brambillesco', 'ottavio']",
+     "fraction": 1.0
+    },
+    {
+     "case": "Which port does the Fulmicotone service use?",
+     "status": "PASS",
+     "ok": true,
+     "note": "flagged unknown: ['fulmicotone']",
+     "fraction": 1.0
+    },
+    {
+     "case": "What does the calendar plugin Girandola do?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "produced an entity card; flagged unknown: ['girandola', 'plugin']",
+     "fraction": 0.6666666666666666
+    }
+   ],
+   "counts": {
+    "PASS": 3,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "questions": 4
+   },
+   "warnings": []
+  },
+  {
+   "name": "file_search",
+   "weight": 10,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "compute_backup_schedule → brain_service.py",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "distill_episodes_nightly → brain_service.py",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "refresh_calendar_cache → mailbridge.py",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "register_connector_tools → mailbridge.py",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "supersede_older_fact → brain_service.py",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "list_unread_messages → mailbridge.py",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    }
+   ],
+   "counts": {
+    "PASS": 6,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "indexable_functions": 6,
+    "tried": 6
+   },
+   "warnings": []
+  },
+  {
+   "name": "graph",
+   "weight": 10,
+   "score": 0.8,
+   "cases": [
+    {
+     "case": "brain: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "3 edges"
+    },
+    {
+     "case": "mailbox: edges in the graph",
+     "status": "FAIL",
+     "ok": false,
+     "note": "0 edges"
+    },
+    {
+     "case": "calendar: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "2 edges"
+    },
+    {
+     "case": "owner: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "4 edges"
+    },
+    {
+     "case": "orphan fact nodes = 0",
+     "status": "PASS",
+     "ok": true,
+     "note": "0 orphans out of 10"
+    }
+   ],
+   "counts": {
+    "PASS": 4,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "nodes": 14,
+    "edges": 9,
+    "orphan_fact_nodes": "0 orphans out of 10"
+   },
+   "warnings": []
+  },
+  {
+   "name": "health",
+   "weight": 0,
+   "score": null,
+   "cases": [],
+   "counts": {},
+   "measures": {
+    "live_facts": 10,
+    "cards": 4,
+    "episodes": 4
+   },
+   "warnings": []
+  },
+  {
+   "name": "doors",
+   "weight": 0,
+   "score": null,
+   "cases": [],
+   "counts": {},
+   "measures": {
+    "/ask": {
+     "calls": 17,
+     "http_errors": 0,
+     "ms_p50": 1,
+     "ms_p95": 1,
+     "mean_chars": 291
+    }
+   },
+   "warnings": []
+  }
+ ],
+ "delta": {
+  "total": null,
+  "sections": {}
+ }
+}

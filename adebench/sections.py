@@ -235,7 +235,8 @@ def updates(with_sandbox: bool = True) -> dict:
     cases, warnings = [], []
     if with_sandbox and CFG.sandbox_test:
         try:
-            p = subprocess.run([sys.executable, str(CFG.sandbox_test)], cwd=str(CFG.sandbox_test.parent.parent),
+            script = CFG.sandbox_test.resolve()  # absolute BEFORE changing directory
+            p = subprocess.run([sys.executable, str(script)], cwd=str(script.parent.parent),
                                capture_output=True, text=True, encoding="utf-8", errors="replace",
                                timeout=600, env={**os.environ, "PYTHONIOENCODING": "utf-8"})
             m = re.search(r"(\d+)/(\d+) (?:passed|passati)", p.stdout)

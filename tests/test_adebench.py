@@ -293,6 +293,28 @@ def test_cli_no_sandbox_test_is_another_setup(cases, tmp_path, monkeypatch):
     assert second["delta"]["total"] is None  # another setup: no delta, no fake regression
 
 
+# ─── the reproducible example gives the committed reference score ──────────
+
+def test_synthetic_example_matches_reference(tmp_path, monkeypatch):
+    """examples/synthetic_report/reference.json is what anyone gets by running
+    the synthetic memory: same total, same PASS/FAIL/ERROR/SKIP counts."""
+    from pathlib import Path
+    from adebench.__main__ import main
+    root = Path(__file__).resolve().parents[1]
+    reference = json.loads((root / "examples" / "synthetic_report" / "reference.json").read_text(encoding="utf-8"))
+    monkeypatch.setattr(adapter, "_current", None)
+    monkeypatch.chdir(root)
+    assert main(["--adapter", "examples.synthetic:SyntheticAdapter",
+                 "--cases", "examples/synthetic_data/cases", "--repo", "examples/synthetic_data/repo",
+                 "--sandbox-test", "examples/synthetic_data/sandbox_test.py",
+                 "--history", str(tmp_path)]) == 0
+    run = json.loads(next(tmp_path.glob("*.json")).read_text(encoding="utf-8"))
+    assert run["total"] == reference["total"]
+    assert run["counts"] == reference["counts"]
+    assert [(s["name"], s["score"]) for s in run["sections"]] == \
+           [(s["name"], s["score"]) for s in reference["sections"]]
+
+
 # ─── the HTTP client never returns an error body as an answer ───────────────
 
 class _Server500(BaseHTTPRequestHandler):

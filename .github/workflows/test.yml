@@ -17,3 +17,8 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: pip install pytest
       - run: python -m pytest -q
+      - name: reproducible example (synthetic memory, no service)
+        run: |
+          python -m adebench --adapter examples.synthetic:SyntheticAdapter \
+            --cases examples/synthetic_data/cases --repo examples/synthetic_data/repo \
+            --sandbox-test examples/synthetic_data/sandbox_test.py --history /tmp/adebench-run
