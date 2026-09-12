@@ -122,6 +122,10 @@ def door() -> dict:
                          validated=q.get("validated", False))
         missing = [g for g in q["expected"] if not present(text, g)]
         found = [present(text, g) for g in q["expected"] if present(text, g)]
+        # stale values that must NOT reach the model next to the current one:
+        # a text carrying both 8766 and the retired 8010 would pass a
+        # keyword check while the model has to guess. Worse than a miss.
+        stale = [present(text, g) for g in q.get("forbidden", []) if present(text, g)]
         pos = min((text.lower().find(t.lower()) for t in found), default=-1)
         card_ok = True
         if q.get("entity"):
@@ -133,6 +137,8 @@ def door() -> dict:
             note = "missing " + " | ".join("/".join(g) for g in missing)
             if whole_ok:
                 note += " (present in the uncut answer: lost through this door)"
+        if stale:
+            note += " STALE value delivered next to the current one: " + ", ".join(stale)
         if not card_ok:
             note += f" card {q['entity']} absent"
         lengths.append(len(text))
@@ -144,9 +150,9 @@ def door() -> dict:
         # day away from a fail; the report says so instead of hiding it.
         last = max((text.lower().find(t.lower()) + len(t) for t in found), default=-1)
         margin = (len(text) - last) if (last >= 0 and not missing) else None
-        return _case(q["question"], not missing and card_ok, note.strip(), position=pos,
+        return _case(q["question"], not missing and card_ok and not stale, note.strip(), position=pos,
                      margin=margin, chars=len(text), ms=round(r.get("_ms", 0)),
-                     validated=q.get("validated", False))
+                     stale=bool(stale), validated=q.get("validated", False))
 
     for q in questions:
         cases.append(_try(q["question"], lambda q=q: _one(q)))
@@ -160,8 +166,13 @@ def door() -> dict:
         "mean_door_text_chars": round(statistics.mean(lengths)) if lengths else None,
         "min_margin_chars": min(margins) if margins else None,
         "passes_within_300_chars_of_the_edge": sum(1 for m in margins if m < 300),
+        "questions_with_forbidden_values": sum(1 for q in questions if q.get("forbidden")),
+        "stale_values_delivered": sum(1 for c in cases if c.get("stale")),
     }
     warnings = []
+    if measures["stale_values_delivered"]:
+        warnings.append(f"{measures['stale_values_delivered']} answers delivered a retired value next to the "
+                        "current one: the model has to guess which is true")
     if measures["passes_within_300_chars_of_the_edge"]:
         warnings.append(f"{measures['passes_within_300_chars_of_the_edge']} answers pass with less than "
                         "300 characters of margin before the end of the delivered text: a longer "

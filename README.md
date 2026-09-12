@@ -148,10 +148,11 @@ python -m adebench --adapter examples.synthetic:SyntheticAdapter \
   --sandbox-test examples/synthetic_data/sandbox_test.py --history /tmp/adebench-run
 ```
 
-Expected: **93.1 / 100**, 49 PASS · 4 FAIL · 0 ERROR · 0 SKIP. The four failures are the
-four defects: a question about a fact the memory never stored, a card missing one mandatory
-item of its correction, an invented plugin that still drags in the calendar card, and an
-entity with no edges in the graph. The full report is committed as
+Expected: **90.0 / 100**, 48 PASS · 5 FAIL · 0 ERROR · 0 SKIP. The five failures are the
+five defects: a question about a fact the memory never stored, a fact that delivers the
+retired version next to the current one (a `STALE` fail), a card missing one mandatory item
+of its correction, an invented plugin that still drags in the calendar card, and an entity
+with no edges in the graph. The full report is committed as
 [`examples/synthetic_report/reference.md`](examples/synthetic_report/reference.md), and a
 test in CI re-runs the example on every push and fails if the total or any section score
 drifts from that reference.
@@ -209,7 +210,11 @@ contains facts about you. Each question looks like:
 `expected` is a list of groups; every group must be present, any alternative inside a group
 counts. Alternatives match whole tokens; end one with `*` to accept a prefix
 (`"anonimizz*"` matches *anonimizza* and *anonimizzazione*). `entity` (optional) requires
-that entity's card to be part of the answer. `validated` is a human flag: the benchmark
+that entity's card to be part of the answer. `forbidden` (optional) lists **retired values
+that must not reach the model**: a text carrying both the current port and the old one
+passes a keyword check while the model has to guess, and that is worse than a clean miss —
+the case fails with a `STALE` note and the report counts them (the forgetting-aware idea
+from Memora's FAMA metric, applied to the delivered text). `validated` is a human flag: the benchmark
 keeps warning until every question has been checked by the person who owns the memory.
 `python -m adebench --validation` writes a sheet with each question, the expectations and
 the first 600 characters the door delivers, so validating is a five-minute read.

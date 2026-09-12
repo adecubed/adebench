@@ -7,6 +7,8 @@ reproducible example.
 
 Everything is invented and deterministic. The memory is imperfect ON
 PURPOSE, so the report shows FAIL and SKIP as well as PASS:
+  - the 'mailbox_version' fact carries the retired 1.3.0 next to 1.4.2, so
+    the door delivers both and the question fails as STALE
   - the 'calendar' card lacks one mandatory item of its correction
   - the 'mailbox' entity has no edges in the graph
   - one abstention question contains the word 'calendar', so the memory

@@ -252,6 +252,20 @@ def test_door_with_right_and_wrong_expectation(cases):
     assert sections.door()["score"] == 0.0
 
 
+# ─── stale values delivered next to the current one ────────────────────────
+
+def test_stale_value_beside_the_current_one_is_a_fail(cases):
+    (cases / "questions.json").write_text(json.dumps([
+        {"question": "porta?", "expected": [["8766"]], "forbidden": [["8010"]], "validated": True}]), encoding="utf-8")
+    _use(Fake(answer={"summary": "La porta era 8010, ora e' 8766."}))
+    s = sections.door()
+    c = s["cases"][0]
+    assert c["status"] == "FAIL" and c["stale"] and "STALE" in c["note"]
+    assert s["measures"]["stale_values_delivered"] == 1
+    _use(Fake(answer={"summary": "La porta e' 8766."}))
+    assert sections.door()["cases"][0]["status"] == "PASS"
+
+
 # ─── margin and pressure ────────────────────────────────────────────────────
 
 def test_door_reports_the_margin_before_the_cut(cases):

@@ -1,12 +1,12 @@
-# adebench — 2026-09-12T11:59:40
+# adebench — 2026-09-12T16:24:47
 
-**Score: 93.1 / 100**
-Cases: 49 PASS · 4 FAIL · 0 ERROR · 0 SKIP
-Adapter `examples.synthetic:SyntheticAdapter` · door `chat` · cases `c96e47849f` · setup `3462685a4f` · sections door, cards, updates, time, live_state, abstention, file_search, graph
+**Score: 90.0 / 100**
+Cases: 48 PASS · 5 FAIL · 0 ERROR · 0 SKIP
+Adapter `examples.synthetic:SyntheticAdapter` · door `chat` · cases `0f9a4640dc` · setup `ff086bb57c` · sections door, cards, updates, time, live_state, abstention, file_search, graph
 
 | Section | Weight | Points | PASS/FAIL/ERROR/SKIP |
 |---|---|---|---|
-| door | 25 | 21.9 | 7/1/0/0 |
+| door | 25 | 18.8 | 6/2/0/0 |
 | cards | 15 | 14.1 | 15/1/0/0 |
 | updates | 10 | 10.0 | 4/0/0/0 |
 | time | 10 | 10.0 | 5/0/0/0 |
@@ -18,12 +18,21 @@ Adapter `examples.synthetic:SyntheticAdapter` · door `chat` · cases `c96e47849
 ## door
 
 - door: `"chat"`
+- pressure_chars: `0`
 - questions: `8`
 - validated: `8`
 - mean_answer_position: `212`
 - mean_door_text_chars: `357`
+- min_margin_chars: `39`
+- passes_within_300_chars_of_the_edge: `6`
+- questions_with_forbidden_values: `1`
+- stale_values_delivered: `1`
+
+- ⚠ 1 answers delivered a retired value next to the current one: the model has to guess which is true
+- ⚠ 6 answers pass with less than 300 characters of margin before the end of the delivered text: a longer competing payload would drop them (try --pressure)
 
 Not passed:
+- FAIL Which version of MailBridge is installed for the mailbox? — STALE value delivered next to the current one: 1.3.0
 - FAIL What is the owner's phone number? — missing +39
 
 ## cards
