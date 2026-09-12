@@ -113,6 +113,7 @@ def door() -> dict:
     ada = current()
     questions = _load("questions.json")
     cases, positions, lengths, semantic_seen = [], [], [], []
+    budget = ada.door_cut(CFG.door)
 
     def _one(q: dict) -> dict:
         text, r = ada.door_text(q["question"], CFG.door)
@@ -145,11 +146,13 @@ def door() -> dict:
         if pos >= 0:
             positions.append(pos)
         semantic_seen.extend(r.get("semantic", []))
-        # margin: how far the LAST expected word is from the end of the
-        # delivered text. A pass with 50 characters of margin is one bad
-        # day away from a fail; the report says so instead of hiding it.
+        # margin: how far the LAST expected word is from the door's BUDGET
+        # (the cut), not from the end of the text that came back: a short
+        # answer under a 2,400 cut has plenty of room. Doors without a cut
+        # have no margin to measure. A pass with 50 characters of margin is
+        # one bad day away from a fail; the report says so instead of hiding it.
         last = max((text.lower().find(t.lower()) + len(t) for t in found), default=-1)
-        margin = (len(text) - last) if (last >= 0 and not missing) else None
+        margin = (budget - last) if (budget and last >= 0 and not missing) else None
         return _case(q["question"], not missing and card_ok and not stale, note.strip(), position=pos,
                      margin=margin, chars=len(text), ms=round(r.get("_ms", 0)),
                      stale=bool(stale), validated=q.get("validated", False))
@@ -159,6 +162,7 @@ def door() -> dict:
     margins = [c["margin"] for c in cases if c.get("margin") is not None]
     measures = {
         "door": CFG.door,
+        "door_budget_chars": budget,
         "pressure_chars": CFG.pressure,
         "questions": len(questions),
         "validated": sum(1 for q in questions if q.get("validated")),
@@ -175,7 +179,7 @@ def door() -> dict:
                         "current one: the model has to guess which is true")
     if measures["passes_within_300_chars_of_the_edge"]:
         warnings.append(f"{measures['passes_within_300_chars_of_the_edge']} answers pass with less than "
-                        "300 characters of margin before the end of the delivered text: a longer "
+                        f"300 characters of margin before the door's budget ({budget}): a longer "
                         "competing payload would drop them (try --pressure)")
     if measures["validated"] < len(questions):
         warnings.append(f"{len(questions) - measures['validated']} golden-set questions not yet "

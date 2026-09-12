@@ -158,6 +158,9 @@ class SyntheticAdapter:
     def ask(self, query: str) -> dict:
         return self._retrieve(query)
 
+    def door_cut(self, door: str) -> int | None:
+        return 1500 if door == "chat" else None
+
     def door_text(self, query: str, door: str) -> tuple[str, dict]:
         r = self._retrieve(query)
         if door == "chat":

@@ -45,6 +45,7 @@ class Fake:
     def doors(self): return ["only"]
     def door_text(self, q, door): r = self._r(); return r.get("summary", ""), r
     def ask(self, q): return self._r()
+    def door_cut(self, door): return 2400
     def cards(self): return self._cards
     def corrections(self): return []
     def aliases(self): return []
@@ -268,12 +269,29 @@ def test_stale_value_beside_the_current_one_is_a_fail(cases):
 
 # ─── margin and pressure ────────────────────────────────────────────────────
 
-def test_door_reports_the_margin_before_the_cut(cases):
+def test_door_margin_is_measured_against_the_budget_not_the_text(cases):
+    # 100 x + " porta 8766" → the answer ends at char 111; the door cuts at 2400,
+    # so the room left is 2400 - 111, whatever the length of the text that came back
     _use(Fake(answer={"summary": "x" * 100 + " porta 8766 " + "y" * 50}))
     s = sections.door()
     c = s["cases"][0]
-    assert c["status"] == "PASS" and c["margin"] == 51  # 50 chars of 'y' plus the space after 8766
-    assert s["measures"]["min_margin_chars"] == 51
+    assert c["status"] == "PASS" and c["margin"] == 2400 - 111
+    assert s["measures"]["min_margin_chars"] == 2400 - 111
+    assert s["measures"]["passes_within_300_chars_of_the_edge"] == 0
+
+
+def test_short_answer_has_plenty_of_margin(cases):
+    _use(Fake(answer={"summary": "porta 8766"}))
+    c = sections.door()["cases"][0]
+    assert c["margin"] == 2400 - 10  # the reviewer's case: 10 chars, budget 2400 → 2390 of room
+
+
+def test_door_without_a_cut_has_no_margin(cases):
+    class NoCut(Fake):
+        def door_cut(self, door): return None
+    _use(NoCut(answer={"summary": "porta 8766"}))
+    s = sections.door()
+    assert s["cases"][0]["margin"] is None and s["measures"]["min_margin_chars"] is None
 
 
 def test_pressure_is_part_of_the_setup_fingerprint():

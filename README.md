@@ -95,8 +95,11 @@ runtime (measured by [callwitness](https://github.com/AditiChaudharyy14/callwitn
 different tests, and adebench runs both:
 
 - every passing question reports its **margin**: how many characters separate the last
-  expected word from the end of the delivered text. The report warns when a pass has less
-  than 300 characters of margin — one bad day away from a fail;
+  expected word from the **door's budget** (the cut the adapter declares with `door_cut`),
+  not from the end of the text that happened to come back — a 10-character answer under a
+  2,400 cut has 2,390 characters of room, not zero. Doors without a cut have no margin. The
+  report warns when a pass has less than 300 characters of margin — one bad day away from a
+  fail;
 - `--pressure N` (or `ADEBENCH_PRESSURE`) places N characters of simulated competing payload
   where the client puts its own variable-size blocks, before the cut. It is part of the
   setup fingerprint, so a run under pressure is never compared with a run without.
@@ -118,7 +121,7 @@ The contract, in short:
 | Group | Methods | If your memory lacks it |
 |---|---|---|
 | liveness | `health`, `warm_up` | — |
-| doors | `doors`, `door_text(query, door)`, `ask(query)` | at least one door is required: the text a client receives |
+| doors | `doors`, `door_text(query, door)`, `door_cut(door)`, `ask(query)` | at least one door is required: the text a client receives; `door_cut` returns its character budget or `None` |
 | entity cards | `cards`, `corrections`, `aliases` | return `[]` → section SKIP |
 | fact updates | `update_trace`, `event_date_share` | return `{}` / `(0, 0)` |
 | episodes and time | `recent_days`, `episodes_of_day`, `signed_episodes` | return `[]` / `0` → those cases SKIP |
@@ -214,7 +217,11 @@ that entity's card to be part of the answer. `forbidden` (optional) lists **reti
 that must not reach the model**: a text carrying both the current port and the old one
 passes a keyword check while the model has to guess, and that is worse than a clean miss —
 the case fails with a `STALE` note and the report counts them (the forgetting-aware idea
-from Memora's FAMA metric, applied to the delivered text). `validated` is a human flag: the benchmark
+from Memora's FAMA metric, applied to the delivered text). Be precise about what this
+certifies: it is a **ban on presence**, not a detection of contradiction. "It was 8010,
+now it is 8766" fails too, even though the old value is correctly labelled as history. That
+is the requirement as stated — the retired value must not reach the model at all — and it
+says nothing about whether the model would have guessed right. `validated` is a human flag: the benchmark
 keeps warning until every question has been checked by the person who owns the memory.
 `python -m adebench --validation` writes a sheet with each question, the expectations and
 the first 600 characters the door delivers, so validating is a five-minute read.

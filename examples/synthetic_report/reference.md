@@ -1,4 +1,4 @@
-# adebench — 2026-09-12T16:24:47
+# adebench — 2026-09-12T17:04:22
 
 **Score: 90.0 / 100**
 Cases: 48 PASS · 5 FAIL · 0 ERROR · 0 SKIP
@@ -18,18 +18,18 @@ Adapter `examples.synthetic:SyntheticAdapter` · door `chat` · cases `0f9a4640d
 ## door
 
 - door: `"chat"`
+- door_budget_chars: `1500`
 - pressure_chars: `0`
 - questions: `8`
 - validated: `8`
 - mean_answer_position: `212`
 - mean_door_text_chars: `357`
-- min_margin_chars: `39`
-- passes_within_300_chars_of_the_edge: `6`
+- min_margin_chars: `1187`
+- passes_within_300_chars_of_the_edge: `0`
 - questions_with_forbidden_values: `1`
 - stale_values_delivered: `1`
 
 - ⚠ 1 answers delivered a retired value next to the current one: the model has to guess which is true
-- ⚠ 6 answers pass with less than 300 characters of margin before the end of the delivered text: a longer competing payload would drop them (try --pressure)
 
 Not passed:
 - FAIL Which version of MailBridge is installed for the mailbox? — STALE value delivered next to the current one: 1.3.0

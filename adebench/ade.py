@@ -51,6 +51,9 @@ class AdeAdapter:
     def _sources(self, door: str) -> list[str]:
         return CFG.voice_sources if door == "voice" else []
 
+    def door_cut(self, door: str) -> int | None:
+        return CFG.voice_cut if door == "voice" else None
+
     def ask(self, query: str, door: str | None = None) -> dict:
         door = door or CFG.door
         r = client.ask(query, self._sources(door), include_raw=True)

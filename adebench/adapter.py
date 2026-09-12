@@ -48,6 +48,13 @@ class Adapter(Protocol):
     def ask(self, query: str) -> dict:
         """The raw answer of the default retrieval door (same dict as above)."""
 
+    def door_cut(self, door: str) -> int | None:
+        """The character budget of that door (what the client cuts at), or
+        None when the door delivers everything. The margin of an answer is
+        measured against this budget, not against the text that happened to
+        come back: a 10-character answer under a 2,400 cut has 2,390
+        characters of room, not zero."""
+
     # ── entity cards, corrections, aliases (may return empty) ─────────────
     def cards(self) -> list[dict]:
         """[{entity, content, date}] — one per entity card."""
