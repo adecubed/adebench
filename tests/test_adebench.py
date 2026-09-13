@@ -612,3 +612,23 @@ def test_cli_pressure_level_needs_a_census(cases, monkeypatch):
     monkeypatch.setattr(CFG, "pressure_profile", False)
     assert main(["--adapter", "tests.test_adebench:Fake", "--cases", str(cases), "--no-report",
                  "--sections", "door", "--pressure", "p95"]) == 2
+
+
+def test_no_live_state_key_is_skip_not_fail(cases, monkeypatch):
+    _use(Fake(answer={"summary": "x", "working": []}))
+    monkeypatch.setattr(CFG, "write_to_serve_max_s", 0)
+    monkeypatch.setattr(CFG, "live_state_key", "")
+    s = sections.live_state()
+    fresh = next(c for c in s["cases"] if "freshness" in c["case"])
+    assert fresh["status"] == "SKIP"
+
+
+# ─── the gbrain adapter honours the contract (no gbrain needed) ─────────────
+
+def test_gbrain_adapter_honours_the_contract(monkeypatch):
+    monkeypatch.setenv("ADEBENCH_GBRAIN_BIN", "gbrain-not-installed-anywhere")
+    g = adapter.load("adebench.gbrain:GbrainAdapter")
+    assert not [m for m in adapter.required_methods() if not callable(getattr(g, m, None))]
+    assert g.health() is False          # a missing binary is "not alive", never an exception
+    assert g.doors() == ["search", "pack"] and g.door_cut("pack") == 2400 and g.door_cut("search") is None
+    assert g.declared_bytes() is None

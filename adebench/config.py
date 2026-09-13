@@ -51,7 +51,7 @@ class Config:
     max_card: int = int(os.environ.get("ADEBENCH_MAX_CARD", "900"))
     # Live-state freshness check: which key must be fresher than N minutes.
     live_state_session: str = os.environ.get("ADEBENCH_LIVE_STATE_SESSION", "global")
-    live_state_key: str = os.environ.get("ADEBENCH_LIVE_STATE_KEY", "mail_non_lette")
+    live_state_key: str = os.environ.get("ADEBENCH_LIVE_STATE_KEY", "mail_non_lette")  # empty = no such key (SKIP)
     live_state_max_minutes: int = int(os.environ.get("ADEBENCH_LIVE_STATE_MINUTES", "30"))
     # Write-to-serve latency: how long the canary may take to become
     # retrievable after the write (polled every second). A memory with

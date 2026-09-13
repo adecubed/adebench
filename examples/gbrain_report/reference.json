@@ -1,0 +1,661 @@
+{
+ "when": "2026-09-13T11:54:41",
+ "total": 73.8,
+ "measured_weight": 80,
+ "not_run_weight": 0,
+ "total_weight": 100,
+ "counts": {
+  "PASS": 32,
+  "FAIL": 2,
+  "ERROR": 0,
+  "SKIP": 5
+ },
+ "config": {
+  "adapter": "adebench.gbrain:GbrainAdapter",
+  "brain_url": "http://localhost:8766",
+  "door": "search",
+  "cases_hash": "0f9a4640dc",
+  "voice_sources": [
+   "working",
+   "semantic",
+   "episodic",
+   "conversations",
+   "files"
+  ],
+  "voice_cut": 2400,
+  "events_block": true,
+  "pressure": 0,
+  "weights": {
+   "door": 25,
+   "cards": 15,
+   "updates": 10,
+   "time": 10,
+   "live_state": 10,
+   "abstention": 10,
+   "file_search": 10,
+   "graph": 10
+  },
+  "max_card": 900,
+  "cases": "examples/synthetic_data/cases",
+  "repo": null,
+  "sandbox_test": null,
+  "sandbox_enabled": false,
+  "pressure_level": null,
+  "census": {
+   "spec": "examples/synthetic_data/census.json",
+   "origin": "local",
+   "origin_declared": true,
+   "generated_at": "2026-09-13T00:00:00Z",
+   "calls": 20
+  },
+  "sections": [
+   "door",
+   "cards",
+   "updates",
+   "time",
+   "live_state",
+   "abstention",
+   "file_search",
+   "graph"
+  ],
+  "duration_s": 106,
+  "fingerprint": "2f332b8dff"
+ },
+ "sections": [
+  {
+   "name": "door",
+   "weight": 25,
+   "score": 0.75,
+   "cases": [
+    {
+     "case": "What port does the Brain listen on?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 166,
+     "margin": null,
+     "chars": 1325,
+     "ms": 1618,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Which model distills the Brain memory?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 259,
+     "margin": null,
+     "chars": 1223,
+     "ms": 1499,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Which version of MailBridge is installed for the mailbox?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "STALE value delivered next to the current one: 1.3.0",
+     "position": 208,
+     "margin": null,
+     "chars": 1486,
+     "ms": 1501,
+     "stale": true,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "How many tools does the mailbox connector expose?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 260,
+     "margin": null,
+     "chars": 1364,
+     "ms": 1625,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "How often is the calendar read?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 149,
+     "margin": null,
+     "chars": 1282,
+     "ms": 1732,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Where does the owner live?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 119,
+     "margin": null,
+     "chars": 1280,
+     "ms": 1521,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "When do backups run?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": -1,
+     "margin": null,
+     "chars": 1317,
+     "ms": 1560,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the owner's phone number?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "missing +39",
+     "position": -1,
+     "margin": null,
+     "chars": 463,
+     "ms": 1657,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    }
+   ],
+   "counts": {
+    "PASS": 6,
+    "FAIL": 2,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "door": "search",
+    "door_budget_chars": null,
+    "pressure_chars": 0,
+    "questions": 8,
+    "validated": 8,
+    "mean_answer_position": 194,
+    "mean_door_text_chars": 1218,
+    "min_margin_chars": null,
+    "passes_within_300_chars_of_the_edge": 0,
+    "questions_with_forbidden_values": 1,
+    "stale_values_delivered": 1,
+    "chars_before_answer_mean": 194,
+    "duplicate_chunks_total": 0
+   },
+   "warnings": [
+    "1 answers delivered a retired value next to the current one: the model has to guess which is true"
+   ]
+  },
+  {
+   "name": "cards",
+   "weight": 15,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "card owner exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card owner within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "132 characters"
+    },
+    {
+     "case": "card calendar exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card calendar within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "169 characters"
+    },
+    {
+     "case": "card mailbox exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card mailbox within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "172 characters"
+    },
+    {
+     "case": "card brain exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card brain within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "211 characters"
+    }
+   ],
+   "counts": {
+    "PASS": 8,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "cards": 4,
+    "corrections": 0,
+    "aliases": 0,
+    "aliases_tried": 0
+   },
+   "warnings": []
+  },
+  {
+   "name": "updates",
+   "weight": 10,
+   "score": null,
+   "cases": [
+    {
+     "case": "update mechanism (needs --sandbox-test)",
+     "status": "SKIP",
+     "ok": false,
+     "note": "without the sandbox test the historical trace does not score"
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 1
+   },
+   "measures": {},
+   "warnings": [
+    "section not measured: no sandbox test of the mechanism (--sandbox-test); historical trace: superseded=0, updates=0",
+    "no trace of updates in live memory: the dedup has not worked yet or found no pairs"
+   ]
+  },
+  {
+   "name": "time",
+   "weight": 10,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "semantic memories carry their age (58/58)",
+     "status": "PASS",
+     "ok": true,
+     "note": "100%"
+    },
+    {
+     "case": "day filter 2026-09-10 returns only that day's episodes",
+     "status": "PASS",
+     "ok": true,
+     "note": "2 episodes"
+    },
+    {
+     "case": "day filter 2026-09-09 returns only that day's episodes",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 episodes"
+    },
+    {
+     "case": "day filter 2026-09-08 returns only that day's episodes",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 episodes"
+    },
+    {
+     "case": "episodes signed by another machine",
+     "status": "SKIP",
+     "ok": false,
+     "note": "none in this memory"
+    }
+   ],
+   "counts": {
+    "PASS": 4,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 1
+   },
+   "measures": {
+    "share_of_memories_with_age": 1.0,
+    "facts_with_event_date": "0/0",
+    "days_tried": [
+     "2026-09-10",
+     "2026-09-09",
+     "2026-09-08"
+    ],
+    "signed_episodes_pc2": 0
+   },
+   "warnings": []
+  },
+  {
+   "name": "live_state",
+   "weight": 10,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "canary written to working memory",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "the canary just written is served through the retrieval door",
+     "status": "PASS",
+     "ok": true,
+     "note": "write-to-serve 3495 ms"
+    },
+    {
+     "case": "…and reaches the text of door 'search'",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "3 canaries served within the budget",
+     "status": "PASS",
+     "ok": true,
+     "note": "p50 3346 ms · p95 3495 ms"
+    },
+    {
+     "case": "after overwriting the canary the door serves the new value, never the old one",
+     "status": "PASS",
+     "ok": true,
+     "note": "overwrite-to-visible 3202 ms"
+    },
+    {
+     "case": "cleanup: adebench session empty at the end of the run",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "live-state key freshness",
+     "status": "SKIP",
+     "ok": false,
+     "note": "no live-state key configured (ADEBENCH_LIVE_STATE_KEY)"
+    }
+   ],
+   "counts": {
+    "PASS": 6,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 1
+   },
+   "measures": {
+    "live_state_age_min": null,
+    "write_to_serve_ms": 3495,
+    "write_to_serve_p50_ms": 3346,
+    "write_to_serve_p95_ms": 3495,
+    "write_to_serve_samples": 3,
+    "write_to_serve_budget_s": 30,
+    "overwrite_to_visible_ms": 3202,
+    "stale_reads_after_overwrite": 0
+   },
+   "warnings": []
+  },
+  {
+   "name": "abstention",
+   "weight": 10,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "What is the Zarpetta module?",
+     "status": "PASS",
+     "ok": true,
+     "note": "flagged unknown: ['Zarpetta', 'module']",
+     "fraction": 1.0
+    },
+    {
+     "case": "Who is Ottavio Brambillesco?",
+     "status": "PASS",
+     "ok": true,
+     "note": "flagged unknown: ['Ottavio', 'Brambillesco']",
+     "fraction": 1.0
+    },
+    {
+     "case": "Which port does the Fulmicotone service use?",
+     "status": "PASS",
+     "ok": true,
+     "note": "flagged unknown: ['Which', 'Fulmicotone']",
+     "fraction": 1.0
+    },
+    {
+     "case": "What does the calendar plugin Girandola do?",
+     "status": "PASS",
+     "ok": true,
+     "note": "flagged unknown: ['plugin', 'Girandola']",
+     "fraction": 1.0
+    }
+   ],
+   "counts": {
+    "PASS": 4,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "questions": 4
+   },
+   "warnings": []
+  },
+  {
+   "name": "file_search",
+   "weight": 10,
+   "score": null,
+   "cases": [
+    {
+     "case": "file search",
+     "status": "SKIP",
+     "ok": false,
+     "note": "no repo configured (--repo)"
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 1
+   },
+   "measures": {},
+   "warnings": [
+    "section not measured: no repo configured (--repo)"
+   ]
+  },
+  {
+   "name": "graph",
+   "weight": 10,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "owner: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "3 edges"
+    },
+    {
+     "case": "calendar: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "2 edges"
+    },
+    {
+     "case": "mailbox: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "2 edges"
+    },
+    {
+     "case": "brain: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "2 edges"
+    },
+    {
+     "case": "orphan fact nodes = 0",
+     "status": "SKIP",
+     "ok": false,
+     "note": "the graph has no fact nodes: nothing to check"
+    }
+   ],
+   "counts": {
+    "PASS": 4,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 1
+   },
+   "measures": {
+    "page_count": 18,
+    "chunk_count": 20,
+    "embedded_count": 20,
+    "link_count": 8,
+    "tag_count": 0,
+    "timeline_entry_count": 4,
+    "pages_by_type": {
+     "atom": 10,
+     "note": 4,
+     "project": 3,
+     "person": 1
+    },
+    "orphan_fact_nodes": "the graph has no fact nodes: nothing to check"
+   },
+   "warnings": []
+  },
+  {
+   "name": "health",
+   "weight": 0,
+   "score": null,
+   "cases": [],
+   "counts": {},
+   "measures": {
+    "page_count": 18,
+    "linkable_page_count": 8,
+    "embed_coverage": 1,
+    "stale_pages": 18,
+    "orphan_pages": 4,
+    "missing_embeddings": 0,
+    "brain_score": 68,
+    "dead_links": 0,
+    "entity_page_count": 1,
+    "link_coverage": null,
+    "timeline_coverage": null,
+    "most_connected": [
+     {
+      "slug": "people/owner",
+      "link_count": 3
+     }
+    ],
+    "embed_coverage_score": 35,
+    "link_density_score": 11,
+    "timeline_coverage_score": 4,
+    "no_orphans_score": 8,
+    "no_dead_links_score": 10,
+    "migrations": {
+     "pending": [
+      "0.11.0",
+      "0.12.0",
+      "0.12.2",
+      "0.13.0",
+      "0.13.1",
+      "0.14.0",
+      "0.16.0",
+      "0.18.0",
+      "0.18.1",
+      "0.21.0",
+      "0.22.4",
+      "0.28.0",
+      "0.29.1",
+      "0.31.0",
+      "0.32.2",
+      "0.43.0",
+      "0.46.3"
+     ],
+     "partial": [],
+     "wedged": [],
+     "skipped_future": 0
+    }
+   },
+   "warnings": []
+  },
+  {
+   "name": "doors",
+   "weight": 0,
+   "score": null,
+   "cases": [],
+   "counts": {},
+   "measures": {
+    "search": {
+     "calls": 20,
+     "http_errors": 0,
+     "ms_p50": 1603,
+     "ms_p95": 1753,
+     "mean_chars": 4856
+    },
+    "recall": {
+     "calls": 18,
+     "http_errors": 0,
+     "ms_p50": 1621,
+     "ms_p95": 1839,
+     "mean_chars": 2831
+    }
+   },
+   "warnings": []
+  },
+  {
+   "name": "census",
+   "weight": 0,
+   "score": null,
+   "cases": [],
+   "counts": {},
+   "measures": {
+    "origin": "local",
+    "generated_at": "2026-09-13T00:00:00Z",
+    "calls": 20,
+    "servers_called": 3,
+    "tool_response_bytes": {
+     "median": 512,
+     "p95": 140000,
+     "max": 140000
+    },
+    "this_door_mean_chars": 4856,
+    "this_door_rank_in_census": 0.75,
+    "declared_vs_returned": {
+     "declared_bytes": 155687,
+     "returned_mean_chars": 4856,
+     "returned_over_declared": 0.03
+    }
+   },
+   "warnings": [
+    "this census document carries no declared sizes (declared_bytes = 0: the local recorder does not keep tools/list yet), so declared-vs-returned has no reference",
+    "this door delivers 4856 characters on average: larger than 75% of the 20 tool responses in the census"
+   ]
+  }
+ ],
+ "delta": {
+  "total": 7.6,
+  "sections": {
+   "door": 0.0,
+   "cards": 0.0,
+   "time": 2.5,
+   "live_state": 1.7,
+   "abstention": 3.3,
+   "graph": 0.0
+  },
+  "against": "2026-09-13T11:51:23"
+ }
+}

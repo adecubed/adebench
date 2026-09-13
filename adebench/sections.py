@@ -485,12 +485,18 @@ def live_state() -> dict:
             pass
     cases.append(_try("cleanup", lambda: _case(
         "cleanup: adebench session empty at the end of the run", not ada.working_read("adebench", "adebench_canary"))))
-    before = len(cases)
-    age = _read("reading the live-state age", lambda: ada.working_age_minutes(CFG.live_state_session, CFG.live_state_key), None, cases)
-    if len(cases) == before:  # the read succeeded: an absent key is a FAIL, not an error
-        cases.append(_case(f"{CFG.live_state_key} refreshed less than {CFG.live_state_max_minutes} minutes ago",
-                           age is not None and age <= CFG.live_state_max_minutes,
-                           f"{age:.0f} min" if age is not None else "key absent"))
+    age = None
+    if not CFG.live_state_key:
+        # a memory with no live-state key (nothing refreshes a value on a
+        # schedule): the case is missing coverage, not a failure
+        cases.append(_case("live-state key freshness", None, "no live-state key configured (ADEBENCH_LIVE_STATE_KEY)"))
+    else:
+        before = len(cases)
+        age = _read("reading the live-state age", lambda: ada.working_age_minutes(CFG.live_state_session, CFG.live_state_key), None, cases)
+        if len(cases) == before:  # the read succeeded: an absent key is a FAIL, not an error
+            cases.append(_case(f"{CFG.live_state_key} refreshed less than {CFG.live_state_max_minutes} minutes ago",
+                               age is not None and age <= CFG.live_state_max_minutes,
+                               f"{age:.0f} min" if age is not None else "key absent"))
     return _section("live_state", cases, {"live_state_age_min": None if age is None else round(age),
                                           "write_to_serve_ms": latency["ms"],
                                           "write_to_serve_p50_ms": _pct(latency["samples"], 0.5),

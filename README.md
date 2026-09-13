@@ -168,6 +168,36 @@ The weights are the same for every adapter, so two memory systems benchmarked wi
 golden set are comparable section by section — as long as the door is the same kind of door
 and the coverage is the same.
 
+### Second real memory: gbrain
+
+[`adebench/gbrain.py`](adebench/gbrain.py) is the adapter for
+[gbrain](https://github.com/garrytan/gbrain). Everything goes through `gbrain call <tool>
+'<json>'`, the local dispatch of its MCP tools, so the adapter sees what an agent sees: no
+gbrain code is imported. Two doors: `search` (hybrid retrieval plus the facts `recall`
+returns, no cut) and `pack` (`context_pack`, budget-packed). Entity pages are the cards, the
+memory verbs `remember` / `recall` / `forget` are the working memory, the chronicle gives the
+dated episodes, links and backlinks the graph, and `gbrain --tools-json` the declared bytes.
+Corrections, aliases, a live-state key and a repository do not exist there: those cases are
+SKIP, and the report says so. gbrain's own match evidence (`evidence`, `create_safety`) is
+passed on: when every hit is a weak semantic neighbour, the door delivers two neighbours and
+flags the unknown terms, which is what the abstention section looks for.
+
+To run the same golden set on both memories:
+
+```bash
+bun install -g github:garrytan/gbrain#latest-stable
+gbrain init --pglite --non-interactive --embedding-model google:gemini-embedding-001 --embedding-dimensions 768
+python examples/gbrain_import.py            # the synthetic memory, page by page
+ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.gbrain:GbrainAdapter \
+    --cases examples/synthetic_data/cases --history /tmp/gbrain-run
+```
+
+On the synthetic golden set gbrain scores 73.8 of the 80 points it can be measured on
+(`updates` needs a sandbox test of its own, `file_search` a repository); the two failing
+door questions are the dataset's deliberate defects, the same two the synthetic memory
+fails. The report is in [`examples/gbrain_report/`](examples/gbrain_report/). Any embedding
+provider gbrain supports works; keyless mode leaves it with keyword search only.
+
 ## Reproducible example, no service needed
 
 `examples/synthetic.py` is a second adapter: a small memory that lives in the process, with
@@ -222,7 +252,7 @@ Options:
 | `--validation` | write a validation sheet for the golden set (see below) |
 | `ADEBENCH_VOICE_SOURCES`, `ADEBENCH_VOICE_CUT`, `ADEBENCH_EVENTS_BLOCK` | the voice client's sources, cut and events block, if yours differ |
 | `ADEBENCH_MAX_CARD` | max length of an entity card (default 900) |
-| `ADEBENCH_LIVE_STATE_SESSION` / `_KEY` / `_MINUTES` | which live-state key must be fresh, and how fresh |
+| `ADEBENCH_LIVE_STATE_SESSION` / `_KEY` / `_MINUTES` | which live-state key must be fresh, and how fresh; an empty `_KEY` means the memory has no such key (the case is SKIP) |
 
 Production memory is only read (SQLite opened read-only through the path the service
 reports). The only writes are a canary in working memory, session `adebench`, TTL one hour,
