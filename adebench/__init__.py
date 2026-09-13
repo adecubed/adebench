@@ -21,4 +21,4 @@ only writes are a canary in working memory (session 'adebench', TTL 1 h,
 removed at the end of the run) and, optionally, a sandbox test script you
 point to.
 """
-__version__ = "0.2.5"
+__version__ = "0.2.6"

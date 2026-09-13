@@ -27,7 +27,7 @@ data** — so the benchmark grows with the memory and cannot be gamed by editing
 | `cards` | 15 | Every entity card exists, is dated, fits the limit, contains each mandatory item of the owner's corrections; every alias leads to the canonical card. Fully derived from the data. |
 | `updates` | 10 | Facts get **updated**, not accumulated: a sandbox test of the dedup mechanism (`--sandbox-test`). The historical trace is reported, never scored. |
 | `time` | 10 | Every memory reaches the model with its age, the episodic day filter returns only that day, machine-signed episodes are found. |
-| `live_state` | 10 | A canary written to working memory is served through the door (polled until it appears: the **write-to-serve latency** is reported in ms, and a memory that never serves it within the budget fails); the live state key is fresher than N minutes. |
+| `live_state` | 10 | A canary written to working memory is served through the door (polled until it appears: the **write-to-serve latency** is reported in ms, with a p50/p95 over a few canaries, and a memory that never serves one within the budget fails); the same key **overwritten** is served with the new value and never the old one (a stale read right after a write, or both values together, is a fail); the live state key is fresher than N minutes. |
 | `abstention` | 10 | On invented entities: no card, episodes marked as *no direct match*, no keyword hits — the memory says it does not know. |
 | `file_search` | 10 | Real function names sampled from a repository: the grep-replacement search puts the right file in the top 5. |
 | `graph` | 10 | Every entity with a card has edges in the knowledge graph; no orphan fact nodes. |

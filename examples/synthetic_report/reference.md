@@ -1,7 +1,7 @@
-# adebench — 2026-09-13T09:44:06
+# adebench — 2026-09-13T10:19:42
 
 **Score: 90.0 / 100**
-Cases: 48 PASS · 5 FAIL · 0 ERROR · 0 SKIP
+Cases: 50 PASS · 5 FAIL · 0 ERROR · 0 SKIP
 Adapter `examples.synthetic:SyntheticAdapter` · door `chat` · cases `0f9a4640dc` · setup `ff086bb57c` · sections door, cards, updates, time, live_state, abstention, file_search, graph
 
 | Section | Weight | Points | PASS/FAIL/ERROR/SKIP |
@@ -10,7 +10,7 @@ Adapter `examples.synthetic:SyntheticAdapter` · door `chat` · cases `0f9a4640d
 | cards | 15 | 14.1 | 15/1/0/0 |
 | updates | 10 | 10.0 | 4/0/0/0 |
 | time | 10 | 10.0 | 5/0/0/0 |
-| live_state | 10 | 10.0 | 5/0/0/0 |
+| live_state | 10 | 10.0 | 7/0/0/0 |
 | abstention | 10 | 9.2 | 3/1/0/0 |
 | file_search | 10 | 10.0 | 6/0/0/0 |
 | graph | 10 | 8.0 | 4/1/0/0 |
@@ -66,7 +66,12 @@ Not passed:
 
 - live_state_age_min: `7`
 - write_to_serve_ms: `0`
+- write_to_serve_p50_ms: `0`
+- write_to_serve_p95_ms: `0`
+- write_to_serve_samples: `3`
 - write_to_serve_budget_s: `30`
+- overwrite_to_visible_ms: `0`
+- stale_reads_after_overwrite: `0`
 
 ## abstention
 
@@ -97,7 +102,7 @@ Not passed:
 
 ## doors
 
-- /ask: `{"calls": 17, "http_errors": 0, "ms_p50": 1, "ms_p95": 1, "mean_chars": 291}`
+- /ask: `{"calls": 20, "http_errors": 0, "ms_p50": 1, "ms_p95": 1, "mean_chars": 299}`
 
 ## census
 
@@ -106,12 +111,12 @@ Not passed:
 - calls: `20`
 - servers_called: `3`
 - tool_response_bytes: `{"median": 512, "p95": 140000, "max": 140000}`
-- this_door_mean_chars: `291`
+- this_door_mean_chars: `299`
 - this_door_rank_in_census: `0.4`
-- declared_vs_returned: `{"declared_bytes": 2200, "returned_mean_chars": 291, "returned_over_declared": 0.13}`
+- declared_vs_returned: `{"declared_bytes": 2200, "returned_mean_chars": 299, "returned_over_declared": 0.14}`
 
 - ⚠ this census document carries no declared sizes (declared_bytes = 0: the local recorder does not keep tools/list yet), so declared-vs-returned has no reference
-- ⚠ this door delivers 291 characters on average: larger than 40% of the 20 tool responses in the census
+- ⚠ this door delivers 299 characters on average: larger than 40% of the 20 tool responses in the census
 
 ## pressure_profile
 

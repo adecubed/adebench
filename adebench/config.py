@@ -57,6 +57,9 @@ class Config:
     # retrievable after the write (polled every second). A memory with
     # asynchronous indexing pays here; the number is reported either way.
     write_to_serve_max_s: int = int(os.environ.get("ADEBENCH_WRITE_TO_SERVE_S", "30"))
+    # How many canaries are written and timed: one number is a sample, a
+    # p50/p95 needs a few. Each one costs the write-to-serve latency.
+    write_to_serve_samples: int = int(os.environ.get("ADEBENCH_WRITE_TO_SERVE_SAMPLES", "3"))
     # How many alias→card and file-search cases to sample per run.
     alias_sample: int = 8
     file_sample: int = 15

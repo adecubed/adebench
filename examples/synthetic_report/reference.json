@@ -1,11 +1,11 @@
 {
- "when": "2026-09-13T09:44:06",
+ "when": "2026-09-13T10:19:42",
  "total": 90.0,
  "measured_weight": 100,
  "not_run_weight": 0,
  "total_weight": 100,
  "counts": {
-  "PASS": 48,
+  "PASS": 50,
   "FAIL": 5,
   "ERROR": 0,
   "SKIP": 0
@@ -438,6 +438,18 @@
      "note": ""
     },
     {
+     "case": "3 canaries served within the budget",
+     "status": "PASS",
+     "ok": true,
+     "note": "p50 0 ms · p95 0 ms"
+    },
+    {
+     "case": "after overwriting the canary the door serves the new value, never the old one",
+     "status": "PASS",
+     "ok": true,
+     "note": "overwrite-to-visible 0 ms"
+    },
+    {
      "case": "cleanup: adebench session empty at the end of the run",
      "status": "PASS",
      "ok": true,
@@ -451,7 +463,7 @@
     }
    ],
    "counts": {
-    "PASS": 5,
+    "PASS": 7,
     "FAIL": 0,
     "ERROR": 0,
     "SKIP": 0
@@ -459,7 +471,12 @@
    "measures": {
     "live_state_age_min": 7,
     "write_to_serve_ms": 0,
-    "write_to_serve_budget_s": 30
+    "write_to_serve_p50_ms": 0,
+    "write_to_serve_p95_ms": 0,
+    "write_to_serve_samples": 3,
+    "write_to_serve_budget_s": 30,
+    "overwrite_to_visible_ms": 0,
+    "stale_reads_after_overwrite": 0
    },
    "warnings": []
   },
@@ -632,11 +649,11 @@
    "counts": {},
    "measures": {
     "/ask": {
-     "calls": 17,
+     "calls": 20,
      "http_errors": 0,
      "ms_p50": 1,
      "ms_p95": 1,
-     "mean_chars": 291
+     "mean_chars": 299
     }
    },
    "warnings": []
@@ -657,17 +674,17 @@
      "p95": 140000,
      "max": 140000
     },
-    "this_door_mean_chars": 291,
+    "this_door_mean_chars": 299,
     "this_door_rank_in_census": 0.4,
     "declared_vs_returned": {
      "declared_bytes": 2200,
-     "returned_mean_chars": 291,
-     "returned_over_declared": 0.13
+     "returned_mean_chars": 299,
+     "returned_over_declared": 0.14
     }
    },
    "warnings": [
     "this census document carries no declared sizes (declared_bytes = 0: the local recorder does not keep tools/list yet), so declared-vs-returned has no reference",
-    "this door delivers 291 characters on average: larger than 40% of the 20 tool responses in the census"
+    "this door delivers 299 characters on average: larger than 40% of the 20 tool responses in the census"
    ]
   },
   {

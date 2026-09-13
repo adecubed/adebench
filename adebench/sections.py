@@ -383,11 +383,39 @@ def time_section(semantic_seen: list[dict] | None = None) -> dict:
 
 # ─── E. Live state (working memory) ──────────────────────────────────────────
 
+def _pct(values: list, q: float):
+    if not values:
+        return None
+    v = sorted(values)
+    return v[min(len(v) - 1, int(q * len(v)))]
+
+
+def _poll_working(ada, query: str, want: str, avoid: str | None = None) -> tuple[int | None, str, int]:
+    """Ask the door every second until a working-memory entry carrying
+    `want` is served, within the budget. Returns (ms to first serve, the
+    door text at that moment, how many polls served `avoid` instead): a
+    memory that keeps serving the value just overwritten is caught here."""
+    t0 = time.perf_counter()
+    deadline = t0 + CFG.write_to_serve_max_s
+    stale = 0
+    while True:
+        text, r = ada.door_text(query, CFG.door)
+        values = [str(e.get("value", "")) for e in r.get("working", [])]
+        if avoid and any(avoid in v for v in values) and not any(want in v for v in values):
+            stale += 1
+        if any(want in v for v in values):
+            return round((time.perf_counter() - t0) * 1000), text, stale
+        if time.perf_counter() >= deadline:
+            return None, text, stale
+        time.sleep(1)
+
+
 def live_state() -> dict:
     ada = current()
     cases = []
     token = uuid.uuid4().hex[:10]
     value = f"canarino adebench {token}: la parola d'ordine di oggi e' girasole"
+    latency: dict = {"ms": None, "samples": [], "overwrite_ms": None, "stale_reads": 0}
     try:
         cases.append(_try("canary write", lambda: _case(
             "canary written to working memory", ada.working_write("adebench", "adebench_canary", value, 1))))
@@ -396,27 +424,58 @@ def live_state() -> dict:
             # write-to-serve latency: poll until the canary is served, up to
             # the budget. "Update latency after a write" is a number, not a
             # yes/no: a memory with async indexing pays here.
-            t0 = time.perf_counter()
-            deadline = t0 + CFG.write_to_serve_max_s
-            text, wm, served_ms = "", [], None
-            while True:
-                text, r = ada.door_text(f"parola d'ordine canarino adebench {token}", CFG.door)
-                wm = r.get("working", [])
-                if any(token in str(e.get("value", "")) for e in wm):
-                    served_ms = round((time.perf_counter() - t0) * 1000)
-                    break
-                if time.perf_counter() >= deadline:
-                    break
-                time.sleep(1)
+            served_ms, text, _ = _poll_working(ada, f"parola d'ordine canarino adebench {token}", token)
             latency["ms"] = served_ms
+            if served_ms is not None:
+                latency["samples"].append(served_ms)
             return [_case("the canary just written is served through the retrieval door",
                           served_ms is not None,
                           f"write-to-serve {served_ms} ms" if served_ms is not None
                           else f"not served within {CFG.write_to_serve_max_s} s"),
                     _case(f"…and reaches the text of door '{CFG.door}'", token in text)]
-        latency: dict = {"ms": None}
+
+        def _more_samples() -> dict:
+            # one latency is a sample; a few give a p50 and a p95, and a
+            # memory whose indexing is slow one time in three shows it here
+            failed = 0
+            for i in range(max(0, CFG.write_to_serve_samples - 1)):
+                t = uuid.uuid4().hex[:10]
+                ada.working_write("adebench", f"adebench_canary_{i}", f"canarino adebench {t}: campione {i}", 1)
+                ms, _, _ = _poll_working(ada, f"canarino adebench {t}", t)
+                if ms is None:
+                    failed += 1
+                else:
+                    latency["samples"].append(ms)
+            n = len(latency["samples"])
+            return _case(f"{CFG.write_to_serve_samples} canaries served within the budget",
+                         failed == 0 and n == CFG.write_to_serve_samples,
+                         f"p50 {_pct(latency['samples'], 0.5)} ms · p95 {_pct(latency['samples'], 0.95)} ms"
+                         + (f" · {failed} never served" if failed else ""))
+
+        def _overwrite() -> dict:
+            # consistency: the same key overwritten with a new value. The door
+            # must serve the new one and never the old one; a stale read right
+            # after a write is the failure that a single canary cannot see.
+            token2 = uuid.uuid4().hex[:10]
+            ada.working_write("adebench", "adebench_canary",
+                              f"canarino adebench {token2}: la parola d'ordine di oggi e' tulipano", 1)
+            ms, text, stale = _poll_working(ada, "parola d'ordine canarino adebench", token2, avoid=token)
+            latency["overwrite_ms"], latency["stale_reads"] = ms, stale
+            both = token in text and token2 in text
+            note = f"overwrite-to-visible {ms} ms" if ms is not None else \
+                f"new value not served within {CFG.write_to_serve_max_s} s"
+            if stale:
+                note += f" · {stale} stale read(s) of the old value after the write"
+            if both:
+                note += " · STALE: old and new value delivered together"
+            return _case("after overwriting the canary the door serves the new value, never the old one",
+                         ms is not None and not both and not stale, note)
+
         try:
             cases.extend(_find())
+            if latency["ms"] is not None:
+                cases.append(_try("write-to-serve samples", _more_samples))
+                cases.append(_try("overwrite consistency", _overwrite))
         except Exception as e:  # noqa: BLE001
             cases.append(_case("canary retrieval", False, f"{type(e).__name__}: {str(e)[:120]}", status="ERROR"))
     finally:
@@ -434,7 +493,12 @@ def live_state() -> dict:
                            f"{age:.0f} min" if age is not None else "key absent"))
     return _section("live_state", cases, {"live_state_age_min": None if age is None else round(age),
                                           "write_to_serve_ms": latency["ms"],
-                                          "write_to_serve_budget_s": CFG.write_to_serve_max_s})
+                                          "write_to_serve_p50_ms": _pct(latency["samples"], 0.5),
+                                          "write_to_serve_p95_ms": _pct(latency["samples"], 0.95),
+                                          "write_to_serve_samples": len(latency["samples"]),
+                                          "write_to_serve_budget_s": CFG.write_to_serve_max_s,
+                                          "overwrite_to_visible_ms": latency["overwrite_ms"],
+                                          "stale_reads_after_overwrite": latency["stale_reads"]})
 
 
 # ─── F. Abstention ───────────────────────────────────────────────────────────

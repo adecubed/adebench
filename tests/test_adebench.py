@@ -265,16 +265,44 @@ def test_write_to_serve_latency_is_measured(cases, monkeypatch):
         def door_text(self, q, door):
             self.asks += 1
             if self.asks >= 2 and self.working:
-                v = next(iter(self.working.values()))
-                return v, {"summary": v, "working": [{"key": "k", "value": v}]}
+                vs = list(self.working.values())
+                return "\n".join(vs), {"summary": "\n".join(vs), "working": [{"key": k[1], "value": v} for k, v in self.working.items()]}
             return "nothing yet", {"summary": "nothing yet", "working": []}
     _use(Slow())
     monkeypatch.setattr(CFG, "write_to_serve_max_s", 5)
+    monkeypatch.setattr(CFG, "write_to_serve_samples", 3)
     monkeypatch.setattr(sections.time, "sleep", lambda s: None)
     s = sections.live_state()
     served = next(c for c in s["cases"] if c["case"].startswith("the canary just written"))
     assert served["status"] == "PASS" and "write-to-serve" in served["note"]
     assert s["measures"]["write_to_serve_ms"] is not None
+    assert s["measures"]["write_to_serve_samples"] == 3
+    assert s["measures"]["write_to_serve_p50_ms"] is not None and s["measures"]["write_to_serve_p95_ms"] is not None
+    over = next(c for c in s["cases"] if c["case"].startswith("after overwriting"))
+    assert over["status"] == "PASS" and s["measures"]["stale_reads_after_overwrite"] == 0
+
+
+def test_stale_read_after_overwrite_is_a_fail(cases, monkeypatch):
+    class Sticky(Fake):
+        """Serves the first value ever written to a key, forever (a cache
+        that never invalidates): the overwrite is invisible."""
+        def __init__(self):
+            super().__init__(answer={"summary": "x"})
+            self.first: dict = {}
+        def working_write(self, s, k, v, ttl):
+            self.first.setdefault((s, k), v)
+            return super().working_write(s, k, v, ttl)
+        def door_text(self, q, door):
+            vs = list(self.first.values())
+            return "\n".join(vs), {"summary": "\n".join(vs), "working": [{"key": k[1], "value": v} for k, v in self.first.items()]}
+    _use(Sticky())
+    monkeypatch.setattr(CFG, "write_to_serve_max_s", 0)
+    monkeypatch.setattr(CFG, "write_to_serve_samples", 1)
+    monkeypatch.setattr(sections.time, "sleep", lambda s: None)
+    s = sections.live_state()
+    over = next(c for c in s["cases"] if c["case"].startswith("after overwriting"))
+    assert over["status"] == "FAIL" and "stale read" in over["note"]
+    assert s["measures"]["stale_reads_after_overwrite"] >= 1
 
 
 def test_canary_never_served_is_a_fail_with_the_budget_in_the_note(cases, monkeypatch):
