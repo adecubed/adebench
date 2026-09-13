@@ -311,6 +311,9 @@ def test_out_of_order_visibility_is_a_fail(cases, monkeypatch):
     rep = next(c for c in s["cases"] if c["case"].startswith("two writes in quick succession"))
     assert rep["status"] == "FAIL" and "after the second was already visible" in rep["note"]
     assert s["measures"]["out_of_order_reads"] >= 1
+    tl = rep["timeline"]   # a failed case carries the timeline: both writes, then every poll
+    assert [e["event"] for e in tl[:2]] == ["first write", "second write"]
+    assert any(e["event"] == "poll" and e["first"] and e["second"] for e in tl)
 
 
 def test_stale_read_after_overwrite_is_a_fail(cases, monkeypatch):

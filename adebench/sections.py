@@ -416,7 +416,7 @@ def live_state() -> dict:
     token = uuid.uuid4().hex[:10]
     value = f"canarino adebench {token}: la parola d'ordine di oggi e' girasole"
     latency: dict = {"ms": None, "samples": [], "overwrite_ms": None, "stale_reads": 0,
-                     "reorder_ms": None, "out_of_order": 0}
+                     "reorder_ms": None, "out_of_order": 0, "timeline": None}
     try:
         cases.append(_try("canary write", lambda: _case(
             "canary written to working memory", ada.working_write("adebench", "adebench_canary", value, 1))))
@@ -478,15 +478,23 @@ def live_state() -> dict:
             # the second was already visible is out-of-order visibility, which
             # old-vs-new alone cannot see (verstands, r/mcp).
             t3, t4 = uuid.uuid4().hex[:10], uuid.uuid4().hex[:10]
+            # the two write timestamps and every poll are kept: a rare reorder
+            # is diagnosed from the timeline, not from the final state
+            t_first = time.perf_counter()
             ada.working_write("adebench", "adebench_canary", f"canarino adebench {t3}: sequenza uno", 1)
+            t_second = time.perf_counter()
             ada.working_write("adebench", "adebench_canary", f"canarino adebench {t4}: sequenza due", 1)
             t0 = time.perf_counter()
             deadline = t0 + CFG.write_to_serve_max_s
             seen_second, out_of_order, ms, stable = False, 0, None, 0
+            timeline = [{"t_ms": 0, "event": "first write"},
+                        {"t_ms": round((t_second - t_first) * 1000), "event": "second write"}]
             while True:
                 _, r = ada.door_text("canarino adebench sequenza", CFG.door)
                 values = [str(e.get("value", "")) for e in r.get("working", [])]
                 has3, has4 = any(t3 in v for v in values), any(t4 in v for v in values)
+                timeline.append({"t_ms": round((time.perf_counter() - t_first) * 1000),
+                                 "event": "poll", "first": has3, "second": has4})
                 if has4 and ms is None:
                     ms = round((time.perf_counter() - t0) * 1000)
                 if seen_second and has3:
@@ -503,8 +511,10 @@ def live_state() -> dict:
                 f"second write not served within {CFG.write_to_serve_max_s} s"
             if out_of_order:
                 note += f" · {out_of_order} read(s) served the first write after the second was already visible"
+            ok = ms is not None and out_of_order == 0 and not (has3 and has4)
+            latency["timeline"] = timeline
             return _case("two writes in quick succession: the door settles on the second, never back on the first",
-                         ms is not None and out_of_order == 0 and not (has3 and has4), note)
+                         ok, note, timeline=None if ok else timeline)
 
         try:
             cases.extend(_find())
@@ -542,7 +552,9 @@ def live_state() -> dict:
                                           "overwrite_to_visible_ms": latency["overwrite_ms"],
                                           "stale_reads_after_overwrite": latency["stale_reads"],
                                           "repeated_writes_settle_ms": latency["reorder_ms"],
-                                          "out_of_order_reads": latency["out_of_order"]})
+                                          "out_of_order_reads": latency["out_of_order"],
+                                          # ms from the first write: the second write, then every poll
+                                          "repeated_writes_timeline": latency["timeline"]})
 
 
 # ─── F. Abstention ───────────────────────────────────────────────────────────

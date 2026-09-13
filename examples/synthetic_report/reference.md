@@ -1,4 +1,4 @@
-# adebench — 2026-09-13T15:46:03
+# adebench — 2026-09-13T18:59:54
 
 **Score: 90.0 / 100**
 Cases: 51 PASS · 5 FAIL · 0 ERROR · 0 SKIP
@@ -74,6 +74,7 @@ Not passed:
 - stale_reads_after_overwrite: `0`
 - repeated_writes_settle_ms: `0`
 - out_of_order_reads: `0`
+- repeated_writes_timeline: `[{"t_ms": 0, "event": "first write"}, {"t_ms": 0, "event": "second write"}, {"t_ms": 0, "event": "poll", "first": false, "second": true}, {"t_ms": 1001, "event": "poll", "first": false, "second": true}, {"t_ms": 2002, "event": "poll", "first": false, "second": true}]`
 
 ## abstention
 

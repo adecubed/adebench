@@ -1,5 +1,5 @@
 {
- "when": "2026-09-13T15:46:03",
+ "when": "2026-09-13T18:59:54",
  "total": 90.0,
  "measured_weight": 100,
  "not_run_weight": 0,
@@ -453,7 +453,8 @@
      "case": "two writes in quick succession: the door settles on the second, never back on the first",
      "status": "PASS",
      "ok": true,
-     "note": "second write visible in 0 ms"
+     "note": "second write visible in 0 ms",
+     "timeline": null
     },
     {
      "case": "cleanup: adebench session empty at the end of the run",
@@ -484,7 +485,35 @@
     "overwrite_to_visible_ms": 0,
     "stale_reads_after_overwrite": 0,
     "repeated_writes_settle_ms": 0,
-    "out_of_order_reads": 0
+    "out_of_order_reads": 0,
+    "repeated_writes_timeline": [
+     {
+      "t_ms": 0,
+      "event": "first write"
+     },
+     {
+      "t_ms": 0,
+      "event": "second write"
+     },
+     {
+      "t_ms": 0,
+      "event": "poll",
+      "first": false,
+      "second": true
+     },
+     {
+      "t_ms": 1001,
+      "event": "poll",
+      "first": false,
+      "second": true
+     },
+     {
+      "t_ms": 2002,
+      "event": "poll",
+      "first": false,
+      "second": true
+     }
+    ]
    },
    "warnings": []
   },

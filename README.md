@@ -17,6 +17,15 @@ adebench asks exactly those questions, against the live service, in about three 
 
 ## What it measures
 
+Two words come up everywhere below. A **door** is the path a memory is reached through and
+the text that comes out of it: a voice assistant's `/ask` with its sources, its "latest
+events" block and its 2,400-character cut; an MCP tool call; a raw search. The same question
+through two doors gives two different texts, and adebench scores the text, not the retrieval
+behind it: a fact that retrieval found but the cut removed does not help the model. A
+**card** is the composed summary a memory keeps about one entity (a person, a project, a
+service), the thing to deliver first when the question names it; in gbrain they are entity
+pages, in the ADE Brain they are built by a distiller and honour the owner's corrections.
+
 The score is 0–100, weighted over eight sections. Each section is a list of cases derived
 either from a small golden set you own or, for most sections, **from the memory's own
 data** — so the benchmark grows with the memory and cannot be gamed by editing questions.
