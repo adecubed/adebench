@@ -632,3 +632,20 @@ def test_gbrain_adapter_honours_the_contract(monkeypatch):
     assert g.health() is False          # a missing binary is "not alive", never an exception
     assert g.doors() == ["search", "pack"] and g.door_cut("pack") == 2400 and g.door_cut("search") is None
     assert g.declared_bytes() is None
+
+
+# ─── two runs side by side ──────────────────────────────────────────────────
+
+def test_compare_scores_only_the_sections_both_measured():
+    from adebench.compare import compare
+    def run(door, sections, cases_hash="h"):
+        return {"total": sum(s * w for _, s, w in sections if s is not None), "measured_weight": sum(w for _, s, w in sections if s is not None),
+                "config": {"door": door, "cases_hash": cases_hash, "pressure": 0},
+                "sections": [{"name": n, "weight": w, "score": s, "counts": {"PASS": 1}} for n, s, w in sections]}
+    a = run("voice", [("door", 0.8, 25), ("updates", 1.0, 10), ("graph", 0.5, 10)])
+    b = run("pack", [("door", 0.6, 25), ("updates", None, 10), ("graph", 1.0, 10)])
+    text, s = compare(a, b, "brain", "gbrain")
+    assert s["common_weight"] == 35 and s["brain"] == 25.0 and s["gbrain"] == 25.0
+    assert "not measured" in text and "excluded from the common score" in text
+    _, s2 = compare(a, run("pack", [("door", 0.6, 25)], cases_hash="other"), "a", "b")
+    assert s2["same_cases"] is False

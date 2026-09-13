@@ -11,9 +11,13 @@ an agent gets over MCP, with their JSON result. No gbrain code is imported.
 Doors:
   search  what an agent gets from `search` (hybrid retrieval, snippets) plus
           the facts `recall` returns for the same query; no cut
-  pack    `context_pack` for the entities the search found, budget-packed:
-          the closest thing gbrain has to a voice budget (ADEBENCH_GBRAIN_PACK_TOKENS,
-          default 600 tokens, counted as 4 characters each)
+          ADEBENCH_GBRAIN_CUT=N cuts it at N characters, to compare with a
+          memory whose door has a budget (e.g. 2400 for a voice client)
+  pack    `context_pack` for the entities the search found: a budget-packed
+          BRIEF (one line per entity, open threads, "use get_page before
+          relying on details"), i.e. the first step of a two-step door. It is
+          measured as what it is: answers are rarely in it, and the report
+          says "lost through this door". ADEBENCH_GBRAIN_PACK_TOKENS, default 600
 
 What maps and what does not (SKIP is honest, not a zero):
   cards          entity pages (person / company / project); corrections and
@@ -52,8 +56,55 @@ class GbrainAdapter:
         self.bin = os.environ.get("ADEBENCH_GBRAIN_BIN") or shutil.which("gbrain") or "gbrain"
         self.source = os.environ.get("ADEBENCH_GBRAIN_SOURCE")  # --source <id>, optional
         self.pack_tokens = int(os.environ.get("ADEBENCH_GBRAIN_PACK_TOKENS", "600"))
+        # a cut on the search door, in characters (0 = none): set it to the
+        # voice budget of the memory you compare with, e.g. 2400
+        self.search_cut = int(os.environ.get("ADEBENCH_GBRAIN_CUT", "0"))
         self._traces: list[dict] = []
         self._remembered: dict[tuple[str, str], str] = {}   # (session, key) -> fact id
+        self._entities: dict[str, str] | None = None          # name -> slug, lazily from list_pages
+
+    def _entity_slugs(self) -> dict[str, str]:
+        if self._entities is None:
+            self._entities = {}
+            for t in ("person", "company", "project"):
+                try:
+                    for p in self._results(self._call("list_pages", {"type": t, "limit": 200})):
+                        sl = str(p.get("slug", ""))
+                        if sl:
+                            self._entities[sl.rsplit("/", 1)[-1].lower()] = sl
+                except GbrainError:
+                    continue
+        return self._entities
+
+    def _named_cards(self, query: str) -> list[dict]:
+        """The card of every known entity the question names, read with
+        get_page: what gbrain's `entity` verb gives an agent that asks by
+        name, and what the reference client does with its own cards."""
+        ql = query.lower()
+        out = []
+        for name, sl in self._entity_slugs().items():
+            if len(name) >= 3 and re.search(r"(?<![a-z0-9])" + re.escape(name) + r"(?![a-z0-9])", ql):
+                try:
+                    page = self._call("get_page", {"slug": sl})
+                except GbrainError:
+                    continue
+                text = self._card_text(page)
+                if text:
+                    out.append({"key": f"card:{sl}", "content": text})
+            if len(out) >= 2:
+                break
+        return out
+
+    @staticmethod
+    def _card_text(page) -> str:
+        if not isinstance(page, dict):
+            return ""
+        content = str(page.get("compiled_truth") or page.get("content") or "").replace("\r\n", "\n")
+        if content.startswith("# "):   # the page title is not part of the card
+            content = content.split("\n", 1)[1].lstrip() if "\n" in content else ""
+        # a trailing "Related: [[...]]" line is the importer's, not the card's
+        lines = [ln for ln in content.split("\n") if not ln.startswith("Related: [[")]
+        return "\n".join(lines).strip()
 
     # ── the one door to gbrain ────────────────────────────────────────────
     def _run(self, args: list[str], timeout: float = 180) -> tuple[str, float, int]:
@@ -107,7 +158,9 @@ class GbrainAdapter:
         return list(DOORS)
 
     def door_cut(self, door: str) -> int | None:
-        return self.pack_tokens * 4 if door == "pack" else None
+        if door == "pack":
+            return self.pack_tokens * 4
+        return self.search_cut or None
 
     @staticmethod
     def _results(data) -> list[dict]:
@@ -147,6 +200,12 @@ class GbrainAdapter:
         weak = bool(hits) and all(str(h.get("evidence", "")).startswith("weak") and not h.get("keyword_hit")
                                   for h in hits)
         cards, semantic, lines = [], [], []
+        named = self._named_cards(query)
+        weak = weak and not named   # a question that names a known entity is not about an unknown thing
+        for c in named:
+            cards.append(c)
+            lines.append(f"  ▣ {c['key'][5:].rsplit('/', 1)[-1].upper()}: {c['content']}")
+        named_slugs = {c["key"][5:] for c in named}
         if weak:
             hits = hits[:2]   # neighbours by meaning only: two, like any vector floor would keep
         for h in hits:
@@ -162,6 +221,8 @@ class GbrainAdapter:
             entry = {"source": f"{'semantic_vec' if by_meaning else 'gbrain'}:{slug}", "content": text,
                      "score": h.get("score"), "evidence": h.get("evidence"), "create_safety": h.get("create_safety")}
             semantic.append(entry)
+            if slug in named_slugs:
+                continue   # already delivered as a card, first
             if str(h.get("type", "")).lower() in ENTITY_TYPES and not weak:
                 cards.append({"key": f"card:{slug}", "content": text})
                 lines.append(f"  ▣ {title.upper()}: {text}")
@@ -175,8 +236,12 @@ class GbrainAdapter:
             unknown = [t for t in re.findall(r"[a-zA-Z]{5,}", query) if t.lower() not in seen][:5] or [query[:40]]
             parts.append("UNKNOWN TERMS: " + ", ".join(unknown)
                          + "\n  No exact match in memory (evidence: weak_semantic on every hit): say so instead of guessing.")
-        if lines:
-            parts.append(("NEAREST PAGES (no direct match):\n" if weak else "SEARCH:\n") + "\n".join(lines))
+        card_lines = [ln for ln in lines if ln.startswith("  ▣")]
+        hit_lines = [ln for ln in lines if not ln.startswith("  ▣")]
+        if card_lines:
+            parts.append("CARDS:\n" + "\n".join(card_lines))
+        if hit_lines:
+            parts.append(("NEAREST PAGES (no direct match):\n" if weak else "SEARCH:\n") + "\n".join(hit_lines))
         if working:
             parts.append("REMEMBERED:\n" + "\n".join(f"  {w['value']}" for w in working))
         summary = f"CONTEXT for '{query}':\n\n" + "\n\n".join(parts) if parts else f"No result for '{query}'."
@@ -188,7 +253,9 @@ class GbrainAdapter:
         return out
 
     def door_text(self, query: str, door: str) -> tuple[str, dict]:
+        from adebench.ade import competing_payload   # the same simulated payload every adapter uses
         r = self.ask(query)
+        payload = competing_payload(CFG.pressure)
         if door == "pack":
             slugs = [c["key"][5:] for c in r.get("cards", [])] or \
                     [s["source"][7:] for s in r.get("semantic", [])[:3]]
@@ -198,8 +265,14 @@ class GbrainAdapter:
             text = pack.get("text") if isinstance(pack, dict) else None
             if not text:
                 text = json.dumps(pack, ensure_ascii=False)
-            return str(text)[: self.pack_tokens * 4], r
-        return r["summary"], r
+            return (payload + str(text))[: self.pack_tokens * 4], r
+        summary = r["summary"]
+        if payload and "CARDS:" in summary:
+            head, _, tail = summary.partition("\n\nSEARCH:")
+            text = head + "\n\n" + payload + ("SEARCH:" + tail if tail else "")
+        else:
+            text = payload + summary
+        return (text[: self.search_cut] if self.search_cut else text), r
 
     # ── entity cards ──────────────────────────────────────────────────────
     def cards(self) -> list[dict]:
@@ -217,10 +290,8 @@ class GbrainAdapter:
                     page = self._call("get_page", {"slug": slug, "include_content": True})
                 except GbrainError:
                     continue
-                content = ""
-                if isinstance(page, dict):
-                    content = page.get("compiled_truth") or page.get("content") or ""
-                out.append({"entity": slug.rsplit("/", 1)[-1], "content": str(content),
+                content = self._card_text(page)
+                out.append({"entity": slug.rsplit("/", 1)[-1], "content": content,
                             "date": str(page.get("updated_at") or page.get("created_at") or "")[:10]
                             if isinstance(page, dict) else ""})
         return out

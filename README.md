@@ -192,6 +192,12 @@ ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.gbrain:GbrainAdap
     --cases examples/synthetic_data/cases --history /tmp/gbrain-run
 ```
 
+Two reports side by side, scored on the sections both measured:
+
+```bash
+python -m adebench.compare history/brain.json /tmp/gbrain-run/gbrain.json brain gbrain
+```
+
 On the synthetic golden set gbrain scores 73.8 of the 80 points it can be measured on
 (`updates` needs a sandbox test of its own, `file_search` a repository); the two failing
 door questions are the dataset's deliberate defects, the same two the synthetic memory
