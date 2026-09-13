@@ -657,6 +657,30 @@ def test_no_live_state_key_is_skip_not_fail(cases, monkeypatch):
     assert fresh["status"] == "SKIP"
 
 
+# ─── the two-step door: brief + fetches under one budget ────────────────────
+
+def test_two_step_compose_respects_order_and_budget():
+    from adebench.twostep import compose
+    details = {"a": "x" * 500, "b": "y" * 900, "c": "z" * 100}
+    text, info = compose("BRIEF\n- a\n- b\n- c", ["a", "b", "c"], details.get, 1200)
+    assert info["fetched"] == ["a", "c"] and info["skipped"] == ["b"]   # b does not fit, c still does
+    assert len(text) <= 1200 and "[a]" in text and "[c]" in text and "[b]" not in text
+    assert info["calls"] == 4   # the brief plus one fetch per identifier tried
+    text2, info2 = compose("BRIEF", ["a", "b"], details.get, 1200, payload="P" * 1100)
+    assert info2["fetched"] == [] and text2.startswith("BRIEF")   # the payload ate the budget, the brief survives
+
+
+def test_synthetic_two_step_door_is_measured(monkeypatch):
+    from examples.synthetic import SyntheticAdapter
+    root = Path(__file__).resolve().parents[1]
+    monkeypatch.setattr(CFG, "door", "two-step")
+    monkeypatch.setattr(CFG, "pressure", 0)
+    monkeypatch.setattr(CFG, "cases", root / "examples" / "synthetic_data" / "cases")
+    adapter.use(SyntheticAdapter())
+    s = sections.door()
+    assert s["measures"]["door_budget_chars"] == 1500 and s["counts"]["PASS"] >= 5
+
+
 # ─── the gbrain adapter honours the contract (no gbrain needed) ─────────────
 
 def test_gbrain_adapter_honours_the_contract(monkeypatch):
@@ -664,7 +688,8 @@ def test_gbrain_adapter_honours_the_contract(monkeypatch):
     g = adapter.load("adebench.gbrain:GbrainAdapter")
     assert not [m for m in adapter.required_methods() if not callable(getattr(g, m, None))]
     assert g.health() is False          # a missing binary is "not alive", never an exception
-    assert g.doors() == ["search", "pack"] and g.door_cut("pack") == 2400 and g.door_cut("search") is None
+    assert g.doors() == ["search", "pack", "two-step"] and g.door_cut("pack") == 2400 and g.door_cut("search") is None
+    assert g.door_cut("two-step") == 2400
     assert g.declared_bytes() is None
 
 

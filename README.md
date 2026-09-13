@@ -95,6 +95,14 @@ are door-independent. The ADE adapter exposes three:
 
 No voice assistant? Run with `--door agent`.
 
+Some memories do not answer in one call: they return a **brief** (one line per hit, an
+identifier each) and let the agent fetch the detail it wants. adebench measures that as a
+door of its own, `two-step`, with a fixed and declared rule (`adebench/twostep.py`): the
+brief is delivered first, then the details in the order the brief lists them, each in full,
+until the next one would not fit the same budget a one-call door gets; every call's latency
+is summed. The gbrain adapter and the synthetic memory expose it. What an agent could choose
+better with judgement is exactly what this door does not measure.
+
 ### Margin and pressure
 
 The cut is fixed; what competes for the space before it is not. A tool response can be 264

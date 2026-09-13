@@ -105,7 +105,7 @@ class SyntheticAdapter:
 
     # ── doors ──
     def doors(self) -> list[str]:
-        return ["chat", "raw"]
+        return ["chat", "raw", "two-step"]
 
     def _retrieve(self, query: str) -> dict:
         q = _words(query) - STOP
@@ -159,10 +159,21 @@ class SyntheticAdapter:
         return self._retrieve(query)
 
     def door_cut(self, door: str) -> int | None:
-        return 1500 if door == "chat" else None
+        return 1500 if door in ("chat", "two-step") else None
 
     def door_text(self, query: str, door: str) -> tuple[str, dict]:
         r = self._retrieve(query)
+        if door == "two-step":
+            # brief: one line per hit with its identifier; fetch: the full text
+            from adebench.ade import competing_payload
+            from adebench.twostep import compose
+            ids = [c["key"] for c in r.get("cards", [])] + [s["source"] for s in r.get("semantic", [])]
+            texts = {c["key"]: c["content"] for c in r.get("cards", [])}
+            texts.update({s["source"]: s["content"] for s in r.get("semantic", [])})
+            brief = f"BRIEF for '{query}':\n" + "\n".join(f"- {i}: {texts[i][:60]}" for i in ids)
+            text, info = compose(brief, ids, lambda i: texts.get(i, ""), 1500, competing_payload(CFG.pressure))
+            r["_two_step"] = info
+            return text, r
         if door == "chat":
             from adebench.ade import competing_payload
             return (competing_payload(CFG.pressure) + r["summary"])[:1500], r  # the chat client cuts at 1,500

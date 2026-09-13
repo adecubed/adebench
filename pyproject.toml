@@ -1,6 +1,6 @@
 [project]
 name = "adebench"
-version = "0.2.8"
+version = "0.2.9"
 description = "A benchmark for personal AI memory, on its own terms: what the client actually receives, entity cards, fact updates, age, live state, abstention, file search, graph. ADE Brain first, any memory via adapter."
 readme = "README.md"
 requires-python = ">=3.11"

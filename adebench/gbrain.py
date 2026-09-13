@@ -13,6 +13,10 @@ Doors:
           the facts `recall` returns for the same query; no cut
           ADEBENCH_GBRAIN_CUT=N cuts it at N characters, to compare with a
           memory whose door has a budget (e.g. 2400 for a voice client)
+  two-step  a brief with identifiers (named entity cards, then search hits
+          with 120-char snippets), then get_page on each identifier in that
+          order until ADEBENCH_TWO_STEP_BUDGET (default 2400) is full: two
+          calls or more, one budget, latency summed (adebench.twostep)
   pack    `context_pack` for the entities the search found: a budget-packed
           BRIEF (one line per entity, open threads, "use get_page before
           relying on details"), i.e. the first step of a two-step door. It is
@@ -44,7 +48,7 @@ from datetime import datetime, timedelta
 from adebench.config import CFG
 
 ENTITY_TYPES = ("person", "company", "project", "people", "companies", "projects")
-DOORS = ("search", "pack")
+DOORS = ("search", "pack", "two-step")
 
 
 class GbrainError(RuntimeError):
@@ -59,6 +63,8 @@ class GbrainAdapter:
         # a cut on the search door, in characters (0 = none): set it to the
         # voice budget of the memory you compare with, e.g. 2400
         self.search_cut = int(os.environ.get("ADEBENCH_GBRAIN_CUT", "0"))
+        # the two-step door: brief + fetches under one budget (same as a voice cut)
+        self.two_step_budget = int(os.environ.get("ADEBENCH_TWO_STEP_BUDGET", "2400"))
         self._traces: list[dict] = []
         self._remembered: dict[tuple[str, str], str] = {}   # (session, key) -> fact id
         self._entities: dict[str, str] | None = None          # name -> slug, lazily from list_pages
@@ -160,7 +166,40 @@ class GbrainAdapter:
     def door_cut(self, door: str) -> int | None:
         if door == "pack":
             return self.pack_tokens * 4
+        if door == "two-step":
+            return self.two_step_budget
         return self.search_cut or None
+
+    def _two_step(self, query: str, payload: str) -> tuple[str, dict]:
+        """Brief with identifiers (search with 120-char snippets, the named
+        entity cards first), then get_page on each identifier in that order
+        until the budget is full: adebench.twostep.compose."""
+        from adebench.twostep import compose
+        t0 = time.perf_counter()
+        r = self.ask(query)   # the same retrieval; the brief is its identifiers
+        hits = self._results(self._call("search", {"query": query, "limit": 8, "snippet_chars": 120}))
+        ids = [c["key"][5:] for c in r.get("cards", [])]
+        lines = [f"- {c['key'][5:]}: {c['content'][:120]}" for c in r.get("cards", [])]
+        for h in hits:
+            sl = str(h.get("slug", ""))
+            if sl and sl not in ids:
+                ids.append(sl)
+                lines.append(f"- {sl}: {self._text_of(h)[:120]}")
+        brief = f"BRIEF for '{query}' (fetch by identifier):\n" + "\n".join(lines)
+        cache: dict[str, str] = {}
+
+        def fetch(sl: str) -> str:
+            if sl not in cache:
+                try:
+                    cache[sl] = self._card_text(self._call("get_page", {"slug": sl}))
+                except GbrainError:
+                    cache[sl] = ""
+            return cache[sl]
+
+        text, info = compose(brief, ids, fetch, self.two_step_budget, payload)
+        r["_ms"] = round((time.perf_counter() - t0) * 1000)
+        r["_two_step"] = info
+        return text, r
 
     @staticmethod
     def _results(data) -> list[dict]:
@@ -254,8 +293,10 @@ class GbrainAdapter:
 
     def door_text(self, query: str, door: str) -> tuple[str, dict]:
         from adebench.ade import competing_payload   # the same simulated payload every adapter uses
-        r = self.ask(query)
         payload = competing_payload(CFG.pressure)
+        if door == "two-step":
+            return self._two_step(query, payload)
+        r = self.ask(query)
         if door == "pack":
             slugs = [c["key"][5:] for c in r.get("cards", [])] or \
                     [s["source"][7:] for s in r.get("semantic", [])[:3]]
