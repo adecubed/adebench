@@ -27,7 +27,7 @@ data** — so the benchmark grows with the memory and cannot be gamed by editing
 | `cards` | 15 | Every entity card exists, is dated, fits the limit, contains each mandatory item of the owner's corrections; every alias leads to the canonical card. Fully derived from the data. |
 | `updates` | 10 | Facts get **updated**, not accumulated: a sandbox test of the dedup mechanism (`--sandbox-test`). The historical trace is reported, never scored. |
 | `time` | 10 | Every memory reaches the model with its age, the episodic day filter returns only that day, machine-signed episodes are found. |
-| `live_state` | 10 | A canary written to working memory is served through the door (polled until it appears: the **write-to-serve latency** is reported in ms, with a p50/p95 over a few canaries, and a memory that never serves one within the budget fails); the same key **overwritten** is served with the new value and never the old one (a stale read right after a write, or both values together, is a fail); the live state key is fresher than N minutes. |
+| `live_state` | 10 | A canary written to working memory is served through the door (polled until it appears: the **write-to-serve latency** is reported in ms, with a p50/p95 over a few canaries, and a memory that never serves one within the budget fails); the same key **overwritten** is served with the new value and never the old one (a stale read right after a write, or both values together, is a fail); **two writes in quick succession** settle on the second and never go back to the first (out-of-order visibility is a fail); the live state key is fresher than N minutes. |
 | `abstention` | 10 | On invented entities: no card, episodes marked as *no direct match*, no keyword hits — the memory says it does not know. |
 | `file_search` | 10 | Real function names sampled from a repository: the grep-replacement search puts the right file in the top 5. |
 | `graph` | 10 | Every entity with a card has edges in the knowledge graph; no orphan fact nodes. |
@@ -120,7 +120,10 @@ servers with `pip install -U callwitness` and `callwitness baseline --out mine.j
   percentiles of a single tool response (bytes, taken as characters). The resolved number
   is what enters the setup fingerprint;
 - `--pressure-profile` runs the door at all three levels too and reports the passes at
-  each, report-only: "median day", "p95 day", "worst observed";
+  each, report-only: "median day", "p95 day", "worst observed". Median and p95 are the
+  stable levels; the worst observed is the worst *argument* anybody happened to pick so
+  far (the same server returned 906x and 81x its declared size in two census runs), so
+  the report labels it a lower bound of a bad day, never the floor of the score;
 - a report-only `census` section says where this door sits in the distribution (its mean
   delivered text against the census calls) and, when the adapter implements the optional
   `declared_bytes()` (the size of its MCP `tools/list`), the **declared-vs-returned**

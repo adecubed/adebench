@@ -1,11 +1,11 @@
 {
- "when": "2026-09-13T10:19:42",
+ "when": "2026-09-13T15:46:03",
  "total": 90.0,
  "measured_weight": 100,
  "not_run_weight": 0,
  "total_weight": 100,
  "counts": {
-  "PASS": 50,
+  "PASS": 51,
   "FAIL": 5,
   "ERROR": 0,
   "SKIP": 0
@@ -58,7 +58,7 @@
    "file_search",
    "graph"
   ],
-  "duration_s": 0,
+  "duration_s": 2,
   "fingerprint": "ff086bb57c"
  },
  "sections": [
@@ -450,6 +450,12 @@
      "note": "overwrite-to-visible 0 ms"
     },
     {
+     "case": "two writes in quick succession: the door settles on the second, never back on the first",
+     "status": "PASS",
+     "ok": true,
+     "note": "second write visible in 0 ms"
+    },
+    {
      "case": "cleanup: adebench session empty at the end of the run",
      "status": "PASS",
      "ok": true,
@@ -463,7 +469,7 @@
     }
    ],
    "counts": {
-    "PASS": 7,
+    "PASS": 8,
     "FAIL": 0,
     "ERROR": 0,
     "SKIP": 0
@@ -476,7 +482,9 @@
     "write_to_serve_samples": 3,
     "write_to_serve_budget_s": 30,
     "overwrite_to_visible_ms": 0,
-    "stale_reads_after_overwrite": 0
+    "stale_reads_after_overwrite": 0,
+    "repeated_writes_settle_ms": 0,
+    "out_of_order_reads": 0
    },
    "warnings": []
   },
@@ -649,11 +657,11 @@
    "counts": {},
    "measures": {
     "/ask": {
-     "calls": 20,
+     "calls": 23,
      "http_errors": 0,
      "ms_p50": 1,
      "ms_p95": 1,
-     "mean_chars": 299
+     "mean_chars": 304
     }
    },
    "warnings": []
@@ -674,17 +682,17 @@
      "p95": 140000,
      "max": 140000
     },
-    "this_door_mean_chars": 299,
-    "this_door_rank_in_census": 0.4,
+    "this_door_mean_chars": 304,
+    "this_door_rank_in_census": 0.45,
     "declared_vs_returned": {
      "declared_bytes": 2200,
-     "returned_mean_chars": 299,
+     "returned_mean_chars": 304,
      "returned_over_declared": 0.14
     }
    },
    "warnings": [
     "this census document carries no declared sizes (declared_bytes = 0: the local recorder does not keep tools/list yet), so declared-vs-returned has no reference",
-    "this door delivers 299 characters on average: larger than 40% of the 20 tool responses in the census"
+    "this door delivers 304 characters on average: larger than 45% of the 20 tool responses in the census"
    ]
   },
   {
@@ -700,6 +708,7 @@
      "max": 140000
     },
     "origin": "local",
+    "worst_observed_is_a_lower_bound": true,
     "median": {
      "pressure_chars": 512,
      "PASS": 6,
@@ -724,6 +733,7 @@
    },
    "warnings": [
     "the worst observed tool response (140000 bytes) alone exceeds this door's budget (1500): on that day the memory has no room at all",
+    "'max' is the worst response observed so far, a lower bound of a bad day that moves with every census; median and p95 are the levels to compare across runs",
     "6 answers that pass on a median day are lost on a p95 day"
    ]
   }

@@ -1,7 +1,7 @@
-# adebench — 2026-09-13T10:19:42
+# adebench — 2026-09-13T15:46:03
 
 **Score: 90.0 / 100**
-Cases: 50 PASS · 5 FAIL · 0 ERROR · 0 SKIP
+Cases: 51 PASS · 5 FAIL · 0 ERROR · 0 SKIP
 Adapter `examples.synthetic:SyntheticAdapter` · door `chat` · cases `0f9a4640dc` · setup `ff086bb57c` · sections door, cards, updates, time, live_state, abstention, file_search, graph
 
 | Section | Weight | Points | PASS/FAIL/ERROR/SKIP |
@@ -10,7 +10,7 @@ Adapter `examples.synthetic:SyntheticAdapter` · door `chat` · cases `0f9a4640d
 | cards | 15 | 14.1 | 15/1/0/0 |
 | updates | 10 | 10.0 | 4/0/0/0 |
 | time | 10 | 10.0 | 5/0/0/0 |
-| live_state | 10 | 10.0 | 7/0/0/0 |
+| live_state | 10 | 10.0 | 8/0/0/0 |
 | abstention | 10 | 9.2 | 3/1/0/0 |
 | file_search | 10 | 10.0 | 6/0/0/0 |
 | graph | 10 | 8.0 | 4/1/0/0 |
@@ -72,6 +72,8 @@ Not passed:
 - write_to_serve_budget_s: `30`
 - overwrite_to_visible_ms: `0`
 - stale_reads_after_overwrite: `0`
+- repeated_writes_settle_ms: `0`
+- out_of_order_reads: `0`
 
 ## abstention
 
@@ -102,7 +104,7 @@ Not passed:
 
 ## doors
 
-- /ask: `{"calls": 20, "http_errors": 0, "ms_p50": 1, "ms_p95": 1, "mean_chars": 299}`
+- /ask: `{"calls": 23, "http_errors": 0, "ms_p50": 1, "ms_p95": 1, "mean_chars": 304}`
 
 ## census
 
@@ -111,20 +113,22 @@ Not passed:
 - calls: `20`
 - servers_called: `3`
 - tool_response_bytes: `{"median": 512, "p95": 140000, "max": 140000}`
-- this_door_mean_chars: `299`
-- this_door_rank_in_census: `0.4`
-- declared_vs_returned: `{"declared_bytes": 2200, "returned_mean_chars": 299, "returned_over_declared": 0.14}`
+- this_door_mean_chars: `304`
+- this_door_rank_in_census: `0.45`
+- declared_vs_returned: `{"declared_bytes": 2200, "returned_mean_chars": 304, "returned_over_declared": 0.14}`
 
 - ⚠ this census document carries no declared sizes (declared_bytes = 0: the local recorder does not keep tools/list yet), so declared-vs-returned has no reference
-- ⚠ this door delivers 299 characters on average: larger than 40% of the 20 tool responses in the census
+- ⚠ this door delivers 304 characters on average: larger than 45% of the 20 tool responses in the census
 
 ## pressure_profile
 
 - levels_bytes: `{"median": 512, "p95": 140000, "max": 140000}`
 - origin: `"local"`
+- worst_observed_is_a_lower_bound: `true`
 - median: `{"pressure_chars": 512, "PASS": 6, "FAIL": 2, "ERROR": 0, "min_margin_chars": 673}`
 - p95: `{"pressure_chars": 140000, "PASS": 0, "FAIL": 8, "ERROR": 0, "min_margin_chars": null}`
 - max: `{"pressure_chars": 140000, "PASS": 0, "FAIL": 8, "ERROR": 0, "min_margin_chars": null}`
 
 - ⚠ the worst observed tool response (140000 bytes) alone exceeds this door's budget (1500): on that day the memory has no room at all
+- ⚠ 'max' is the worst response observed so far, a lower bound of a bad day that moves with every census; median and p95 are the levels to compare across runs
 - ⚠ 6 answers that pass on a median day are lost on a p95 day

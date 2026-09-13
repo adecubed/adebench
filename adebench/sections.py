@@ -415,7 +415,8 @@ def live_state() -> dict:
     cases = []
     token = uuid.uuid4().hex[:10]
     value = f"canarino adebench {token}: la parola d'ordine di oggi e' girasole"
-    latency: dict = {"ms": None, "samples": [], "overwrite_ms": None, "stale_reads": 0}
+    latency: dict = {"ms": None, "samples": [], "overwrite_ms": None, "stale_reads": 0,
+                     "reorder_ms": None, "out_of_order": 0}
     try:
         cases.append(_try("canary write", lambda: _case(
             "canary written to working memory", ada.working_write("adebench", "adebench_canary", value, 1))))
@@ -471,11 +472,46 @@ def live_state() -> dict:
             return _case("after overwriting the canary the door serves the new value, never the old one",
                          ms is not None and not both and not stale, note)
 
+        def _repeated() -> dict:
+            # two writes to the same key back to back, no wait between them.
+            # The door must end up on the second; the first showing up AFTER
+            # the second was already visible is out-of-order visibility, which
+            # old-vs-new alone cannot see (verstands, r/mcp).
+            t3, t4 = uuid.uuid4().hex[:10], uuid.uuid4().hex[:10]
+            ada.working_write("adebench", "adebench_canary", f"canarino adebench {t3}: sequenza uno", 1)
+            ada.working_write("adebench", "adebench_canary", f"canarino adebench {t4}: sequenza due", 1)
+            t0 = time.perf_counter()
+            deadline = t0 + CFG.write_to_serve_max_s
+            seen_second, out_of_order, ms, stable = False, 0, None, 0
+            while True:
+                _, r = ada.door_text("canarino adebench sequenza", CFG.door)
+                values = [str(e.get("value", "")) for e in r.get("working", [])]
+                has3, has4 = any(t3 in v for v in values), any(t4 in v for v in values)
+                if has4 and ms is None:
+                    ms = round((time.perf_counter() - t0) * 1000)
+                if seen_second and has3:
+                    out_of_order += 1
+                seen_second = seen_second or has4
+                # settled = the second alone, three reads in a row: a first
+                # write that lands late shows up in that window
+                stable = stable + 1 if (has4 and not has3) else 0
+                if stable >= 3 or time.perf_counter() >= deadline:
+                    break
+                time.sleep(1)
+            latency["reorder_ms"], latency["out_of_order"] = ms, out_of_order
+            note = f"second write visible in {ms} ms" if ms is not None else \
+                f"second write not served within {CFG.write_to_serve_max_s} s"
+            if out_of_order:
+                note += f" · {out_of_order} read(s) served the first write after the second was already visible"
+            return _case("two writes in quick succession: the door settles on the second, never back on the first",
+                         ms is not None and out_of_order == 0 and not (has3 and has4), note)
+
         try:
             cases.extend(_find())
             if latency["ms"] is not None:
                 cases.append(_try("write-to-serve samples", _more_samples))
                 cases.append(_try("overwrite consistency", _overwrite))
+                cases.append(_try("repeated writes", _repeated))
         except Exception as e:  # noqa: BLE001
             cases.append(_case("canary retrieval", False, f"{type(e).__name__}: {str(e)[:120]}", status="ERROR"))
     finally:
@@ -504,7 +540,9 @@ def live_state() -> dict:
                                           "write_to_serve_samples": len(latency["samples"]),
                                           "write_to_serve_budget_s": CFG.write_to_serve_max_s,
                                           "overwrite_to_visible_ms": latency["overwrite_ms"],
-                                          "stale_reads_after_overwrite": latency["stale_reads"]})
+                                          "stale_reads_after_overwrite": latency["stale_reads"],
+                                          "repeated_writes_settle_ms": latency["reorder_ms"],
+                                          "out_of_order_reads": latency["out_of_order"]})
 
 
 # ─── F. Abstention ───────────────────────────────────────────────────────────
@@ -670,10 +708,15 @@ def census_section(cw) -> dict:
 
 
 def pressure_profile(cw) -> dict:
-    """The door at the census median, p95 and max: passes at each level.
-    Report-only; the scored door run keeps the configured pressure."""
+    """The door at the census median, p95 and worst observed: passes at each
+    level. Report-only; the scored door run keeps the configured pressure.
+    Median and p95 are stable levels; the worst observed is the worst
+    ARGUMENT anybody happened to pick so far — the same server returned 906x
+    and 81x its declared size in two census runs — so it is labelled as a
+    lower bound of a bad day, not as the floor of the score."""
     keep = CFG.pressure
-    m: dict = {"levels_bytes": cw.levels(), "origin": cw.label()}
+    m: dict = {"levels_bytes": cw.levels(), "origin": cw.label(),
+               "worst_observed_is_a_lower_bound": True}
     budget = current().door_cut(CFG.door)
     try:
         for name, chars in cw.levels().items():
@@ -688,6 +731,8 @@ def pressure_profile(cw) -> dict:
     if budget and cw.levels()["max"] >= budget:
         warnings.append(f"the worst observed tool response ({cw.levels()['max']} bytes) alone exceeds this "
                         f"door's budget ({budget}): on that day the memory has no room at all")
+    warnings.append("'max' is the worst response observed so far, a lower bound of a bad day that moves with "
+                    "every census; median and p95 are the levels to compare across runs")
     p50, p95 = m["median"]["PASS"], m["p95"]["PASS"]
     if p95 < p50:
         warnings.append(f"{p50 - p95} answers that pass on a median day are lost on a p95 day")

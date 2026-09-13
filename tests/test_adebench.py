@@ -282,6 +282,37 @@ def test_write_to_serve_latency_is_measured(cases, monkeypatch):
     assert over["status"] == "PASS" and s["measures"]["stale_reads_after_overwrite"] == 0
 
 
+def test_out_of_order_visibility_is_a_fail(cases, monkeypatch):
+    class Reordering(Fake):
+        """Serves writes with a lag, so the FIRST of two quick writes shows up
+        after the second was already visible (an async index that applies
+        writes out of order)."""
+        def __init__(self):
+            super().__init__(answer={"summary": "x"})
+            self.log: list[str] = []
+            self.asks = 0
+        def working_write(self, s, k, v, ttl):
+            self.log.append(v)
+            return super().working_write(s, k, v, ttl)
+        def door_text(self, q, door):
+            seq = [v for v in self.log if "sequenza" in v]
+            if len(seq) == 2:
+                self.asks += 1   # polls of the repeated-writes test only
+                # poll 1: only the second; poll 2: both (the first lands late); then the second only
+                vals = [seq[1]] if self.asks == 1 else ([seq[1], seq[0]] if self.asks == 2 else [seq[1]])
+            else:
+                vals = list(self.working.values())
+            return "\n".join(vals), {"summary": "\n".join(vals), "working": [{"key": "k", "value": v} for v in vals]}
+    _use(Reordering())
+    monkeypatch.setattr(CFG, "write_to_serve_max_s", 5)
+    monkeypatch.setattr(CFG, "write_to_serve_samples", 1)
+    monkeypatch.setattr(sections.time, "sleep", lambda s: None)
+    s = sections.live_state()
+    rep = next(c for c in s["cases"] if c["case"].startswith("two writes in quick succession"))
+    assert rep["status"] == "FAIL" and "after the second was already visible" in rep["note"]
+    assert s["measures"]["out_of_order_reads"] >= 1
+
+
 def test_stale_read_after_overwrite_is_a_fail(cases, monkeypatch):
     class Sticky(Fake):
         """Serves the first value ever written to a key, forever (a cache
