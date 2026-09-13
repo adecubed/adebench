@@ -545,6 +545,86 @@ def health() -> dict:
     return {"name": "health", "weight": 0, "score": None, "cases": [], "counts": {}, "measures": m, "warnings": warnings}
 
 
+def census_section(cw) -> dict:
+    """Where this memory's door sits in the callwitness distribution, and the
+    declared-vs-returned ratio when the document and the adapter allow it.
+    Report-only: the census is context, not a score."""
+    ada = current()
+    # the retrieval door is the first the adapter lists as measured; the
+    # others (an agent context, a raw search) would inflate the mean
+    retrieval = (ada.measured_doors() or [None])[0]
+    door_chars = [t["chars"] for t in ada.traces() if t["door"] == retrieval and t.get("http", 200) == 200]
+    mean_chars = round(statistics.mean(door_chars)) if door_chars else None
+    lv = cw.levels()
+    m = {
+        "origin": cw.label(),
+        "generated_at": cw.generated_at,
+        "calls": cw.n, "servers_called": cw.servers_called,
+        "tool_response_bytes": {"median": lv["median"], "p95": lv["p95"], "max": lv["max"]},
+        "this_door_mean_chars": mean_chars,
+        # bytes of a tool response taken as characters: UTF-8 text, mostly ASCII
+        "this_door_rank_in_census": cw.rank(mean_chars) if mean_chars else None,
+    }
+    warnings = []
+    if not cw.origin_declared:
+        warnings.append("the census document has no 'origin' field: its origin was inferred from where it "
+                        "came from, not read")
+    if cw.origin == "unknown":
+        warnings.append("census of unknown origin: neither the published census nor a document that says "
+                        "'local'; its levels are used but not attributed")
+    declared = getattr(ada, "declared_bytes", None)
+    declared_bytes = None
+    if callable(declared):
+        try:
+            declared_bytes = declared()
+        except Exception as e:  # noqa: BLE001
+            warnings.append(f"declared_bytes failed: {type(e).__name__}: {str(e)[:100]}")
+    if declared_bytes and mean_chars:
+        m["declared_vs_returned"] = {"declared_bytes": declared_bytes, "returned_mean_chars": mean_chars,
+                                     "returned_over_declared": round(mean_chars / declared_bytes, 2)}
+    else:
+        m["declared_vs_returned"] = None
+        warnings.append("declared-vs-returned not measured for this memory: the adapter has no "
+                        "declared_bytes() (the size of its MCP tools/list)")
+    if cw.declared_known:
+        top = sorted((d for d in cw.declared if d.get("ratio_max")), key=lambda d: -d["ratio_max"])[:3]
+        m["census_returned_over_declared_top"] = [{"server": d["server"], "max": d["ratio_max"]} for d in top]
+    else:
+        warnings.append("this census document carries no declared sizes (declared_bytes = 0: the local "
+                        "recorder does not keep tools/list yet), so declared-vs-returned has no reference")
+    if mean_chars and cw.n:
+        r = m["this_door_rank_in_census"]
+        warnings.append(f"this door delivers {mean_chars} characters on average: larger than {round(100 * r)}% "
+                        f"of the {cw.n} tool responses in the census")
+    return {"name": "census", "weight": 0, "score": None, "cases": [], "counts": {}, "measures": m, "warnings": warnings}
+
+
+def pressure_profile(cw) -> dict:
+    """The door at the census median, p95 and max: passes at each level.
+    Report-only; the scored door run keeps the configured pressure."""
+    keep = CFG.pressure
+    m: dict = {"levels_bytes": cw.levels(), "origin": cw.label()}
+    budget = current().door_cut(CFG.door)
+    try:
+        for name, chars in cw.levels().items():
+            CFG.pressure = chars
+            s = door()
+            k = s.get("counts", {})
+            m[name] = {"pressure_chars": chars, "PASS": k.get("PASS", 0), "FAIL": k.get("FAIL", 0),
+                       "ERROR": k.get("ERROR", 0), "min_margin_chars": s["measures"].get("min_margin_chars")}
+    finally:
+        CFG.pressure = keep
+    warnings = []
+    if budget and cw.levels()["max"] >= budget:
+        warnings.append(f"the worst observed tool response ({cw.levels()['max']} bytes) alone exceeds this "
+                        f"door's budget ({budget}): on that day the memory has no room at all")
+    p50, p95 = m["median"]["PASS"], m["p95"]["PASS"]
+    if p95 < p50:
+        warnings.append(f"{p50 - p95} answers that pass on a median day are lost on a p95 day")
+    return {"name": "pressure_profile", "weight": 0, "score": None, "cases": [], "counts": {}, "measures": m,
+            "warnings": warnings}
+
+
 def doors() -> dict:
     """Latency and noise per door. The retrieval door was already called by
     the sections; the adapter probes the other doors on the golden questions."""

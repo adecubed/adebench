@@ -6,7 +6,7 @@ import sys
 import time
 from pathlib import Path
 
-from adebench import adapter, report, sections
+from adebench import adapter, census, report, sections
 from adebench.config import CFG
 
 ORDER = ["door", "cards", "updates", "time", "live_state", "abstention", "file_search", "graph"]
@@ -17,7 +17,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--adapter", help=f"'module:Class' adapter (default {CFG.adapter})")
     ap.add_argument("--brain", help=f"memory service URL (default {CFG.brain_url})")
     ap.add_argument("--door", help="door measured by the 'door' section (the adapter lists them)")
-    ap.add_argument("--pressure", type=int, help="simulated competing payload before the cut, in characters (default 0)")
+    ap.add_argument("--pressure", help="simulated competing payload before the cut: characters, or "
+                                       "'median' | 'p95' | 'max' of a callwitness census (needs --census)")
+    ap.add_argument("--census", help="callwitness baseline (URL or file, schema callwitness.baseline.v1); "
+                                     f"the published one is {census.PUBLISHED_URL}")
+    ap.add_argument("--pressure-profile", action="store_true",
+                    help="run the door at the census median, p95 and max too, report-only (needs --census)")
     ap.add_argument("--cases", help="folder with questions.json and abstention.json")
     ap.add_argument("--history", help="folder for the run reports")
     ap.add_argument("--repo", help="repository root for the file-search section")
@@ -34,8 +39,28 @@ def main(argv: list[str] | None = None) -> int:
         CFG.brain_url = args.brain.rstrip("/")
     if args.door:
         CFG.door = args.door
+    if args.census:
+        CFG.census = args.census
+    if args.pressure_profile:
+        CFG.pressure_profile = True
+    cw = None
+    if CFG.census:
+        try:
+            cw = census.load(CFG.census)
+        except Exception as e:  # noqa: BLE001
+            print(f"census {CFG.census}: {e}")
+            return 2
+        print(f"census: {cw.label()} · {cw.n} calls across {cw.servers_called} servers · "
+              f"median {cw.levels()['median']} · p95 {cw.levels()['p95']} · max {cw.levels()['max']} bytes")
+    if CFG.pressure_profile and cw is None:
+        print("--pressure-profile needs --census")
+        return 2
     if args.pressure is not None:
-        CFG.pressure = args.pressure
+        try:
+            CFG.pressure = census.resolve_pressure(args.pressure, cw)
+        except ValueError as e:
+            print(e)
+            return 2
     if args.cases:
         CFG.cases = Path(args.cases)
     if args.history:
@@ -104,6 +129,14 @@ def main(argv: list[str] | None = None) -> int:
     print("  doors…", end="", flush=True)
     results.append(sections.doors())
     print(" ok")
+    if cw is not None:
+        print("  census…", end="", flush=True)
+        results.append(sections.census_section(cw))
+        print(" ok")
+        if CFG.pressure_profile and "door" in chosen:
+            print("  pressure profile…", end="", flush=True)
+            results.append(sections.pressure_profile(cw))
+            print(" ok")
 
     # the sandbox test as it was EFFECTIVELY used: a path that --no-sandbox-test
     # switched off must not look like the same setup as a run that ran it
@@ -118,6 +151,9 @@ def main(argv: list[str] | None = None) -> int:
               "repo": CFG.repo.as_posix() if CFG.repo else None,
               "sandbox_test": CFG.sandbox_test.as_posix() if sandbox_enabled else None,
               "sandbox_enabled": sandbox_enabled,
+              "pressure_level": args.pressure if args.pressure and not args.pressure.lstrip("-").isdigit() else None,
+              "census": ({"spec": cw.spec, "origin": cw.origin, "origin_declared": cw.origin_declared,
+                          "generated_at": cw.generated_at, "calls": cw.n} if cw else None),
               "sections": chosen, "duration_s": round(time.perf_counter() - t_start)}
     config["fingerprint"] = report.fingerprint(config)
     if args.no_report:

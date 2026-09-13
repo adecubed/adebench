@@ -109,6 +109,29 @@ different tests, and adebench runs both:
   labels are used, so there is no "precision" score: that would be a judgement, not a
   measurement.
 
+### Pressure levels from a callwitness census
+
+`N` does not have to be a number you pick. `--census` reads a callwitness baseline
+(schema `callwitness.baseline.v1`): either the published census,
+`https://callwitness.tech/baseline/v1.json`, or a file you generated against your own
+servers with `pip install -U callwitness` and `callwitness baseline --out mine.json`. Then:
+
+- `--pressure median`, `--pressure p95` or `--pressure max` resolve to the census
+  percentiles of a single tool response (bytes, taken as characters). The resolved number
+  is what enters the setup fingerprint;
+- `--pressure-profile` runs the door at all three levels too and reports the passes at
+  each, report-only: "median day", "p95 day", "worst observed";
+- a report-only `census` section says where this door sits in the distribution (its mean
+  delivered text against the census calls) and, when the adapter implements the optional
+  `declared_bytes()` (the size of its MCP `tools/list`), the **declared-vs-returned**
+  ratio — the measure that reorders servers in the census.
+
+The two origins are never treated as one: `origin: "census"` is the published document,
+`origin: "local"` is your own traffic, and a document with no origin field is `census` only
+when it comes from the published URL — otherwise the report labels it unknown. Locally
+generated documents currently report `declared_bytes = 0` (the recorder does not keep
+`tools/list` yet), so declared-vs-returned has a reference against the published census only.
+
 ## Other memory systems: write an adapter
 
 The sections never talk to a memory system directly. They call an **adapter** — one class
@@ -133,6 +156,7 @@ The contract, in short:
 | live state | `working_write/read/clear`, `working_age_minutes` | the canary needs a writable short-lived store |
 | files and graph | `file_search`, `graph_edges`, `graph_orphans`, `graph_counts` | return `[]` / `0` → SKIP |
 | report-only | `health_report`, `measured_doors`, `traces`, `probe_doors` | free-form; may return empty |
+| optional | `declared_bytes` | bytes declared by your MCP `tools/list`; absent → declared-vs-returned not measured |
 
 The raw answer returned by `ask` and `door_text` is a plain dict with optional keys
 (`summary`, `cards`, `semantic`, `episodic`, `working`, `unknown_terms`); missing keys
@@ -186,7 +210,9 @@ Options:
 | `--adapter` / `ADEBENCH_ADAPTER` | `module:Class` adapter (default `adebench.ade:AdeAdapter`) |
 | `--brain` / `ADEBENCH_BRAIN_URL` | memory service URL (default `http://localhost:8766`) |
 | `--door` / `ADEBENCH_DOOR` | door measured by the `door` section (the adapter lists them) |
-| `--pressure` / `ADEBENCH_PRESSURE` | simulated competing payload before the cut, in characters (default 0) |
+| `--pressure` / `ADEBENCH_PRESSURE` | simulated competing payload before the cut: characters, or `median` / `p95` / `max` of a census (default 0) |
+| `--census` / `ADEBENCH_CENSUS` | callwitness baseline, URL or file (`callwitness.baseline.v1`) |
+| `--pressure-profile` / `ADEBENCH_PRESSURE_PROFILE` | run the door at the census median, p95 and max too (report-only) |
 | `--cases` / `ADEBENCH_CASES` | folder with `questions.json` and `abstention.json` |
 | `--history` / `ADEBENCH_HISTORY` | where reports go (default `history/`) |
 | `--repo` / `ADEBENCH_REPO` | repository root for the file-search section |

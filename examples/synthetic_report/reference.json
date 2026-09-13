@@ -1,5 +1,5 @@
 {
- "when": "2026-09-12T19:28:43",
+ "when": "2026-09-13T09:44:06",
  "total": 90.0,
  "measured_weight": 100,
  "not_run_weight": 0,
@@ -40,6 +40,14 @@
   "repo": "examples/synthetic_data/repo",
   "sandbox_test": "examples/synthetic_data/sandbox_test.py",
   "sandbox_enabled": true,
+  "pressure_level": null,
+  "census": {
+   "spec": "examples/synthetic_data/census.json",
+   "origin": "local",
+   "origin_declared": true,
+   "generated_at": "2026-09-13T00:00:00Z",
+   "calls": 20
+  },
   "sections": [
    "door",
    "cards",
@@ -632,6 +640,75 @@
     }
    },
    "warnings": []
+  },
+  {
+   "name": "census",
+   "weight": 0,
+   "score": null,
+   "cases": [],
+   "counts": {},
+   "measures": {
+    "origin": "local",
+    "generated_at": "2026-09-13T00:00:00Z",
+    "calls": 20,
+    "servers_called": 3,
+    "tool_response_bytes": {
+     "median": 512,
+     "p95": 140000,
+     "max": 140000
+    },
+    "this_door_mean_chars": 291,
+    "this_door_rank_in_census": 0.4,
+    "declared_vs_returned": {
+     "declared_bytes": 2200,
+     "returned_mean_chars": 291,
+     "returned_over_declared": 0.13
+    }
+   },
+   "warnings": [
+    "this census document carries no declared sizes (declared_bytes = 0: the local recorder does not keep tools/list yet), so declared-vs-returned has no reference",
+    "this door delivers 291 characters on average: larger than 40% of the 20 tool responses in the census"
+   ]
+  },
+  {
+   "name": "pressure_profile",
+   "weight": 0,
+   "score": null,
+   "cases": [],
+   "counts": {},
+   "measures": {
+    "levels_bytes": {
+     "median": 512,
+     "p95": 140000,
+     "max": 140000
+    },
+    "origin": "local",
+    "median": {
+     "pressure_chars": 512,
+     "PASS": 6,
+     "FAIL": 2,
+     "ERROR": 0,
+     "min_margin_chars": 673
+    },
+    "p95": {
+     "pressure_chars": 140000,
+     "PASS": 0,
+     "FAIL": 8,
+     "ERROR": 0,
+     "min_margin_chars": null
+    },
+    "max": {
+     "pressure_chars": 140000,
+     "PASS": 0,
+     "FAIL": 8,
+     "ERROR": 0,
+     "min_margin_chars": null
+    }
+   },
+   "warnings": [
+    "the worst observed tool response (140000 bytes) alone exceeds this door's budget (1500): on that day the memory has no room at all",
+    "6 answers that pass on a median day are lost on a p95 day"
+   ]
   }
  ],
  "delta": {

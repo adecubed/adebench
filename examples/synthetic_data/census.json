@@ -1,0 +1,86 @@
+{
+ "schema": "callwitness.baseline.v1",
+ "origin": "local",
+ "generated_at": "2026-09-13T00:00:00Z",
+ "source": "callwitness baseline --out census.json (synthetic example: invented numbers)",
+ "stability": "Within callwitness.baseline.v1, fields may be added but existing field names, units and meanings will not change.",
+ "sample": {
+  "servers_started": 3,
+  "servers_called": 3,
+  "tools_declared": 21,
+  "calls": 20
+ },
+ "caveat": "Invented numbers for the reproducible example. declared_bytes is 0: the local recorder does not keep tools/list yet.",
+ "returned_bytes_all": [
+  88,
+  96,
+  110,
+  131,
+  142,
+  180,
+  205,
+  264,
+  300,
+  366,
+  512,
+  780,
+  1200,
+  2100,
+  3900,
+  8000,
+  12500,
+  25039,
+  61000,
+  140000
+ ],
+ "overall": {
+  "returned_bytes": {
+   "n": 20,
+   "min": 88,
+   "p50": 366,
+   "p95": 61000,
+   "max": 140000
+  },
+  "declared_bytes": {
+   "n": 0
+  }
+ },
+ "servers": [
+  {
+   "server": "tool_1",
+   "declared_bytes": 0,
+   "tool_count": 7,
+   "returned_bytes": {
+    "n": 8,
+    "min": 88,
+    "p50": 180,
+    "p95": 2100,
+    "max": 2100
+   }
+  },
+  {
+   "server": "tool_2",
+   "declared_bytes": 0,
+   "tool_count": 9,
+   "returned_bytes": {
+    "n": 7,
+    "min": 205,
+    "p50": 780,
+    "p95": 12500,
+    "max": 12500
+   }
+  },
+  {
+   "server": "tool_3",
+   "declared_bytes": 0,
+   "tool_count": 5,
+   "returned_bytes": {
+    "n": 5,
+    "min": 3900,
+    "p50": 25039,
+    "p95": 140000,
+    "max": 140000
+   }
+  }
+ ]
+}

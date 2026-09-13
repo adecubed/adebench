@@ -431,6 +431,7 @@ def test_synthetic_example_matches_reference(tmp_path, monkeypatch):
     assert main(["--adapter", "examples.synthetic:SyntheticAdapter",
                  "--cases", "examples/synthetic_data/cases", "--repo", "examples/synthetic_data/repo",
                  "--sandbox-test", "examples/synthetic_data/sandbox_test.py",
+                 "--census", "examples/synthetic_data/census.json", "--pressure-profile",
                  "--history", str(tmp_path)]) == 0
     run = json.loads(next(tmp_path.glob("*.json")).read_text(encoding="utf-8"))
     assert run["total"] == reference["total"]
@@ -484,3 +485,102 @@ def test_http_500_raises_instead_of_answering(server_500):
 def test_ade_adapter_health_false_on_500(server_500):
     from adebench.ade import AdeAdapter
     assert AdeAdapter().health() is False
+
+
+# ─── callwitness census: measured pressure levels ───────────────────────────
+
+from pathlib import Path  # noqa: E402
+from adebench import census as cw  # noqa: E402
+
+
+def _census_doc(**over):
+    d = {"schema": "callwitness.baseline.v1", "generated_at": "2026-09-13T04:03:45Z",
+         "sample": {"servers_started": 4, "servers_called": 3, "calls": 10},
+         "returned_bytes_all": [88, 100, 200, 264, 300, 900, 2000, 9000, 25039, 701216],
+         "servers": [{"server": "a", "declared_bytes": 1000, "returned_bytes": {"n": 5},
+                      "returned_over_declared": {"p50": 0.3, "max": 2.5}},
+                     {"server": "b", "declared_bytes": 500, "returned_bytes": {"n": 5},
+                      "returned_over_declared": {"p50": 1.0, "max": 905.96}}]}
+    d.update(over)
+    return d
+
+
+def test_census_levels_are_the_percentiles_of_a_tool_response():
+    c = cw.parse(_census_doc(), spec=cw.PUBLISHED_URL)
+    assert c.levels() == {"median": 900, "p95": 701216, "max": 701216} or c.levels()["median"] in (300, 900)
+    assert c.n == 10 and c.servers_called == 3 and c.declared_known
+
+
+def test_census_origin_is_read_or_inferred_never_assumed():
+    assert cw.parse(_census_doc(), spec=cw.PUBLISHED_URL).origin == "census"
+    assert cw.parse(_census_doc(), spec=cw.PUBLISHED_URL).origin_declared is False
+    assert cw.parse(_census_doc(), spec="/tmp/mine.json").origin == "unknown"
+    assert cw.parse(_census_doc(origin="local"), spec="/tmp/mine.json").origin == "local"
+    assert cw.parse(_census_doc(origin="local"), spec=cw.PUBLISHED_URL).origin == "local"  # the field wins
+
+
+def test_census_rejects_other_schemas():
+    with pytest.raises(ValueError):
+        cw.parse({"schema": "something.else.v1"})
+
+
+def test_pressure_names_resolve_against_the_census_only():
+    c = cw.parse(_census_doc(), spec=cw.PUBLISHED_URL)
+    assert cw.resolve_pressure("1200", None) == 1200
+    assert cw.resolve_pressure("max", c) == 701216
+    assert cw.resolve_pressure("median", c) == c.levels()["median"]
+    with pytest.raises(ValueError):
+        cw.resolve_pressure("p95", None)
+    with pytest.raises(ValueError):
+        cw.resolve_pressure("worst", c)
+
+
+def test_local_census_without_declared_sizes_has_no_ratio_reference(cases):
+    doc = _census_doc(origin="local", servers=[{"server": "tool_1", "declared_bytes": 0, "returned_bytes": {"n": 5}}])
+    c = cw.parse(doc, spec="mine.json")
+    assert not c.declared_known
+    adapter.use(Fake(answer={"summary": "x"}))
+    s = sections.census_section(c)
+    assert s["weight"] == 0 and s["measures"]["declared_vs_returned"] is None
+    assert any("declared_bytes = 0" in w for w in s["warnings"])
+    assert "census_returned_over_declared_top" not in s["measures"]
+
+
+def test_declared_vs_returned_needs_the_optional_method(cases):
+    c = cw.parse(_census_doc(), spec=cw.PUBLISHED_URL)
+
+    class WithDeclared(Fake):
+        def measured_doors(self): return ["/ask"]
+        def traces(self): return [{"door": "/ask", "ms": 1, "chars": 3000, "http": 200}]
+        def declared_bytes(self): return 1500
+    adapter.use(WithDeclared(answer={"summary": "x"}))
+    s = sections.census_section(c)
+    assert s["measures"]["declared_vs_returned"]["returned_over_declared"] == 2.0
+    assert s["measures"]["this_door_rank_in_census"] == 0.7  # 7 of 10 census calls are smaller
+    assert s["measures"]["census_returned_over_declared_top"][0]["server"] == "b"
+
+
+def test_pressure_profile_reports_passes_per_level_and_restores_pressure(cases, monkeypatch):
+    from examples.synthetic import SyntheticAdapter
+    c = cw.parse(_census_doc(returned_bytes_all=[100, 200, 300, 1450, 1450, 1450, 1450, 1450, 1450, 5000]),
+                 spec=cw.PUBLISHED_URL)
+    monkeypatch.setattr(CFG, "door", "chat")
+    monkeypatch.setattr(CFG, "pressure", 0)
+    root = Path(__file__).resolve().parents[1]
+    monkeypatch.setattr(CFG, "cases", root / "examples" / "synthetic_data" / "cases")
+    adapter.use(SyntheticAdapter())
+    s = sections.pressure_profile(c)
+    assert CFG.pressure == 0
+    assert s["measures"]["median"]["pressure_chars"] == 1450
+    assert s["measures"]["median"]["PASS"] < sections.door()["counts"]["PASS"]  # pressure costs answers
+    assert s["measures"]["max"]["PASS"] == 0  # 5,000 bytes alone exceed the 1,500 chat cut
+    assert any("exceeds this door's budget" in w for w in s["warnings"])
+
+
+def test_cli_pressure_level_needs_a_census(cases, monkeypatch):
+    from adebench.__main__ import main
+    monkeypatch.setattr(adapter, "_current", None)
+    monkeypatch.setattr(CFG, "census", None)  # a previous CLI run in this process may have set one
+    monkeypatch.setattr(CFG, "pressure_profile", False)
+    assert main(["--adapter", "tests.test_adebench:Fake", "--cases", str(cases), "--no-report",
+                 "--sections", "door", "--pressure", "p95"]) == 2

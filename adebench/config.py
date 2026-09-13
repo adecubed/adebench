@@ -33,6 +33,12 @@ class Config:
     # puts its own variable-size blocks (events, long tool responses) before
     # the cut. 0 = a normal day. Part of the setup fingerprint.
     pressure: int = int(os.environ.get("ADEBENCH_PRESSURE", "0"))
+    # A callwitness baseline (URL or file, schema callwitness.baseline.v1):
+    # measured pressure levels (median / p95 / max of a tool response) and
+    # the report-only 'census' section. None = no census.
+    census: str | None = os.environ.get("ADEBENCH_CENSUS") or None
+    # Run the door at every census level and report the passes at each.
+    pressure_profile: bool = os.environ.get("ADEBENCH_PRESSURE_PROFILE", "") not in ("", "0", "false", "no")
     # Folder with questions.json and abstention.json (the golden set).
     cases: Path = Path(os.environ.get("ADEBENCH_CASES", str(ROOT / "cases" / "example")))
     # Where the run reports go.

@@ -108,13 +108,21 @@ class Adapter(Protocol):
         """(measures, warnings) about the memory lifecycle. Free-form."""
 
     def measured_doors(self) -> list[str]:
-        """Endpoints whose latency and size are reported per door."""
+        """Endpoints whose latency and size are reported per door. The FIRST
+        one is the retrieval door: the census section ranks its size."""
 
     def traces(self) -> list[dict]:
         """[{door, ms, chars, http}] — one per call made during the run."""
 
     def probe_doors(self, questions: list[str]) -> None:
         """Extra calls on the other doors, so that all of them get measured."""
+
+    # ── optional (not required by the loader) ─────────────────────────────
+    # def declared_bytes(self) -> int | None:
+    #     """Size in bytes of what this memory's MCP server declares in
+    #     tools/list. With a callwitness census (--census) the report gives
+    #     the declared-vs-returned ratio; without this method it says the
+    #     ratio was not measured."""
 
 
 _current: Adapter | None = None

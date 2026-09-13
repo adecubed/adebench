@@ -240,3 +240,7 @@ class SyntheticAdapter:
 
     def probe_doors(self, questions: list[str]) -> None:
         pass
+
+    # ── optional: what this memory's MCP server declares in tools/list ──
+    def declared_bytes(self) -> int | None:
+        return 2200
