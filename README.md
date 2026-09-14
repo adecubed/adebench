@@ -100,8 +100,16 @@ identifier each) and let the agent fetch the detail it wants. adebench measures 
 door of its own, `two-step`, with a fixed and declared rule (`adebench/twostep.py`): the
 brief is delivered first, then the details in the order the brief lists them, each in full,
 until the next one would not fit the same budget a one-call door gets; every call's latency
-is summed. The gbrain adapter and the synthetic memory expose it. What an agent could choose
+is summed. The gbrain adapter, the ADE adapter (the Brain's `brief` mode plus
+`GET /sofia/item`) and the synthetic memory expose it; `ADEBENCH_TWO_STEP_DETAIL_CHARS` caps
+each fetched detail, the policy "read the head of many items". What an agent could choose
 better with judgement is exactly what this door does not measure.
+
+On the reference memory, budget 2,400: the one-call composed door 23/25, the two-step door
+17/25 with whole details and 18/25 with details capped at 300; under the census p95, 19/25
+against 8/25. On gbrain the opposite, 18/25 to 20/25. The brief costs about 1,400 characters
+of previews, which the one-call door spends on the entity card whole plus facts cut at 220:
+under a tight budget the winner is the door that spends it on content, not the number of calls.
 
 ### Margin and pressure
 

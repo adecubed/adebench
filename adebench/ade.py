@@ -4,14 +4,16 @@ another memory system, write another class with the same methods (see
 adebench/adapter.py) and point --adapter to it."""
 from __future__ import annotations
 
+import os
+import time
 from datetime import datetime, timezone
 from typing import Any
 
 from adebench import client
-from adebench.client import get, post, delete, sql, columns
+from adebench.client import ErrorResponse, ServiceDown, get, post, delete, sql, columns
 from adebench.config import CFG
 
-DOORS = ("voice", "agent", "raw")
+DOORS = ("voice", "agent", "raw", "two-step")
 
 
 def competing_payload(chars: int) -> str:
@@ -28,6 +30,8 @@ class AdeAdapter:
     """Doors:
       voice — the voice client (Sofia Server): its sources, its "latest
               events" block, card first, its cut
+      two-step — the Brain's brief (one identifier per item) plus
+              GET /sofia/item fetches, composed under the voice cut
       agent — what an MCP agent gets: orchestrator context + semantic
               search, no cut
       raw   — /sofia/ask with the Brain's default sources and no cut
@@ -52,7 +56,37 @@ class AdeAdapter:
         return CFG.voice_sources if door == "voice" else []
 
     def door_cut(self, door: str) -> int | None:
-        return CFG.voice_cut if door == "voice" else None
+        return CFG.voice_cut if door in ("voice", "two-step") else None
+
+    def _two_step(self, query: str) -> tuple[str, dict]:
+        """The Brain's two-step door: POST /sofia/ask with brief=true gives a
+        brief with one identifier per item (scheda:, fact:, episode:,
+        working:), GET /sofia/item?id= gives the full text of one item. The
+        composition rule is adebench.twostep.compose, under the voice cut."""
+        from adebench.twostep import compose
+        t0 = time.perf_counter()
+        r = post("/sofia/ask", {"query": query, "sources": self._sources("voice"), "include_raw": True, "brief": True})
+        if not isinstance(r, dict):
+            return "", {"summary": ""}
+        raw = r.get("raw") or {}
+        out = {"summary": r.get("summary") or "", "items": r.get("items") or []}
+        for theirs, ours in {"schede": "cards", "semantic": "semantic", "episodic": "episodic",
+                             "working": "working", "sconosciuti": "unknown_terms"}.items():
+            if theirs in raw:
+                out[ours] = raw[theirs]
+
+        def fetch(item_id: str) -> str:
+            try:
+                d = get("/sofia/item", id=item_id)
+            except (ServiceDown, ErrorResponse):
+                return ""
+            return str(d.get("text") or "") if isinstance(d, dict) else ""
+
+        text, info = compose(out["summary"], out["items"], fetch, CFG.voice_cut, competing_payload(CFG.pressure),
+                             detail_chars=int(os.environ.get("ADEBENCH_TWO_STEP_DETAIL_CHARS", "0")))
+        out["_ms"] = round((time.perf_counter() - t0) * 1000)
+        out["_two_step"] = info
+        return text, out
 
     def ask(self, query: str, door: str | None = None) -> dict:
         door = door or CFG.door
@@ -96,6 +130,8 @@ class AdeAdapter:
         return (events + summary)[:CFG.voice_cut]
 
     def door_text(self, query: str, door: str) -> tuple[str, dict]:
+        if door == "two-step":
+            return self._two_step(query)
         r = self.ask(query, door)
         summary = r["summary"]
         if door == "voice":

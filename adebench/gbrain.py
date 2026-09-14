@@ -196,7 +196,8 @@ class GbrainAdapter:
                     cache[sl] = ""
             return cache[sl]
 
-        text, info = compose(brief, ids, fetch, self.two_step_budget, payload)
+        text, info = compose(brief, ids, fetch, self.two_step_budget, payload,
+                             detail_chars=int(os.environ.get("ADEBENCH_TWO_STEP_DETAIL_CHARS", "0")))
         r["_ms"] = round((time.perf_counter() - t0) * 1000)
         r["_two_step"] = info
         return text, r
