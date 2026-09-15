@@ -1,0 +1,50 @@
+{
+ "n": 500,
+ "correct": 399,
+ "reader": "gemini-3-flash-preview",
+ "judge": "gpt-4o-2024-08-06",
+ "by_type": {
+  "abstention": {
+   "n": 30,
+   "correct": 25,
+   "retrieval_ok": 22,
+   "correct_when_retrieved": 19
+  },
+  "knowledge-update": {
+   "n": 72,
+   "correct": 63,
+   "retrieval_ok": 71,
+   "correct_when_retrieved": 63
+  },
+  "multi-session": {
+   "n": 121,
+   "correct": 79,
+   "retrieval_ok": 97,
+   "correct_when_retrieved": 77
+  },
+  "single-session-assistant": {
+   "n": 56,
+   "correct": 56,
+   "retrieval_ok": 56,
+   "correct_when_retrieved": 56
+  },
+  "single-session-preference": {
+   "n": 30,
+   "correct": 20,
+   "retrieval_ok": 28,
+   "correct_when_retrieved": 20
+  },
+  "single-session-user": {
+   "n": 64,
+   "correct": 62,
+   "retrieval_ok": 64,
+   "correct_when_retrieved": 62
+  },
+  "temporal-reasoning": {
+   "n": 127,
+   "correct": 94,
+   "retrieval_ok": 101,
+   "correct_when_retrieved": 83
+  }
+ }
+}

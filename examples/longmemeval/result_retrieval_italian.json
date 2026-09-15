@@ -1,0 +1,76 @@
+{
+ "vectors": {
+  "strict@5": 392,
+  "any@5": 449,
+  "n": 470,
+  "by_type": {
+   "knowledge-update": {
+    "n": 72,
+    "strict@5": 70,
+    "any@5": 72
+   },
+   "multi-session": {
+    "n": 121,
+    "strict@5": 89,
+    "any@5": 117
+   },
+   "single-session-assistant": {
+    "n": 56,
+    "strict@5": 56,
+    "any@5": 56
+   },
+   "single-session-preference": {
+    "n": 30,
+    "strict@5": 24,
+    "any@5": 24
+   },
+   "single-session-user": {
+    "n": 64,
+    "strict@5": 59,
+    "any@5": 59
+   },
+   "temporal-reasoning": {
+    "n": 127,
+    "strict@5": 94,
+    "any@5": 121
+   }
+  }
+ },
+ "bm25_only": {
+  "strict@5": 175,
+  "any@5": 224,
+  "n": 470,
+  "by_type": {
+   "knowledge-update": {
+    "n": 72,
+    "strict@5": 42,
+    "any@5": 47
+   },
+   "multi-session": {
+    "n": 121,
+    "strict@5": 26,
+    "any@5": 43
+   },
+   "single-session-assistant": {
+    "n": 56,
+    "strict@5": 33,
+    "any@5": 33
+   },
+   "single-session-preference": {
+    "n": 30,
+    "strict@5": 8,
+    "any@5": 8
+   },
+   "single-session-user": {
+    "n": 64,
+    "strict@5": 26,
+    "any@5": 26
+   },
+   "temporal-reasoning": {
+    "n": 127,
+    "strict@5": 40,
+    "any@5": 67
+   }
+  }
+ }
+}

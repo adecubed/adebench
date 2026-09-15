@@ -1,0 +1,117 @@
+{
+ "judge": "gpt-5.1-2025-11-13",
+ "subset": 100,
+ "readers": {
+  "gemini-3-flash-preview": {
+   "n": 100,
+   "correct": 85,
+   "correct_when_retrieved": 82,
+   "retrieval_ok": 90,
+   "judge_errors": 0,
+   "by_type": {
+    "abstention": {
+     "n": 6,
+     "correct": 4
+    },
+    "knowledge-update": {
+     "n": 15,
+     "correct": 14
+    },
+    "multi-session": {
+     "n": 24,
+     "correct": 20
+    },
+    "single-session-assistant": {
+     "n": 11,
+     "correct": 11
+    },
+    "single-session-preference": {
+     "n": 6,
+     "correct": 2
+    },
+    "single-session-user": {
+     "n": 13,
+     "correct": 13
+    },
+    "temporal-reasoning": {
+     "n": 25,
+     "correct": 21
+    }
+   }
+  },
+  "gpt-6-astra": {
+   "n": 100,
+   "correct": 85,
+   "correct_when_retrieved": 82,
+   "retrieval_ok": 90,
+   "judge_errors": 0,
+   "by_type": {
+    "abstention": {
+     "n": 6,
+     "correct": 2
+    },
+    "knowledge-update": {
+     "n": 15,
+     "correct": 13
+    },
+    "multi-session": {
+     "n": 24,
+     "correct": 21
+    },
+    "single-session-assistant": {
+     "n": 11,
+     "correct": 11
+    },
+    "single-session-preference": {
+     "n": 6,
+     "correct": 3
+    },
+    "single-session-user": {
+     "n": 13,
+     "correct": 13
+    },
+    "temporal-reasoning": {
+     "n": 25,
+     "correct": 22
+    }
+   }
+  },
+  "ollama:gpt-oss:20b": {
+   "n": 100,
+   "correct": 67,
+   "correct_when_retrieved": 64,
+   "retrieval_ok": 90,
+   "judge_errors": 0,
+   "by_type": {
+    "abstention": {
+     "n": 6,
+     "correct": 3
+    },
+    "knowledge-update": {
+     "n": 15,
+     "correct": 14
+    },
+    "multi-session": {
+     "n": 24,
+     "correct": 12
+    },
+    "single-session-assistant": {
+     "n": 11,
+     "correct": 11
+    },
+    "single-session-preference": {
+     "n": 6,
+     "correct": 1
+    },
+    "single-session-user": {
+     "n": 13,
+     "correct": 12
+    },
+    "temporal-reasoning": {
+     "n": 25,
+     "correct": 14
+    }
+   }
+  }
+ }
+}

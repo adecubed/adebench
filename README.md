@@ -362,7 +362,10 @@ This is an early version, published to ask exactly that. Things already on the l
 - a live update test (write → correct → retrieve the new value → exclude the old one)
   against the running service, once the service exposes a dedup-aware write and a delete;
 - an ingestion adapter to run LongMemEval / LoCoMo against a sandboxed memory and report the
-  per-category delta against a no-memory baseline (not comparable to public leaderboards);
+  per-category delta against a no-memory baseline (not comparable to public leaderboards).
+  A first step for the ADE Brain is in [`examples/longmemeval/`](examples/longmemeval/):
+  retrieval recall, three readers including a local open-weight one, and the same answers
+  under two judges;
 - a judge (pinned model) for open-ended questions, kept separate from the deterministic score;
 - duplicate detection across live facts as a health measure;
 - a multi-machine section (federation: satellites pushing signed episodes to a central Brain).
