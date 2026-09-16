@@ -43,7 +43,10 @@ data** — so the benchmark grows with the memory and cannot be gamed by editing
 
 Two more sections are **report-only** and never move the score: `health` (memory lifecycle:
 live vs archived facts, share written through the v2 pipeline, facts at the confidence
-floor, corrupted text, pending distillation, unacknowledged anomalies) and `doors` (latency
+floor, corrupted text, pending distillation, unacknowledged anomalies, and **index
+coverage**: rows in each full-text index against rows in the table it is built from — the
+reference Brain ran four days with 15 episodes indexed out of 2,689 while the score stayed
+at 95, because the benchmark only looked at what came out of the door) and `doors` (latency
 p50/p95 and characters produced per door). The third axis — how much text the memory
 injects — is measured on every run, because 90 % accuracy at 500 characters and 90 % at
 5,000 are not the same thing.

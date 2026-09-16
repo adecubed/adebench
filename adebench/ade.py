@@ -251,6 +251,7 @@ class AdeAdapter:
     # ── report-only ───────────────────────────────────────────────────────
     def health_report(self) -> tuple[dict, list[str]]:
         m: dict = {}
+        m["index_coverage"], warnings = index_coverage()
         live = sql("brain_semantic.db", "SELECT relation_type, key, confidence, content FROM semantic_memory WHERE superseded=0")
         m["live_facts"] = len(live)
         arch = sql("brain_semantic.db", "SELECT count(*) n FROM semantic_archive")
@@ -272,7 +273,6 @@ class AdeAdapter:
         m["unacknowledged_anomalies"] = st.get("unacknowledged_anomalies") if isinstance(st, dict) else None
         ep = sql("brain_episodic.db", "SELECT count(*) n FROM episodic_memory")
         m["episodes"] = ep[0]["n"] if ep else 0
-        warnings = []
         if m["mojibake"]:
             warnings.append(f"{m['mojibake']} live facts with corrupted text (mojibake)")
         if (m["unacknowledged_anomalies"] or 0) > 1000:
@@ -283,6 +283,38 @@ class AdeAdapter:
 
     def measured_doors(self) -> list[str]:
         return ["/sofia/ask", "/brain/memory/tool/search", "/brain/orchestrator/context"]
+
+
+# The full-text indexes of the Brain and the table each one is built from.
+_FTS_INDEXES = (
+    ("brain_episodic.db", "episodic_memory", "episodic_memory_fts"),
+    ("brain_episodic.db", "episodic_archive", "episodic_archive_fts"),
+    ("brain_semantic.db", "semantic_memory", "semantic_fts"),
+)
+
+
+def index_coverage() -> tuple[dict, list[str]]:
+    """Indexed rows against stored rows, for every full-text index.
+
+    Counted on the index's own docsize table: COUNT(*) on an external-content
+    FTS5 table reads the content table and says nothing about the index —
+    which is how the reference Brain ran four days with 15 episodes indexed
+    out of 2,689 while the score stayed at 95. An index that is missing is
+    not measured; one that covers fewer rows than stored is a warning."""
+    measures: dict = {}
+    warnings: list[str] = []
+    for db, table, fts in _FTS_INDEXES:
+        try:
+            stored = sql(db, f"SELECT count(*) n FROM {table}")
+            indexed = sql(db, f"SELECT count(*) n FROM {fts}_docsize")
+        except Exception:  # noqa: BLE001 — no such table, no such index, or no docsize table
+            continue
+        if not stored or not indexed:
+            continue
+        measures[fts] = {"stored": stored[0]["n"], "indexed": indexed[0]["n"]}
+        if indexed[0]["n"] < stored[0]["n"]:
+            warnings.append(f"index {fts} covers {indexed[0]['n']} of {stored[0]['n']} stored rows")
+    return measures, warnings
 
     def traces(self) -> list[dict]:
         return client.traces
