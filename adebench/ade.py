@@ -11,7 +11,7 @@ from typing import Any
 
 from adebench import client
 from adebench.client import ErrorResponse, ServiceDown, get, post, delete, sql, columns
-from adebench.config import CFG
+from adebench.config import CFG, local_day
 
 DOORS = ("voice", "agent", "raw", "two-step")
 
@@ -194,13 +194,36 @@ class AdeAdapter:
 
     # ── episodes ──────────────────────────────────────────────────────────
     def recent_days(self, n: int) -> list[str]:
-        return [r["g"] for r in sql("brain_episodic.db",
-                                    "SELECT DISTINCT substr(created_at,1,10) g FROM episodic_memory "
-                                    "ORDER BY g DESC LIMIT ?", n)]
+        """The Brain's days are its owner's local days: the same conversion
+        the Brain applies when asked for one day (config.local_day)."""
+        days: list[str] = []
+        for r in sql("brain_episodic.db", "SELECT created_at FROM episodic_memory ORDER BY created_at DESC"):
+            d = local_day(r["created_at"])
+            if d not in days:
+                days.append(d)
+                if len(days) == n:
+                    break
+        return days
 
     def episodes_of_day(self, day: str, limit: int) -> list[dict]:
         eps = get("/memory/episodic/recent", limit=limit, day=day)
         return eps if isinstance(eps, list) else []
+
+    def stored_mentions(self, phrase: str) -> int:
+        """How many stored items name this phrase: live and archived episodes,
+        live facts. Optional in the contract; used by the abstention section
+        to notice when an invented entity has leaked into the memory."""
+        like = f"%{phrase.lower()}%"
+        n = 0
+        for db, q in (("brain_episodic.db", "SELECT count(*) n FROM episodic_memory WHERE lower(input_summary||coalesce(output_summary,'')) LIKE ?"),
+                      ("brain_episodic.db", "SELECT count(*) n FROM episodic_archive WHERE lower(input_summary||coalesce(output_summary,'')) LIKE ?"),
+                      ("brain_semantic.db", "SELECT count(*) n FROM semantic_memory WHERE superseded=0 AND lower(content) LIKE ?")):
+            try:
+                r = sql(db, q, like)
+            except Exception:  # noqa: BLE001 — a table this memory does not have
+                continue
+            n += r[0]["n"] if r else 0
+        return n
 
     def signed_episodes(self, prefix: str) -> int:
         r = sql("brain_episodic.db", "SELECT count(*) n FROM episodic_memory WHERE input_summary LIKE ?",
@@ -284,6 +307,14 @@ class AdeAdapter:
     def measured_doors(self) -> list[str]:
         return ["/sofia/ask", "/brain/memory/tool/search", "/brain/orchestrator/context"]
 
+    def traces(self) -> list[dict]:
+        return client.traces
+
+    def probe_doors(self, questions: list[str]) -> None:
+        for q in questions:
+            post("/brain/memory/tool/search", {"query": q, "limit": 5})
+            post("/brain/orchestrator/context", {"user_input": q, "limit_semantic": 5})
+
 
 # The full-text indexes of the Brain and the table each one is built from.
 _FTS_INDEXES = (
@@ -315,11 +346,3 @@ def index_coverage() -> tuple[dict, list[str]]:
         if indexed[0]["n"] < stored[0]["n"]:
             warnings.append(f"index {fts} covers {indexed[0]['n']} of {stored[0]['n']} stored rows")
     return measures, warnings
-
-    def traces(self) -> list[dict]:
-        return client.traces
-
-    def probe_doors(self, questions: list[str]) -> None:
-        for q in questions:
-            post("/brain/memory/tool/search", {"query": q, "limit": 5})
-            post("/brain/orchestrator/context", {"user_input": q, "limit_semantic": 5})

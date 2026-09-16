@@ -118,6 +118,12 @@ class Adapter(Protocol):
         """Extra calls on the other doors, so that all of them get measured."""
 
     # ── optional (not required by the loader) ─────────────────────────────
+    # def stored_mentions(self, phrase: str) -> int:
+    #     """How many stored items (episodes, facts, notes) contain this
+    #     phrase, case-insensitive. The abstention section uses it to warn
+    #     when an invented entity of the golden set is found in the memory:
+    #     the benchmark must not write its own answers into what it
+    #     measures. Without this method the check is skipped."""
     # def declared_bytes(self) -> int | None:
     #     """Size in bytes of what this memory's MCP server declares in
     #     tools/list. With a callwitness census (--census) the report gives

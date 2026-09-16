@@ -28,6 +28,7 @@ import time
 import uuid
 from typing import Callable
 
+from adebench import config
 from adebench.adapter import current
 from adebench.config import CFG
 
@@ -102,7 +103,9 @@ def present(text: str, group: list[str]) -> str | None:
 
 
 def _load(name: str):
-    return json.loads((CFG.cases / name).read_text(encoding="utf-8"))
+    # utf-8-sig: a golden set saved by a Windows editor (or PowerShell)
+    # starts with a BOM, and that must not cost a whole section
+    return json.loads((CFG.cases / name).read_text(encoding="utf-8-sig"))
 
 
 def duplicate_chunks(text: str, min_chars: int = 40) -> int:
@@ -358,7 +361,9 @@ def time_section(semantic_seen: list[dict] | None = None) -> dict:
     for day in days:
         def _day(day=day) -> dict:
             eps = ada.episodes_of_day(day, 10)
-            ok = bool(eps) and all(str(e.get("created_at", "")).startswith(day) for e in eps)
+            # compared in the memory's own day (config.LOCAL_TZ): an episode
+            # stamped 22:01Z is tomorrow's in Rome, and the memory is right
+            ok = bool(eps) and all(config.local_day(e.get("created_at", "")) == day for e in eps)
             return _case(f"day filter {day} returns only that day's episodes", ok, f"{len(eps)} episodes")
         cases.append(_try(f"day filter {day}", _day))
     n_signed = _read("reading the signed episodes", lambda: ada.signed_episodes("[pc2]"), None, cases)
@@ -564,7 +569,25 @@ def abstention() -> dict:
     semantic reduced to near-by-meaning hits only (or nothing). This checks
     what retrieval hands to the model, not the model's final sentence."""
     ada = current()
-    questions = _load("abstention.json")
+    entries = _load("abstention.json")
+    # an entry is a question, or {"question", "entity"}: with the entity named
+    # the memory is also asked whether it STORES it anywhere. 2026-09-16: an
+    # episode about the benchmark itself named an invented entity; once
+    # indexed, the memory "knew" it and stopped abstaining. The check needs
+    # the adapter's optional stored_mentions(); without it, no check.
+    questions = [e["question"] if isinstance(e, dict) else e for e in entries]
+    entities = [e.get("entity") if isinstance(e, dict) else None for e in entries]
+    warnings: list[str] = []
+    measures: dict = {"questions": len(questions)}
+    mentions = getattr(ada, "stored_mentions", None)
+    if callable(mentions) and any(entities):
+        leaked = 0
+        for ent in filter(None, entities):
+            n = mentions(ent)
+            if n:
+                leaked += 1
+                warnings.append(f"'{ent}' is stored in {n} place(s): the abstention set leaked into the memory")
+        measures["leaked_entities"] = leaked
     cases = []
     for q in questions:
         def _one(q=q) -> dict:
@@ -591,7 +614,7 @@ def abstention() -> dict:
     measured = [c for c in cases if c["status"] != "SKIP"]
     # partial credit per question (each of the three checks); errors count 0
     score = (sum(c.get("fraction", 0.0) for c in measured) / len(measured)) if measured else None
-    return _section("abstention", cases, {"questions": len(questions)}, score=score)
+    return _section("abstention", cases, measures, warnings, score=score)
 
 
 # ─── G. File search ──────────────────────────────────────────────────────────

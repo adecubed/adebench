@@ -6,7 +6,9 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 PACKAGE = Path(__file__).resolve().parent
 ROOT = PACKAGE.parent
@@ -66,3 +68,23 @@ class Config:
 
 
 CFG = Config()
+
+
+# The day a memory lives in. A personal memory keeps its owner's day, not
+# UTC: the reference Brain answers "episodes of the 15th" with an episode
+# stamped 22:01Z on the 14th, because in Rome that is one past midnight.
+# Explicit so a test can pin it (ADEBENCH_TZ, an IANA name); default: the
+# timezone of the machine running the benchmark, which is the Brain's.
+LOCAL_TZ = ZoneInfo(os.environ["ADEBENCH_TZ"]) if os.environ.get("ADEBENCH_TZ") else datetime.now().astimezone().tzinfo
+
+
+def local_day(stamp: str) -> str:
+    """'YYYY-MM-DD' of an ISO timestamp in LOCAL_TZ. A stamp without offset
+    is taken as it is: nothing to convert."""
+    try:
+        dt = datetime.fromisoformat(str(stamp))
+    except ValueError:
+        return str(stamp)[:10]
+    if dt.tzinfo is None:
+        return dt.strftime("%Y-%m-%d")
+    return dt.astimezone(LOCAL_TZ).strftime("%Y-%m-%d")

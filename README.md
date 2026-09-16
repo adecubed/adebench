@@ -324,6 +324,15 @@ keeps warning until every question has been checked by the person who owns the m
 `python -m adebench --validation` writes a sheet with each question, the expectations and
 the first 600 characters the door delivers, so validating is a five-minute read.
 
+`abstention.json` lists questions about things that do not exist. An entry is a plain
+question, or `{"question": ..., "entity": "Girandola Notturna"}`: with the entity named, the
+section also asks the memory whether it **stores** that entity anywhere (adapter method
+`stored_mentions`, optional) and warns if it does. The reference Brain once stopped
+abstaining on an invented workflow because an episode *about the benchmark* had named it:
+the benchmark had written its own answer into the memory it measures. The rule is simple and
+the warning enforces it: the invented entities never go into the memory, not even in notes
+about the benchmark.
+
 Two rules for a good golden set: deterministic expectations (ports, versions, names, dates)
 rather than paraphrases, and never fix a failing case by loosening the expectation — if the
 memory does not know a fact, teach it the fact.
