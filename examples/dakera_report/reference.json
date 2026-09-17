@@ -1,0 +1,672 @@
+{
+ "when": "2026-09-17T15:25:09",
+ "total": 84.9,
+ "measured_weight": 90,
+ "not_run_weight": 0,
+ "total_weight": 100,
+ "counts": {
+  "PASS": 49,
+  "FAIL": 2,
+  "ERROR": 0,
+  "SKIP": 2
+ },
+ "config": {
+  "adapter": "adebench.dakera:DakeraAdapter",
+  "brain_url": "http://localhost:8766",
+  "door": "chat",
+  "cases_hash": "0f9a4640dc",
+  "voice_sources": [
+   "working",
+   "semantic",
+   "episodic",
+   "conversations",
+   "files"
+  ],
+  "voice_cut": 2400,
+  "events_block": true,
+  "pressure": 0,
+  "weights": {
+   "door": 25,
+   "cards": 15,
+   "updates": 10,
+   "time": 10,
+   "live_state": 10,
+   "abstention": 10,
+   "file_search": 10,
+   "graph": 10
+  },
+  "max_card": 900,
+  "cases": "examples/synthetic_data/cases",
+  "repo": "examples/synthetic_data/repo",
+  "sandbox_test": null,
+  "sandbox_enabled": false,
+  "pressure_level": null,
+  "census": null,
+  "sections": [
+   "door",
+   "cards",
+   "updates",
+   "time",
+   "live_state",
+   "abstention",
+   "file_search",
+   "graph"
+  ],
+  "duration_s": 23,
+  "fingerprint": "7a536028fa"
+ },
+ "sections": [
+  {
+   "name": "door",
+   "weight": 25,
+   "score": 0.875,
+   "cases": [
+    {
+     "case": "What port does the Brain listen on?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 139,
+     "margin": 2257,
+     "chars": 343,
+     "ms": 18,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Which model distills the Brain memory?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 232,
+     "margin": 2164,
+     "chars": 346,
+     "ms": 14,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Which version of MailBridge is installed for the mailbox?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 153,
+     "margin": 2242,
+     "chars": 313,
+     "ms": 13,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "How many tools does the mailbox connector expose?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 205,
+     "margin": 2193,
+     "chars": 450,
+     "ms": 13,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "How often is the calendar read?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 136,
+     "margin": 2262,
+     "chars": 311,
+     "ms": 16,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Where does the owner live?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 108,
+     "margin": 2287,
+     "chars": 256,
+     "ms": 21,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "When do backups run?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": -1,
+     "margin": 2294,
+     "chars": 107,
+     "ms": 18,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the owner's phone number?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "missing +39",
+     "position": -1,
+     "margin": null,
+     "chars": 263,
+     "ms": 16,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    }
+   ],
+   "counts": {
+    "PASS": 7,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "door": "chat",
+    "door_budget_chars": 2400,
+    "pressure_chars": 0,
+    "questions": 8,
+    "validated": 8,
+    "mean_answer_position": 162,
+    "mean_door_text_chars": 299,
+    "min_margin_chars": 2164,
+    "passes_within_300_chars_of_the_edge": 0,
+    "questions_with_forbidden_values": 1,
+    "stale_values_delivered": 0,
+    "chars_before_answer_mean": 162,
+    "duplicate_chunks_total": 0
+   },
+   "warnings": []
+  },
+  {
+   "name": "cards",
+   "weight": 15,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "card calendar exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card calendar within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "171 characters"
+    },
+    {
+     "case": "card calendar contains «read every 15 minutes»",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card calendar contains «shared with the team»",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card mailbox exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card mailbox within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "148 characters"
+    },
+    {
+     "case": "card owner exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card owner within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "124 characters"
+    },
+    {
+     "case": "card brain exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card brain within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "202 characters"
+    },
+    {
+     "case": "card brain contains «port 8766»",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card brain contains «the Nova model»",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card brain contains «the three memory levels»",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "alias 'agenda' leads to card calendar",
+     "status": "PASS",
+     "ok": true,
+     "note": "cards seen: ['card:calendar']"
+    },
+    {
+     "case": "alias 'the_brain' leads to card brain",
+     "status": "PASS",
+     "ok": true,
+     "note": "cards seen: ['card:brain']"
+    },
+    {
+     "case": "alias 'mail_bridge' leads to card mailbox",
+     "status": "PASS",
+     "ok": true,
+     "note": "cards seen: ['card:mailbox']"
+    }
+   ],
+   "counts": {
+    "PASS": 16,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "cards": 4,
+    "corrections": 2,
+    "aliases": 3,
+    "aliases_tried": 3
+   },
+   "warnings": []
+  },
+  {
+   "name": "updates",
+   "weight": 10,
+   "score": null,
+   "cases": [
+    {
+     "case": "update mechanism (needs --sandbox-test)",
+     "status": "SKIP",
+     "ok": false,
+     "note": "without the sandbox test the historical trace does not score"
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 1
+   },
+   "measures": {},
+   "warnings": [
+    "section not measured: no sandbox test of the mechanism (--sandbox-test); historical trace: superseded=0, updates=0",
+    "no trace of updates in live memory: the dedup has not worked yet or found no pairs"
+   ]
+  },
+  {
+   "name": "time",
+   "weight": 10,
+   "score": 0.8,
+   "cases": [
+    {
+     "case": "semantic memories carry their age (8/8)",
+     "status": "PASS",
+     "ok": true,
+     "note": "100%"
+    },
+    {
+     "case": "day filter 2026-09-10 returns only that day's episodes",
+     "status": "PASS",
+     "ok": true,
+     "note": "2 episodes"
+    },
+    {
+     "case": "day filter 2026-09-09 returns only that day's episodes",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 episodes"
+    },
+    {
+     "case": "day filter 2026-09-08 returns only that day's episodes",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 episodes"
+    },
+    {
+     "case": "«cosa ha fatto il pc2?» finds the episodes signed [pc2]",
+     "status": "FAIL",
+     "ok": false,
+     "note": "0 episodes in the answer"
+    }
+   ],
+   "counts": {
+    "PASS": 4,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "share_of_memories_with_age": 1.0,
+    "facts_with_event_date": "8/10",
+    "days_tried": [
+     "2026-09-10",
+     "2026-09-09",
+     "2026-09-08"
+    ],
+    "signed_episodes_pc2": 1
+   },
+   "warnings": []
+  },
+  {
+   "name": "live_state",
+   "weight": 10,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "canary written to working memory",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "the canary just written is served through the retrieval door",
+     "status": "PASS",
+     "ok": true,
+     "note": "write-to-serve 1268 ms"
+    },
+    {
+     "case": "…and reaches the text of door 'chat'",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "3 canaries served within the budget",
+     "status": "PASS",
+     "ok": true,
+     "note": "p50 47 ms · p95 1268 ms"
+    },
+    {
+     "case": "after overwriting the canary the door serves the new value, never the old one",
+     "status": "PASS",
+     "ok": true,
+     "note": "overwrite-to-visible 1200 ms"
+    },
+    {
+     "case": "two writes in quick succession: the door settles on the second, never back on the first",
+     "status": "PASS",
+     "ok": true,
+     "note": "second write visible in 27 ms",
+     "timeline": null
+    },
+    {
+     "case": "cleanup: adebench session empty at the end of the run",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "live-state key freshness",
+     "status": "SKIP",
+     "ok": false,
+     "note": "no live-state key configured (ADEBENCH_LIVE_STATE_KEY)"
+    }
+   ],
+   "counts": {
+    "PASS": 7,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 1
+   },
+   "measures": {
+    "live_state_age_min": null,
+    "write_to_serve_ms": 1268,
+    "write_to_serve_p50_ms": 47,
+    "write_to_serve_p95_ms": 1268,
+    "write_to_serve_samples": 3,
+    "write_to_serve_budget_s": 30,
+    "overwrite_to_visible_ms": 1200,
+    "stale_reads_after_overwrite": 0,
+    "repeated_writes_settle_ms": 27,
+    "out_of_order_reads": 0,
+    "repeated_writes_timeline": [
+     {
+      "t_ms": 0,
+      "event": "first write"
+     },
+     {
+      "t_ms": 35,
+      "event": "second write"
+     },
+     {
+      "t_ms": 99,
+      "event": "poll",
+      "first": false,
+      "second": true
+     },
+     {
+      "t_ms": 1127,
+      "event": "poll",
+      "first": false,
+      "second": true
+     },
+     {
+      "t_ms": 2156,
+      "event": "poll",
+      "first": false,
+      "second": true
+     }
+    ]
+   },
+   "warnings": []
+  },
+  {
+   "name": "abstention",
+   "weight": 10,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "What is the Zarpetta module?",
+     "status": "PASS",
+     "ok": true,
+     "note": "flagged unknown: ['module', 'zarpetta']",
+     "fraction": 1.0
+    },
+    {
+     "case": "Who is Ottavio Brambillesco?",
+     "status": "PASS",
+     "ok": true,
+     "note": "flagged unknown: ['brambillesco', 'ottavio']",
+     "fraction": 1.0
+    },
+    {
+     "case": "Which port does the Fulmicotone service use?",
+     "status": "PASS",
+     "ok": true,
+     "note": "flagged unknown: ['fulmicotone']",
+     "fraction": 1.0
+    },
+    {
+     "case": "What does the calendar plugin Girandola do?",
+     "status": "PASS",
+     "ok": true,
+     "note": "flagged unknown: ['girandola', 'plugin']",
+     "fraction": 1.0
+    }
+   ],
+   "counts": {
+    "PASS": 4,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "questions": 4
+   },
+   "warnings": []
+  },
+  {
+   "name": "file_search",
+   "weight": 10,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "compute_backup_schedule → brain_service.py",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "distill_episodes_nightly → brain_service.py",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "refresh_calendar_cache → mailbridge.py",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "register_connector_tools → mailbridge.py",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "supersede_older_fact → brain_service.py",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "list_unread_messages → mailbridge.py",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    }
+   ],
+   "counts": {
+    "PASS": 6,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "indexable_functions": 6,
+    "tried": 6
+   },
+   "warnings": []
+  },
+  {
+   "name": "graph",
+   "weight": 10,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "calendar: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "2 edges"
+    },
+    {
+     "case": "mailbox: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "4 edges"
+    },
+    {
+     "case": "owner: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "8 edges"
+    },
+    {
+     "case": "brain: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "6 edges"
+    },
+    {
+     "case": "orphan fact nodes = 0",
+     "status": "PASS",
+     "ok": true,
+     "note": "0 orphans out of 10"
+    }
+   ],
+   "counts": {
+    "PASS": 5,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "nodes": 20,
+    "edges": 40,
+    "orphan_fact_nodes": "0 orphans out of 10"
+   },
+   "warnings": []
+  },
+  {
+   "name": "health",
+   "weight": 0,
+   "score": null,
+   "cases": [],
+   "counts": {},
+   "measures": {
+    "cards": 4,
+    "facts": 10,
+    "episodes": 4
+   },
+   "warnings": []
+  },
+  {
+   "name": "doors",
+   "weight": 0,
+   "score": null,
+   "cases": [],
+   "counts": {},
+   "measures": {
+    "/v1/memory/recall": {
+     "calls": 24,
+     "http_errors": 0,
+     "ms_p50": 1124,
+     "ms_p95": 1377,
+     "mean_chars": 3786
+    }
+   },
+   "warnings": []
+  }
+ ],
+ "delta": {
+  "total": null,
+  "sections": {}
+ }
+}
