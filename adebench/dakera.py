@@ -1,5 +1,10 @@
 """adebench adapter for the Dakera memory server (REST, agent-scoped).
 
+About Dakera (https://dakera.ai): a self-hosted, decay-weighted vector memory
+server for AI agents — sub-millisecond recall on ordinary CPU hardware, an
+entity knowledge graph, and temporal reasoning over a simple REST API.
+Docs: https://dakera.ai/docs · Self-host: https://github.com/dakera-ai/dakera-deploy
+
 Dakera is a retrieval+memory engine, not a full personal-brain reader. This
 adapter adds the thin reference reader adebench needs (the composed "door"
 text: cards first, then dated semantic facts, then episodic, then working;
