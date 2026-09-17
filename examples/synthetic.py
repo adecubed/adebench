@@ -119,7 +119,7 @@ class SyntheticAdapter:
         for f in FACTS:
             hit = len(_words(f["content"]) & q)
             if hit:
-                age = f"[dal {f['event_date']}] " if f["event_date"] else "[dal 2026-09-01] "
+                age = f"[since {f['event_date']}] " if f["event_date"] else "[since 2026-09-01] "
                 semantic.append({"source": "semantic_v2:fact", "content": age + f["content"], "_hit": hit})
         semantic.sort(key=lambda s: -s["_hit"])
         semantic = semantic[:5]

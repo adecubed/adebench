@@ -1,4 +1,4 @@
-# adebench — 2026-09-13T22:05:31
+# adebench — 2026-09-17T18:17:28
 
 **Score: 90.0 / 100**
 Cases: 51 PASS · 5 FAIL · 0 ERROR · 0 SKIP
@@ -23,7 +23,7 @@ Adapter `examples.synthetic:SyntheticAdapter` · door `chat` · cases `0f9a4640d
 - questions: `8`
 - validated: `8`
 - mean_answer_position: `212`
-- mean_door_text_chars: `357`
+- mean_door_text_chars: `359`
 - min_margin_chars: `1187`
 - passes_within_300_chars_of_the_edge: `0`
 - questions_with_forbidden_values: `1`
@@ -60,7 +60,8 @@ Not passed:
 - share_of_memories_with_age: `1.0`
 - facts_with_event_date: `"8/10"`
 - days_tried: `["2026-09-10", "2026-09-09", "2026-09-08"]`
-- signed_episodes_pc2: `1`
+- signed_episodes: `1`
+- signed_question: `"what did pc2 do?"`
 
 ## live_state
 
@@ -74,7 +75,7 @@ Not passed:
 - stale_reads_after_overwrite: `0`
 - repeated_writes_settle_ms: `0`
 - out_of_order_reads: `0`
-- repeated_writes_timeline: `[{"t_ms": 0, "event": "first write"}, {"t_ms": 0, "event": "second write"}, {"t_ms": 0, "event": "poll", "first": false, "second": true}, {"t_ms": 1001, "event": "poll", "first": false, "second": true}, {"t_ms": 2002, "event": "poll", "first": false, "second": true}]`
+- repeated_writes_timeline: `[{"t_ms": 0, "event": "first write"}, {"t_ms": 0, "event": "second write"}, {"t_ms": 0, "event": "poll", "first": false, "second": true}, {"t_ms": 1000, "event": "poll", "first": false, "second": true}, {"t_ms": 2002, "event": "poll", "first": false, "second": true}]`
 
 ## abstention
 
@@ -105,7 +106,7 @@ Not passed:
 
 ## doors
 
-- /ask: `{"calls": 23, "http_errors": 0, "ms_p50": 1, "ms_p95": 1, "mean_chars": 304}`
+- /ask: `{"calls": 23, "http_errors": 0, "ms_p50": 1, "ms_p95": 1, "mean_chars": 301}`
 
 ## census
 
@@ -114,12 +115,12 @@ Not passed:
 - calls: `20`
 - servers_called: `3`
 - tool_response_bytes: `{"median": 512, "p95": 140000, "max": 140000}`
-- this_door_mean_chars: `304`
+- this_door_mean_chars: `301`
 - this_door_rank_in_census: `0.45`
-- declared_vs_returned: `{"declared_bytes": 2200, "returned_mean_chars": 304, "returned_over_declared": 0.14}`
+- declared_vs_returned: `{"declared_bytes": 2200, "returned_mean_chars": 301, "returned_over_declared": 0.14}`
 
 - ⚠ this census document carries no declared sizes (declared_bytes = 0: the local recorder does not keep tools/list yet), so declared-vs-returned has no reference
-- ⚠ this door delivers 304 characters on average: larger than 45% of the 20 tool responses in the census
+- ⚠ this door delivers 301 characters on average: larger than 45% of the 20 tool responses in the census
 
 ## pressure_profile
 

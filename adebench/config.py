@@ -55,6 +55,11 @@ class Config:
     live_state_session: str = os.environ.get("ADEBENCH_LIVE_STATE_SESSION", "global")
     live_state_key: str = os.environ.get("ADEBENCH_LIVE_STATE_KEY", "mail_non_lette")  # empty = no such key (SKIP)
     live_state_max_minutes: int = int(os.environ.get("ADEBENCH_LIVE_STATE_MINUTES", "30"))
+    # Signed episodes: a memory shared by several machines signs the episodes
+    # of the others with a prefix. The probe asks about that machine in the
+    # owner's language (the default is English; set the question in yours).
+    signed_prefix: str = os.environ.get("ADEBENCH_SIGNED_PREFIX", "[pc2]")
+    signed_question: str = os.environ.get("ADEBENCH_SIGNED_QUESTION", "what did pc2 do?")
     # Write-to-serve latency: how long the canary may take to become
     # retrievable after the write (polled every second). A memory with
     # asynchronous indexing pays here; the number is reported either way.

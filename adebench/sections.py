@@ -343,11 +343,22 @@ def updates(with_sandbox: bool = True) -> dict:
 
 # ─── D. Age and time ─────────────────────────────────────────────────────────
 
+# A memory "carries its age" when its text opens with a bracketed date, in
+# any language: "[dal 2026-05-10]", "[since 2026-05-10]", "[2026-05-10]".
+# Until 0.2.10 only the Italian "[dal " counted, so an English adapter had to
+# write Italian to pass.
+_AGE_PREFIX = re.compile(r"^\[[^\]\n]{0,40}?\d{4}-\d{2}-\d{2}")
+
+
+def carries_age(text: str) -> bool:
+    return bool(_AGE_PREFIX.match(str(text or "").lstrip()))
+
+
 def time_section(semantic_seen: list[dict] | None = None) -> dict:
     ada = current()
     cases = []
     sem = semantic_seen or []
-    tagged = sum(1 for s in sem if str(s.get("content", "")).startswith("[dal "))
+    tagged = sum(1 for s in sem if carries_age(s.get("content", "")))
     tag_share = (tagged / len(sem)) if sem else None
     cases.append(_case(f"semantic memories carry their age ({tagged}/{len(sem)})",
                        None if tag_share is None else tag_share >= 0.95,
@@ -366,19 +377,21 @@ def time_section(semantic_seen: list[dict] | None = None) -> dict:
             ok = bool(eps) and all(config.local_day(e.get("created_at", "")) == day for e in eps)
             return _case(f"day filter {day} returns only that day's episodes", ok, f"{len(eps)} episodes")
         cases.append(_try(f"day filter {day}", _day))
-    n_signed = _read("reading the signed episodes", lambda: ada.signed_episodes("[pc2]"), None, cases)
+    prefix, question = CFG.signed_prefix, CFG.signed_question
+    n_signed = _read("reading the signed episodes", lambda: ada.signed_episodes(prefix), None, cases)
     if n_signed:
         def _signed() -> dict:
-            r = ada.ask("cosa ha fatto il pc2?")
+            r = ada.ask(question)
             eps = r.get("episodic", [])
-            return _case("«cosa ha fatto il pc2?» finds the episodes signed [pc2]",
-                         any("[pc2" in str(e.get("input_summary", "")) for e in eps),
+            return _case(f"«{question}» finds the episodes signed {prefix}",
+                         any(prefix.rstrip("]") in str(e.get("input_summary", "")) for e in eps),
                          f"{len(eps)} episodes in the answer")
-        cases.append(_try("signed episodes [pc2]", _signed))
+        cases.append(_try(f"signed episodes {prefix}", _signed))
     elif n_signed == 0:
         cases.append(_case("episodes signed by another machine", None, "none in this memory"))
     measures = {"share_of_memories_with_age": None if tag_share is None else round(tag_share, 3),
-                "facts_with_event_date": f"{d}/{n}", "days_tried": days, "signed_episodes_pc2": n_signed}
+                "facts_with_event_date": f"{d}/{n}", "days_tried": days, "signed_episodes": n_signed,
+                "signed_question": question}
     warnings = []
     if n and d / n < 0.5:
         warnings.append(f"only {d} facts out of {n} carry the event date: for the others the age "

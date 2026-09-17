@@ -161,6 +161,34 @@ def test_time_with_broken_episodic_is_not_ten(cases):
     assert s["counts"]["ERROR"] == 1 and s["score"] < 1.0
 
 
+def test_age_prefix_is_language_neutral():
+    assert sections.carries_age("[dal 2026-09-01] fatto")
+    assert sections.carries_age("[dal 2026-08-24, riconfermato il 2026-09-13] fatto")
+    assert sections.carries_age("[since 2026-09-01] fact")
+    assert sections.carries_age("[2026-09-01] fact")
+    assert not sections.carries_age("fact without an age")
+    assert not sections.carries_age("[note] a bracket without a date")
+
+
+def test_signed_probe_asks_the_configured_question(cases, monkeypatch):
+    class Signed(Fake):
+        def __init__(self):
+            super().__init__(answer={"summary": "x"})
+            self.asked = []
+        def signed_episodes(self, p): return 1 if p == "[box7]" else 0
+        def ask(self, q):
+            self.asked.append(q)
+            return {"summary": "x", "episodic": [{"input_summary": "[box7] nightly backup"}]}
+    ada = Signed()
+    _use(ada)
+    monkeypatch.setattr(CFG, "signed_prefix", "[box7]")
+    monkeypatch.setattr(CFG, "signed_question", "was hat box7 gemacht?")
+    s = sections.time_section([{"content": "[since 2026-09-01] fact"}])
+    case = next(c for c in s["cases"] if "signed" in c["case"])
+    assert case["status"] == "PASS" and ada.asked == ["was hat box7 gemacht?"]
+    assert s["measures"]["signed_question"] == "was hat box7 gemacht?"
+
+
 def test_live_state_with_broken_age_read_is_error(cases):
     _use(BrokenRead("age", answer={"summary": "x"}))
     assert sections.live_state()["counts"]["ERROR"] == 1
