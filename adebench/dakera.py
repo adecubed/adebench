@@ -1,9 +1,5 @@
-"""adebench adapter for the Dakera memory server (REST, agent-scoped).
-
-About Dakera (https://dakera.ai): a self-hosted, decay-weighted vector memory
-server for AI agents — sub-millisecond recall on ordinary CPU hardware, an
-entity knowledge graph, and temporal reasoning over a simple REST API.
-Docs: https://dakera.ai/docs · Self-host: https://github.com/dakera-ai/dakera-deploy
+"""adebench adapter for Dakera (https://dakera.ai), a self-hosted vector
+memory server, over its REST API (agent-scoped).
 
 Dakera is a retrieval+memory engine, not a full personal-brain reader. This
 adapter adds the thin reference reader adebench needs (the composed "door"
@@ -26,6 +22,20 @@ import time
 import urllib.request
 import urllib.error
 import uuid
+from datetime import datetime, timezone
+
+
+def _ca_date(ca) -> str:
+    """A memory's real stored timestamp as YYYY-MM-DD (Dakera sets created_at
+    on every write). Accepts a unix seconds value or an ISO string."""
+    if ca is None:
+        return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    try:
+        if isinstance(ca, (int, float)):
+            return datetime.fromtimestamp(float(ca), tz=timezone.utc).strftime("%Y-%m-%d")
+        return str(ca)[:10]
+    except Exception:
+        return datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
 try:
     from adebench.config import CFG
@@ -41,6 +51,11 @@ AID = "adebench-eval"
 
 STOP = {"the", "what", "which", "who", "how", "does", "do", "is", "are", "for", "and", "with", "about",
         "many", "when", "where", "much", "on", "in", "of", "a", "an", "to", "owner", "owners"}
+
+# How many hits the composed door pulls. A small top_k lets Dakera's auto-curated
+# memories crowd a relevant fact out of the window, which makes the door flap
+# run-to-run; a larger window delivers the relevant facts consistently.
+TOPK = int(os.environ.get("DAKERA_RECALL_TOPK", "8"))
 
 
 def _words(text: str) -> set[str]:
@@ -143,9 +158,14 @@ class DakeraAdapter:
         self._edge_count: dict[str, int] = {}
         self._graph_counts = {"nodes": 0, "edges": 0}
         self._fact_ids: list[str] = []
+        self._live_ids: set[str] = set()
+        self._graph_node_ids: set[str] = set()
         for mm in self._all_memories():
-            if "fact" in (mm.get("tags", []) or []) and mm.get("id"):
-                self._fact_ids.append(mm["id"])
+            mid = mm.get("id")
+            if mid:
+                self._live_ids.add(mid)
+            if "fact" in (mm.get("tags", []) or []) and mid:
+                self._fact_ids.append(mid)
         out, _ = self._get("/v1/knowledge/export?agent_id=%s" % AID)
         if not isinstance(out, dict):
             return
@@ -155,12 +175,19 @@ class DakeraAdapter:
                 nid = e.get(k)
                 if nid:
                     self._edge_count[nid] = self._edge_count.get(nid, 0) + 1
+                    self._graph_node_ids.add(nid)
 
     # ── liveness ──────────────────────────────────────────────────────────
     def health(self) -> bool:
-        # /health does a deep check that can hang; /health/ready is the fast liveness probe
-        out, _ = self._get("/health/ready")
-        return isinstance(out, dict)
+        # true only if /health/ready actually answered 200 — a down service must
+        # fail the run loudly, not silently make every section fail
+        req = urllib.request.Request(BASE + "/health/ready", method="GET",
+                                     headers={"Authorization": "Bearer " + KEY})
+        try:
+            with urllib.request.urlopen(req, timeout=10) as r:
+                return r.status == 200
+        except Exception:
+            return False
 
     def warm_up(self) -> float | None:
         _, ms = self._post("/v1/memory/recall", {"agent_id": AID, "query": "hello", "top_k": 1})
@@ -173,7 +200,7 @@ class DakeraAdapter:
     def door_cut(self, door: str) -> int | None:
         return 2400 if door == "chat" else None
 
-    def _recall(self, query: str, k: int = 8) -> list[dict]:
+    def _recall(self, query: str, k: int = TOPK) -> list[dict]:
         out, _ = self._post("/v1/memory/recall", {"agent_id": AID, "query": query, "top_k": k})
         hits = out.get("memories", []) if isinstance(out, dict) else []
         return [h.get("memory", h) for h in hits]
@@ -206,7 +233,7 @@ class DakeraAdapter:
         qwords = _words(query) - STOP
         cards = self._named_cards(query)
         unknown = sorted(w for w in qwords if w.isalpha() and len(w) >= 5 and w not in self.vocab)
-        hits = self._recall(query, 8)
+        hits = self._recall(query, TOPK)
         semantic, episodic = [], []
         for mm in hits:
             tags = mm.get("tags", []) or []
@@ -214,8 +241,8 @@ class DakeraAdapter:
             if "fact" in tags:
                 date = next((t.split(":", 1)[1] for t in tags if t.startswith("date:")), "") or ""
                 if date in ("", "none"):
-                    date = "2026-09-01"
-                semantic.append({"source": "semantic_v2:fact", "content": "[dal %s] %s" % (date, content),
+                    date = _ca_date(mm.get("created_at"))  # Dakera's real stored timestamp, not a constant
+                semantic.append({"source": "semantic_v2:fact", "content": "[since %s] %s" % (date, content),
                                  "_hit": len(_words(content) & qwords)})
             elif "episode" in tags:
                 ts = next((t.split(":", 1)[1] for t in tags if t.startswith("ts:")),
@@ -260,7 +287,8 @@ class DakeraAdapter:
 
     def door_text(self, query: str, door: str):
         r = self.ask(query)
-        payload = " " * CFG.pressure if getattr(CFG, "pressure", 0) else ""
+        from adebench.ade import competing_payload  # same simulated payload every adapter uses
+        payload = competing_payload(getattr(CFG, "pressure", 0))
         text = payload + r["summary"]
         cut = self.door_cut(door)
         return (text[:cut] if cut else text), r
@@ -270,7 +298,9 @@ class DakeraAdapter:
         return [{"entity": e, "content": d["content"], "date": d["date"]} for e, d in self.cards_data.items()]
 
     def corrections(self) -> list[dict]:
-        return list(self._corrections)
+        # Dakera has no owner-correction / distiller feature, so the correction
+        # cases SKIP (like gbrain); cards are stored and served verbatim.
+        return []
 
     def aliases(self) -> list[dict]:
         return [a for a in self._aliases if a.get("alias") and a.get("canonical")]
@@ -354,10 +384,13 @@ class DakeraAdapter:
         return self._edge_count.get(cid, 0) if cid else 0
 
     def graph_orphans(self):
-        if not self._fact_ids:
+        # adebench's definition: fact nodes whose backing fact no longer exists
+        # (dangling). A graph node id not among the live memories is dangling;
+        # on a clean ingest with no deletions this is zero.
+        if not self._graph_node_ids:
             return (0, 0)
-        orphans = sum(1 for fid in self._fact_ids if self._edge_count.get(fid, 0) == 0)
-        return (orphans, len(self._fact_ids))
+        orphans = sum(1 for nid in self._graph_node_ids if nid not in self._live_ids)
+        return (orphans, len(self._graph_node_ids))
 
     def graph_counts(self) -> dict:
         return dict(self._graph_counts)
@@ -374,3 +407,13 @@ class DakeraAdapter:
 
     def probe_doors(self, questions: list[str]) -> None:
         pass
+
+    # ── optional: anti-leak check for the abstention section ───────────────
+    def stored_mentions(self, phrase: str) -> int:
+        """How many stored memories contain this phrase (Dakera full-text
+        search). The abstention section uses it to warn if an invented entity
+        of the golden set leaked into the memory it measures."""
+        out, _ = self._post("/v1/memory/search", {"agent_id": AID, "query": phrase, "top_k": 20})
+        hits = out.get("memories", []) if isinstance(out, dict) else []
+        pl = phrase.lower()
+        return sum(1 for h in hits if pl in (h.get("memory", h).get("content", "") or "").lower())

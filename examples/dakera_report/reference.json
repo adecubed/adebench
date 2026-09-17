@@ -1,14 +1,14 @@
 {
- "when": "2026-09-17T15:25:09",
- "total": 84.9,
- "measured_weight": 90,
+ "when": "2026-09-17T18:35:39",
+ "total": 96.9,
+ "measured_weight": 100,
  "not_run_weight": 0,
  "total_weight": 100,
  "counts": {
-  "PASS": 49,
-  "FAIL": 2,
+  "PASS": 48,
+  "FAIL": 1,
   "ERROR": 0,
-  "SKIP": 2
+  "SKIP": 1
  },
  "config": {
   "adapter": "adebench.dakera:DakeraAdapter",
@@ -38,8 +38,8 @@
   "max_card": 900,
   "cases": "examples/synthetic_data/cases",
   "repo": "examples/synthetic_data/repo",
-  "sandbox_test": null,
-  "sandbox_enabled": false,
+  "sandbox_test": "examples/dakera_sandbox_test.py",
+  "sandbox_enabled": true,
   "pressure_level": null,
   "census": null,
   "sections": [
@@ -53,7 +53,7 @@
    "graph"
   ],
   "duration_s": 23,
-  "fingerprint": "7a536028fa"
+  "fingerprint": "f69c35b6f4"
  },
  "sections": [
   {
@@ -68,8 +68,8 @@
      "note": "",
      "position": 139,
      "margin": 2257,
-     "chars": 343,
-     "ms": 18,
+     "chars": 345,
+     "ms": 6,
      "stale": false,
      "duplicates": 0,
      "validated": true
@@ -81,8 +81,8 @@
      "note": "",
      "position": 232,
      "margin": 2164,
-     "chars": 346,
-     "ms": 14,
+     "chars": 348,
+     "ms": 6,
      "stale": false,
      "duplicates": 0,
      "validated": true
@@ -94,8 +94,8 @@
      "note": "",
      "position": 153,
      "margin": 2242,
-     "chars": 313,
-     "ms": 13,
+     "chars": 315,
+     "ms": 6,
      "stale": false,
      "duplicates": 0,
      "validated": true
@@ -107,8 +107,8 @@
      "note": "",
      "position": 205,
      "margin": 2193,
-     "chars": 450,
-     "ms": 13,
+     "chars": 321,
+     "ms": 8,
      "stale": false,
      "duplicates": 0,
      "validated": true
@@ -120,8 +120,8 @@
      "note": "",
      "position": 136,
      "margin": 2262,
-     "chars": 311,
-     "ms": 16,
+     "chars": 272,
+     "ms": 8,
      "stale": false,
      "duplicates": 0,
      "validated": true
@@ -133,8 +133,8 @@
      "note": "",
      "position": 108,
      "margin": 2287,
-     "chars": 256,
-     "ms": 21,
+     "chars": 258,
+     "ms": 6,
      "stale": false,
      "duplicates": 0,
      "validated": true
@@ -145,9 +145,9 @@
      "ok": true,
      "note": "",
      "position": -1,
-     "margin": 2294,
-     "chars": 107,
-     "ms": 18,
+     "margin": 2292,
+     "chars": 199,
+     "ms": 7,
      "stale": false,
      "duplicates": 0,
      "validated": true
@@ -159,8 +159,8 @@
      "note": "missing +39",
      "position": -1,
      "margin": null,
-     "chars": 263,
-     "ms": 16,
+     "chars": 265,
+     "ms": 5,
      "stale": false,
      "duplicates": 0,
      "validated": true
@@ -179,7 +179,7 @@
     "questions": 8,
     "validated": 8,
     "mean_answer_position": 162,
-    "mean_door_text_chars": 299,
+    "mean_door_text_chars": 290,
     "min_margin_chars": 2164,
     "passes_within_300_chars_of_the_edge": 0,
     "questions_with_forbidden_values": 1,
@@ -204,43 +204,7 @@
      "case": "card calendar within 900 characters",
      "status": "PASS",
      "ok": true,
-     "note": "171 characters"
-    },
-    {
-     "case": "card calendar contains «read every 15 minutes»",
-     "status": "PASS",
-     "ok": true,
-     "note": ""
-    },
-    {
-     "case": "card calendar contains «shared with the team»",
-     "status": "PASS",
-     "ok": true,
-     "note": ""
-    },
-    {
-     "case": "card mailbox exists and is dated",
-     "status": "PASS",
-     "ok": true,
-     "note": ""
-    },
-    {
-     "case": "card mailbox within 900 characters",
-     "status": "PASS",
-     "ok": true,
-     "note": "148 characters"
-    },
-    {
-     "case": "card owner exists and is dated",
-     "status": "PASS",
-     "ok": true,
-     "note": ""
-    },
-    {
-     "case": "card owner within 900 characters",
-     "status": "PASS",
-     "ok": true,
-     "note": "124 characters"
+     "note": "130 characters"
     },
     {
      "case": "card brain exists and is dated",
@@ -255,28 +219,34 @@
      "note": "202 characters"
     },
     {
-     "case": "card brain contains «port 8766»",
+     "case": "card owner exists and is dated",
      "status": "PASS",
      "ok": true,
      "note": ""
     },
     {
-     "case": "card brain contains «the Nova model»",
+     "case": "card owner within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "124 characters"
+    },
+    {
+     "case": "card mailbox exists and is dated",
      "status": "PASS",
      "ok": true,
      "note": ""
     },
     {
-     "case": "card brain contains «the three memory levels»",
+     "case": "card mailbox within 900 characters",
      "status": "PASS",
      "ok": true,
-     "note": ""
+     "note": "148 characters"
     },
     {
-     "case": "alias 'agenda' leads to card calendar",
+     "case": "alias 'mail_bridge' leads to card mailbox",
      "status": "PASS",
      "ok": true,
-     "note": "cards seen: ['card:calendar']"
+     "note": "cards seen: ['card:mailbox']"
     },
     {
      "case": "alias 'the_brain' leads to card brain",
@@ -285,21 +255,21 @@
      "note": "cards seen: ['card:brain']"
     },
     {
-     "case": "alias 'mail_bridge' leads to card mailbox",
+     "case": "alias 'agenda' leads to card calendar",
      "status": "PASS",
      "ok": true,
-     "note": "cards seen: ['card:mailbox']"
+     "note": "cards seen: ['card:calendar']"
     }
    ],
    "counts": {
-    "PASS": 16,
+    "PASS": 11,
     "FAIL": 0,
     "ERROR": 0,
     "SKIP": 0
    },
    "measures": {
     "cards": 4,
-    "corrections": 2,
+    "corrections": 0,
     "aliases": 3,
     "aliases_tried": 3
    },
@@ -308,31 +278,44 @@
   {
    "name": "updates",
    "weight": 10,
-   "score": null,
+   "score": 1.0,
    "cases": [
     {
-     "case": "update mechanism (needs --sandbox-test)",
-     "status": "SKIP",
-     "ok": false,
-     "note": "without the sandbox test the historical trace does not score"
+     "case": "sandbox: supersede-by-update: the updated value is served, the retired one is not (9000 served, 8000 gone)",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "sandbox: dedup detects the duplicate fact (duplicates_found=1)",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "sandbox: importance update accepted (HTTP 200)",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
     }
    ],
    "counts": {
-    "PASS": 0,
+    "PASS": 3,
     "FAIL": 0,
     "ERROR": 0,
-    "SKIP": 1
+    "SKIP": 0
    },
-   "measures": {},
+   "measures": {
+    "sandbox_test": "3/3"
+   },
    "warnings": [
-    "section not measured: no sandbox test of the mechanism (--sandbox-test); historical trace: superseded=0, updates=0",
     "no trace of updates in live memory: the dedup has not worked yet or found no pairs"
    ]
   },
   {
    "name": "time",
    "weight": 10,
-   "score": 0.8,
+   "score": 1.0,
    "cases": [
     {
      "case": "semantic memories carry their age (8/8)",
@@ -359,15 +342,15 @@
      "note": "1 episodes"
     },
     {
-     "case": "«cosa ha fatto il pc2?» finds the episodes signed [pc2]",
-     "status": "FAIL",
-     "ok": false,
-     "note": "0 episodes in the answer"
+     "case": "«what did pc2 do?» finds the episodes signed [pc2]",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 episodes in the answer"
     }
    ],
    "counts": {
-    "PASS": 4,
-    "FAIL": 1,
+    "PASS": 5,
+    "FAIL": 0,
     "ERROR": 0,
     "SKIP": 0
    },
@@ -379,7 +362,8 @@
      "2026-09-09",
      "2026-09-08"
     ],
-    "signed_episodes_pc2": 1
+    "signed_episodes": 1,
+    "signed_question": "what did pc2 do?"
    },
    "warnings": []
   },
@@ -398,7 +382,7 @@
      "case": "the canary just written is served through the retrieval door",
      "status": "PASS",
      "ok": true,
-     "note": "write-to-serve 1268 ms"
+     "note": "write-to-serve 1154 ms"
     },
     {
      "case": "…and reaches the text of door 'chat'",
@@ -410,19 +394,19 @@
      "case": "3 canaries served within the budget",
      "status": "PASS",
      "ok": true,
-     "note": "p50 47 ms · p95 1268 ms"
+     "note": "p50 65 ms · p95 1154 ms"
     },
     {
      "case": "after overwriting the canary the door serves the new value, never the old one",
      "status": "PASS",
      "ok": true,
-     "note": "overwrite-to-visible 1200 ms"
+     "note": "overwrite-to-visible 1141 ms"
     },
     {
      "case": "two writes in quick succession: the door settles on the second, never back on the first",
      "status": "PASS",
      "ok": true,
-     "note": "second write visible in 27 ms",
+     "note": "second write visible in 36 ms",
      "timeline": null
     },
     {
@@ -446,14 +430,14 @@
    },
    "measures": {
     "live_state_age_min": null,
-    "write_to_serve_ms": 1268,
-    "write_to_serve_p50_ms": 47,
-    "write_to_serve_p95_ms": 1268,
+    "write_to_serve_ms": 1154,
+    "write_to_serve_p50_ms": 65,
+    "write_to_serve_p95_ms": 1154,
     "write_to_serve_samples": 3,
     "write_to_serve_budget_s": 30,
-    "overwrite_to_visible_ms": 1200,
+    "overwrite_to_visible_ms": 1141,
     "stale_reads_after_overwrite": 0,
-    "repeated_writes_settle_ms": 27,
+    "repeated_writes_settle_ms": 36,
     "out_of_order_reads": 0,
     "repeated_writes_timeline": [
      {
@@ -461,23 +445,23 @@
       "event": "first write"
      },
      {
-      "t_ms": 35,
+      "t_ms": 18,
       "event": "second write"
      },
      {
-      "t_ms": 99,
+      "t_ms": 71,
       "event": "poll",
       "first": false,
       "second": true
      },
      {
-      "t_ms": 1127,
+      "t_ms": 1091,
       "event": "poll",
       "first": false,
       "second": true
      },
      {
-      "t_ms": 2156,
+      "t_ms": 2110,
       "event": "poll",
       "first": false,
       "second": true
@@ -597,7 +581,7 @@
      "note": "2 edges"
     },
     {
-     "case": "mailbox: edges in the graph",
+     "case": "brain: edges in the graph",
      "status": "PASS",
      "ok": true,
      "note": "4 edges"
@@ -606,19 +590,19 @@
      "case": "owner: edges in the graph",
      "status": "PASS",
      "ok": true,
-     "note": "8 edges"
+     "note": "4 edges"
     },
     {
-     "case": "brain: edges in the graph",
+     "case": "mailbox: edges in the graph",
      "status": "PASS",
      "ok": true,
-     "note": "6 edges"
+     "note": "4 edges"
     },
     {
      "case": "orphan fact nodes = 0",
      "status": "PASS",
      "ok": true,
-     "note": "0 orphans out of 10"
+     "note": "0 orphans out of 16"
     }
    ],
    "counts": {
@@ -628,9 +612,9 @@
     "SKIP": 0
    },
    "measures": {
-    "nodes": 20,
-    "edges": 40,
-    "orphan_fact_nodes": "0 orphans out of 10"
+    "nodes": 16,
+    "edges": 22,
+    "orphan_fact_nodes": "0 orphans out of 16"
    },
    "warnings": []
   },
@@ -657,9 +641,9 @@
     "/v1/memory/recall": {
      "calls": 24,
      "http_errors": 0,
-     "ms_p50": 1124,
-     "ms_p95": 1377,
-     "mean_chars": 3786
+     "ms_p50": 914,
+     "ms_p95": 1260,
+     "mean_chars": 3723
     }
    },
    "warnings": []

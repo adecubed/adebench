@@ -260,23 +260,37 @@ provider gbrain supports works; keyless mode leaves it with keyword search only.
 
 ### Third real memory: Dakera
 
-[`adebench/dakera.py`](adebench/dakera.py) is the adapter for **[Dakera](https://dakera.ai)** — a self-hosted, decay-weighted vector memory server that gives AI agents persistent recall across sessions ([docs](https://dakera.ai/docs) · [self-host with dakera-deploy](https://github.com/dakera-ai/dakera-deploy) · [github.com/dakera-ai](https://github.com/dakera-ai)). It talks to Dakera's REST API only (no engine code imported), scoped to a single `agent_id` namespace so a run never touches other data. Dakera is a retrieval + memory engine rather than a full personal brain, so the adapter adds the thin reference reader `door_text` needs: cards first, then dated semantic facts, then episodic, then working, with an unknown-terms path so an invented subject abstains instead of dragging in a real card. [`examples/dakera_import.py`](examples/dakera_import.py) loads the synthetic golden set the same way `gbrain_import.py` does — cards, dated facts, episodes, aliases, owner corrections and the repo files — so the identical suite runs on Dakera:
+[`adebench/dakera.py`](adebench/dakera.py) is the adapter for [Dakera](https://dakera.ai), a self-hosted vector memory server for AI agents. It talks to Dakera's REST API only (no engine code imported), scoped to a single `agent_id` namespace so a run never touches other data. Dakera is a retrieval + memory engine rather than a full personal brain, so the adapter supplies the thin reference reader `door_text` needs: cards first, then dated semantic facts, then episodic, then working, with an unknown-terms path so an invented subject abstains. [`examples/dakera_import.py`](examples/dakera_import.py) loads the synthetic set the way `gbrain_import.py` does — everything **stored as written**, no step edits the golden data.
+
+What maps and what does not:
+
+- **cards** stored verbatim; owner corrections / a distiller: none, so the correction cases SKIP
+- **fact updates** exercised by a Dakera-specific sandbox test ([`examples/dakera_sandbox_test.py`](examples/dakera_sandbox_test.py)) that drives Dakera's real update + dedup + importance APIs on a throwaway namespace — nothing touches the golden set
+- **time** facts carry Dakera's stored timestamp as their age; episodes are dated
+- **live state** store / recall / forget over a working-memory tag with a TTL; no scheduled live-state key, so that case is SKIP
+- **files** the repo files are stored and matched through Dakera's full-text search
+- **graph** entity edges and orphans read from Dakera's own knowledge graph (`GET /v1/knowledge/export`)
+
+Run it against a **fresh, isolated Dakera instance** — a benchmark should not share a live index. This adapter changes nothing in adebench's harness; the only knobs are Dakera-server env on your side:
 
 ```bash
-# 1. run a Dakera server (see github.com/dakera-ai/dakera-deploy) and export creds
-export DAKERA_URL=http://localhost:3000 DAKERA_API_KEY=...
-# 2. load the synthetic memory into an isolated namespace
-python examples/dakera_import.py
-# 3. run the suite
+# fresh, isolated Dakera for the benchmark (in-memory, no persistence, no shared index).
+# The CE31 / DECOMP knobs pin Dakera's recall-time sentence-decomposition so a small golden
+# set isn't crowded by auto-generated sub-memories — this makes recall deterministic.
+docker run -d --name dakera-eval -p 127.0.0.1:3001:3001 \
+  -e DAKERA_PORT=3001 -e DAKERA_TIERED=1 -e DAKERA_STORAGE=memory -e DAKERA_AUTH_ENABLED=false \
+  -e DAKERA_CE31_MAX_SENTENCES=0 -e DAKERA_BATCH_SENTENCE_DECOMP=0 \
+  -v <dakera-models>:/app/models:ro  ghcr.io/dakera-ai/dakera:<version>
+
+export DAKERA_URL=http://localhost:3001 DAKERA_API_KEY=          # auth disabled above
+python examples/dakera_import.py                                # load the synthetic set
 ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.dakera:DakeraAdapter \
     --cases examples/synthetic_data/cases --repo examples/synthetic_data/repo \
-    --door chat --history /tmp/dakera-run --no-sandbox-test
+    --sandbox-test examples/dakera_sandbox_test.py \
+    --door chat --history /tmp/dakera-run
 ```
 
-On the synthetic golden set Dakera scores **84.9/90** (report in [`examples/dakera_report/`](examples/dakera_report/)). Supersession is handled at ingest — a "replaced" fact is stored current-only and the retired value is archived, never served, so the stale-value check passes on the text the client actually receives rather than on any massaging in the adapter. Owner corrections are distilled into the cards, `live_state` serves a canary write in well under a second, and the graph links every fact to its entity. The one `time` miss is the `[pc2]` signed-episode probe, which is Italian while this dataset is English — a cross-lingual recall gap worth its own note. `updates` needs a mechanism sandbox, so it SKIPs, like gbrain.
-
->
-> **About Dakera** — [Dakera](https://dakera.ai) is a self-hosted AI agent memory server: sub-millisecond vector recall on ordinary CPU hardware, decay-weighted importance, an entity knowledge graph, and temporal reasoning, all over a simple REST API. Self-host it with [dakera-deploy](https://github.com/dakera-ai/dakera-deploy); full documentation at [dakera.ai/docs](https://dakera.ai/docs).
+On the synthetic golden set Dakera scores **96.9 / 100** on this configuration, stable across repeated runs (report in [`examples/dakera_report/`](examples/dakera_report/)). The one door miss is a golden question whose fact isn't in the set; where a card exists the door delivers the entity **card** (current value) rather than a retired historical line. Note: on a *default* Dakera instance, recall-time sentence-decomposition is on, which on a fresh tiny namespace crowds recall and makes the score non-deterministic run-to-run until it settles — hence the pinned config above.
 
 ## Reproducible example, no service needed
 
