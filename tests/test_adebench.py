@@ -267,6 +267,79 @@ def test_write_back_is_skip_without_a_write_path(cases):
     assert s["counts"]["SKIP"] == 1 and s["measures"]["questions_tested"] == 0
 
 
+class _Learner(Fake):
+    """A memory that learns facts; `supersede` decides whether a changed value
+    replaces the old one, `overeager` whether it also retires unrelated facts."""
+    def __init__(self, supersede=True, overeager=False, piles=False):
+        super().__init__(answer={"summary": "x"})
+        self.supersede, self.overeager, self.piles = supersede, overeager, piles
+        self.facts: dict[str, str] = {}
+        self.n = 0
+        self.forgotten: list[str] = []
+    def write_fact(self, text):
+        subject = text.split(" connector ")[0]
+        if self.supersede:
+            for k, v in list(self.facts.items()):
+                same_kind = ("port" in v) == ("port" in text)
+                # over-eager: a new port fact also retires the other facts about the entity
+                if v.startswith(subject) and (same_kind or (self.overeager and "port" in text)) and v != text:
+                    del self.facts[k]
+        if not self.piles:
+            for k, v in self.facts.items():
+                if v == text:
+                    return k
+        self.n += 1
+        self.facts[f"f{self.n}"] = text
+        return f"f{self.n}"
+    def forget_memory(self, mid):
+        self.forgotten.append(mid)
+        return self.facts.pop(mid, None) is not None or True
+    def door_text(self, q, door):
+        text = f"CONTEXT for '{q}':\n" + "\n".join(self.facts.values())
+        return text, {"summary": text}
+
+
+def _probe(monkeypatch, memory):
+    monkeypatch.setattr(CFG, "write_to_serve_max_s", 0)
+    monkeypatch.setattr(CFG, "sandbox_test", None)
+    monkeypatch.setattr(sections.time, "sleep", lambda s: None)
+    _use(memory)
+    return sections.updates(with_sandbox=False)
+
+
+def test_update_probe_passes_a_memory_that_supersedes(cases, monkeypatch):
+    s = _probe(monkeypatch, _Learner())
+    assert s["counts"]["PASS"] == 3 and s["score"] == 1.0 and s["measures"]["probe"] is True
+    assert s["measures"]["probe_cleanup_ok"] is True
+
+
+def test_update_probe_catches_stale_overeager_and_piling(cases, monkeypatch):
+    stale = _probe(monkeypatch, _Learner(supersede=False))
+    first = stale["cases"][0]
+    assert first["status"] == "FAIL" and "STALE" in first["note"]
+    over = _probe(monkeypatch, _Learner(overeager=True))
+    assert [c["status"] for c in over["cases"]][:2] == ["PASS", "FAIL"]
+    piles = _probe(monkeypatch, _Learner(piles=True))
+    assert piles["cases"][2]["status"] == "FAIL" and "2 copies" in piles["cases"][2]["note"]
+
+
+def test_updates_without_write_fact_falls_back_to_the_sandbox_and_says_so(cases, monkeypatch, tmp_path):
+    script = tmp_path / "t" / "sandbox.py"
+    script.parent.mkdir()
+    script.write_text('print("PASS  one"); print("1/1 passed")', encoding="utf-8")
+    monkeypatch.setattr(CFG, "sandbox_test", script)
+    _use(Fake(answer={"summary": "x"}))
+    s = sections.updates(with_sandbox=True)
+    assert s["counts"]["PASS"] == 1 and not s["measures"].get("probe")
+    assert any("adapter's own sandbox test" in w for w in s["warnings"])
+
+
+def test_optional_fingerprint_key_leaves_old_runs_comparable():
+    base = {"adapter": "a", "door": "d", "cases_hash": "h", "sections": ["door"]}
+    assert report.fingerprint(base) == report.fingerprint({**base, "updates_probe": None})
+    assert report.fingerprint(base) != report.fingerprint({**base, "updates_probe": True})
+
+
 def test_report_only_cases_stay_out_of_the_headline():
     runs = [{"name": "door", "weight": 25, "cases": [{"status": "PASS"}]},
             {"name": "write_back", "weight": 0, "cases": [{"status": "FAIL"}]}]

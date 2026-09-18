@@ -95,6 +95,7 @@ class SyntheticAdapter:
         self._traces: list[dict] = []
         # instance copies: import_memory and ingest_exchange write here
         self.facts = [dict(f) for f in FACTS]
+        self.retired: list[dict] = []   # facts replaced by write_fact: stored, never served
         self.episodes = [dict(e) for e in EPISODES]
         self._written = 0
         self._known = set()
@@ -102,6 +103,9 @@ class SyntheticAdapter:
                 [e["input_summary"] + " " + e["output_summary"] for e in self.episodes]:
             self._known |= _words(t)
         self._known |= set(CARDS) | {a["alias"] for a in ALIASES}
+
+    def _is_known(self, word: str) -> bool:
+        return word in self._known or any(k.startswith(word[:5]) for k in self._known)
 
     # ── liveness ──
     def health(self) -> bool:
@@ -116,7 +120,9 @@ class SyntheticAdapter:
 
     def _retrieve(self, query: str) -> dict:
         q = _words(query) - STOP
-        unknown = sorted(w for w in q if w not in self._known and w.isalpha() and len(w) >= 5)
+        # unknown = no known word shares its first five letters ("listen" is
+        # known when "listens" is), the way a real memory looks terms up by prefix
+        unknown = sorted(w for w in q if w.isalpha() and len(w) >= 5 and not self._is_known(w))
         cards = []
         for ent in CARDS:
             names = {ent} | {a["alias"] for a in ALIASES if a["canonical"] == ent}
@@ -282,8 +288,29 @@ class SyntheticAdapter:
         self._known |= _words(question + " " + answer)
         return mid
 
+    def write_fact(self, text: str) -> str | None:
+        """Learning a fact: one that shares most of its words with a stored
+        fact (overlap >= 0.6 of the shorter, lengths within 2x) replaces it;
+        the same text is the same fact. A toy rule, but a real mechanism."""
+        new = _words(text)
+        for f in self.facts:
+            if f["content"] == text:
+                return f.get("id") or f["key"]
+        for f in list(self.facts):
+            old = _words(f["content"])
+            short, long_ = sorted((len(old), len(new)))
+            if short and short / long_ >= 0.5 and len(old & new) / short >= 0.6:
+                self.facts.remove(f)
+                self.retired.append(f)
+        self._written += 1
+        mid = f"fact-{self._written}"
+        self.facts.append({"id": mid, "key": mid, "content": text, "event_date": "2026-09-18"})
+        self._known |= _words(text)
+        return mid
+
     def forget_memory(self, memory_id: str) -> bool:
-        before = len(self.facts) + len(self.episodes)
+        before = len(self.facts) + len(self.episodes) + len(self.retired)
         self.facts = [f for f in self.facts if f.get("id") != memory_id]
+        self.retired = [f for f in self.retired if f.get("id") != memory_id]
         self.episodes = [e for e in self.episodes if e.get("id") != memory_id]
-        return len(self.facts) + len(self.episodes) < before
+        return len(self.facts) + len(self.episodes) + len(self.retired) < before

@@ -68,6 +68,7 @@ class GbrainAdapter:
         self._traces: list[dict] = []
         self._remembered: dict[tuple[str, str], str] = {}   # (session, key) -> fact id
         self._entities: dict[str, str] | None = None          # name -> slug, lazily from list_pages
+        self._fact_texts: dict[str, str] = {}                # id -> text, for write_fact / forget_memory
 
     def _entity_slugs(self) -> dict[str, str]:
         if self._entities is None:
@@ -504,6 +505,24 @@ class GbrainAdapter:
         r = self._call("capture", {"content": f"{question}\n\n{answer}", "type": "note"})
         return str(r.get("slug")) if isinstance(r, dict) and r.get("slug") else None
 
+    def write_fact(self, text: str) -> str | None:
+        """remember: gbrain's protocol write verb for one fact."""
+        r = self._call("remember", {"fact": text, "provenance": "adebench:updates"})
+        if not (isinstance(r, dict) and r.get("id")):
+            return None
+        self._fact_texts[str(r["id"])] = text
+        return f"fact:{r['id']}"
+
     def forget_memory(self, memory_id: str) -> bool:
+        if memory_id.startswith("fact:"):
+            fid = memory_id[5:]
+            r = self._call("forget", {"id": fid, "reason": "adebench cleanup"})
+            if isinstance(r, dict) and r.get("expired"):
+                return True
+            # "expired": false also means "already expired" (forgetting one of two
+            # identical facts expires both): removed if it is no longer live
+            text = self._fact_texts.get(fid, "")
+            live = self._facts(self._call("recall", {"grep": text[:60], "limit": 20})) if text else []
+            return not any(str(f.get("id")) == fid for f in live)
         r = self._call("delete_page", {"slug": memory_id})
         return isinstance(r, dict) and str(r.get("status", "")).endswith("deleted")

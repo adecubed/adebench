@@ -297,19 +297,120 @@ def cards() -> dict:
 
 # ─── C. Fact updates ─────────────────────────────────────────────────────────
 
-def updates(with_sandbox: bool = True) -> dict:
-    """The MECHANISM, exercised by a sandbox test script (CFG.sandbox_test)
-    that prints one PASS/FAIL line per check and "N/M passed" (or the
-    Italian "N/M passati"). The historical trace of updates goes in the
-    measures but does not score: an update that happened once does not prove
-    the mechanism works today."""
+def _probe_name() -> str:
+    """An invented, letters-only entity name nobody's memory contains."""
+    return "zet" + "".join(chr(97 + int(c, 16) % 26) for c in uuid.uuid4().hex[:6])
+
+
+def _serve(ada, question: str, want: str, avoid: str | None = None, stable: int = 1,
+           budget_s: float | None = None) -> tuple[int | None, str, int]:
+    """Ask until `want` is delivered without `avoid`, `stable` reads in a row,
+    or the budget runs out. Returns (ms to the first read with `want`, the last
+    text, how many reads delivered `want` and `avoid` together)."""
+    t0 = time.perf_counter()
+    deadline = t0 + (CFG.write_to_serve_max_s if budget_s is None else budget_s)
+    first, both, clean, text = None, 0, 0, ""
+    while True:
+        text, _ = ada.door_text(question, CFG.door)
+        has_want = bool(present(text, [want]))
+        has_avoid = bool(avoid and present(text, [avoid]))
+        if has_want and first is None:
+            first = round((time.perf_counter() - t0) * 1000)
+        both += has_want and has_avoid
+        clean = clean + 1 if (has_want and not has_avoid) else 0
+        if clean >= stable or time.perf_counter() >= deadline:
+            return first, text, both
+        time.sleep(1)
+
+
+def _update_probe(ada, measures: dict) -> list[dict]:
+    """The same update test for every memory, run by the harness through the
+    memory's own way of learning facts (write_fact). No id is ever given: the
+    memory must work out by itself that a new fact replaces an old one.
+
+      1. "listens on port 8000", then "listens on port 9000": the door must
+         serve 9000 and stop serving 8000 (a new write, not an edit by id)
+      2. an unrelated fact about the same entity (where it writes its logs)
+         must survive the update: over-eager dedup is also a failure
+      3. restating the current value must not pile up a second copy
+    Everything written is removed at the end."""
+    name = _probe_name()
+    old, new = "8000", "9000"
+    logdir = f"/srv/{name}/logs"
+    q_port = f"Which port does the {name} connector listen on?"
+    q_logs = f"Where does the {name} connector write its logs?"
+    written: list = []
+
+    def write(text: str) -> None:
+        ids = ada.write_fact(text)
+        if not ids:
+            raise RuntimeError(f"write_fact returned no id for: {text}")
+        for i in ids if isinstance(ids, (list, tuple)) else [ids]:
+            if i not in written:
+                written.append(i)
+        if callable(getattr(ada, "settle", None)):
+            ada.settle()
+
+    cases: list[dict] = []
+    measures.update({"probe": True, "probe_entity": name})
     try:
-        measures = dict(current().update_trace() or {})
+        write(f"The {name} connector listens on port {old}.")
+        write(f"The {name} connector writes its logs to {logdir}.")
+        first, _, _ = _serve(ada, q_port, old)
+        if first is None:
+            cases.append(_case("the memory serves a fact it was just told", False,
+                               f"port {old} not served within {CFG.write_to_serve_max_s} s"))
+            return cases
+        write(f"The {name} connector listens on port {new}.")
+        ms, text, both = _serve(ada, q_port, new, avoid=old, stable=3)
+        replaced = ms is not None and bool(present(text, [new])) and not present(text, [old])
+        note = f"new value served in {ms} ms" if ms is not None else \
+            f"new value not served within {CFG.write_to_serve_max_s} s"
+        if present(text, [old]):
+            note += f"; STALE: the old value is still delivered ({both} reads with both)"
+        measures.update({"probe_replace_ms": ms, "probe_reads_with_both": both})
+        cases.append(_case("a new write with a changed value replaces the old one at the door (no id given)",
+                           replaced, note))
+        _, logs_text, _ = _serve(ada, q_logs, logdir)
+        cases.append(_case("an unrelated fact about the same entity survives the update",
+                           bool(present(logs_text, [logdir])),
+                           "still delivered" if present(logs_text, [logdir]) else
+                           f"{logdir} no longer delivered: the update retired a fact it did not replace"))
+        write(f"The {name} connector listens on port {new}.")
+        _, text3, _ = _serve(ada, q_port, new, stable=2, budget_s=5)
+        copies = len(re.findall(rf"port {new}", text3, re.IGNORECASE))
+        cases.append(_case("restating the current value does not pile up a second copy",
+                           copies == 1, f"{copies} copies delivered"))
+    finally:
+        measures["probe_cleanup_ok"] = _forget(ada, list(reversed(written))) if written else None
+    return cases
+
+
+def updates(with_sandbox: bool = True) -> dict:
+    """Facts get updated, not accumulated.
+
+    With write_fact the harness runs its own update probe (_update_probe), the
+    same for every memory, and that is what scores. Without it, the section
+    falls back to the adapter's sandbox test script (CFG.sandbox_test), which
+    prints one PASS/FAIL line per check and "N/M passed" (or "N/M passati");
+    that path is flagged, because the adapter's author wrote the test. When
+    the probe runs, the sandbox test is still run and reported, not scored.
+    The historical trace of updates goes in the measures and never scores."""
+    ada = current()
+    try:
+        measures = dict(ada.update_trace() or {})
     except Exception as e:  # noqa: BLE001
         measures = {"trace_error": f"{type(e).__name__}: {str(e)[:120]}"}
     n_sup = measures.get("superseded_live", 0) or 0
     n_upd = measures.get("relation_updates", 0) or 0
     v2 = measures.get("v2_share")
+    probe_cases: list[dict] | None = None
+    if _has(ada, "write_fact", "forget_memory"):
+        try:
+            probe_cases = _update_probe(ada, measures)
+        except Exception as e:  # noqa: BLE001
+            probe_cases = [_case("harness update probe", False, f"{type(e).__name__}: {str(e)[:160]}",
+                                 status="ERROR")]
     cases, warnings = [], []
     if with_sandbox and CFG.sandbox_test:
         try:
@@ -329,11 +430,22 @@ def updates(with_sandbox: bool = True) -> dict:
                                    (p.stderr or p.stdout)[-300:], status="ERROR"))
         except Exception as e:  # noqa: BLE001
             cases.append(_case("sandbox test of the update mechanism", False, str(e)[:200], status="ERROR"))
-    else:
-        cases.append(_case("update mechanism (needs --sandbox-test)", None,
-                           "without the sandbox test the historical trace does not score"))
-        warnings.append("section not measured: no sandbox test of the mechanism (--sandbox-test); "
-                        f"historical trace: superseded={n_sup}, updates={n_upd}")
+    elif probe_cases is None:
+        cases.append(_case("update mechanism (needs write_fact or --sandbox-test)", None,
+                           "without the harness probe or a sandbox test the historical trace does not score"))
+        warnings.append("section not measured: no write_fact for the harness probe and no sandbox test "
+                        f"(--sandbox-test); historical trace: superseded={n_sup}, updates={n_upd}")
+    if probe_cases is not None:
+        sandbox_failed = [c for c in cases if c["status"] != "PASS"]
+        if sandbox_failed:
+            warnings.append(f"the adapter's own sandbox test has {len(sandbox_failed)} non-passing checks "
+                            f"({measures.get('sandbox_test')}): reported, not scored, since the harness probe ran")
+        cases = probe_cases
+        if measures.get("probe_cleanup_ok") is False:
+            warnings.append("forget_memory did not confirm the removal of the update probe's facts")
+    elif CFG.sandbox_test and with_sandbox:
+        warnings.append("updates scored from the adapter's own sandbox test: the harness probe, the same "
+                        "for every memory, needs the optional write_fact")
     if n_sup == 0 and n_upd == 0 and "trace_error" not in measures:
         warnings.append("no trace of updates in live memory: the dedup has not worked yet or found no pairs")
     if v2 is not None and v2 < 0.5:

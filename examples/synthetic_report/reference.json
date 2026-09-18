@@ -1,11 +1,11 @@
 {
- "when": "2026-09-17T18:45:49",
+ "when": "2026-09-18T10:21:17",
  "total": 90.0,
  "measured_weight": 100,
  "not_run_weight": 0,
  "total_weight": 100,
  "counts": {
-  "PASS": 52,
+  "PASS": 51,
   "FAIL": 5,
   "ERROR": 0,
   "SKIP": 0
@@ -49,6 +49,7 @@
    "calls": 20
   },
   "write_back": true,
+  "updates_probe": true,
   "sections": [
    "door",
    "cards",
@@ -59,8 +60,8 @@
    "file_search",
    "graph"
   ],
-  "duration_s": 2,
-  "fingerprint": "ff086bb57c"
+  "duration_s": 5,
+  "fingerprint": "9c559b7b5f"
  },
  "sections": [
   {
@@ -73,9 +74,9 @@
      "status": "PASS",
      "ok": true,
      "note": "",
-     "position": 214,
-     "margin": 1282,
-     "chars": 347,
+     "position": 139,
+     "margin": 1357,
+     "chars": 345,
      "ms": 1,
      "stale": false,
      "duplicates": 0,
@@ -86,9 +87,9 @@
      "status": "PASS",
      "ok": true,
      "note": "",
-     "position": 309,
-     "margin": 1187,
-     "chars": 352,
+     "position": 232,
+     "margin": 1264,
+     "chars": 348,
      "ms": 1,
      "stale": false,
      "duplicates": 0,
@@ -112,9 +113,9 @@
      "status": "PASS",
      "ok": true,
      "note": "",
-     "position": 280,
-     "margin": 1218,
-     "chars": 458,
+     "position": 205,
+     "margin": 1293,
+     "chars": 452,
      "ms": 1,
      "stale": false,
      "duplicates": 0,
@@ -185,13 +186,13 @@
     "pressure_chars": 0,
     "questions": 8,
     "validated": 8,
-    "mean_answer_position": 212,
-    "mean_door_text_chars": 359,
-    "min_margin_chars": 1187,
+    "mean_answer_position": 174,
+    "mean_door_text_chars": 357,
+    "min_margin_chars": 1264,
     "passes_within_300_chars_of_the_edge": 0,
     "questions_with_forbidden_values": 1,
     "stale_values_delivered": 1,
-    "chars_before_answer_mean": 212,
+    "chars_before_answer_mean": 174,
     "duplicate_chunks_total": 0
    },
    "warnings": [
@@ -320,32 +321,26 @@
    "score": 1.0,
    "cases": [
     {
-     "case": "sandbox: a fact that changes one word supersedes the old one",
+     "case": "a new write with a changed value replaces the old one at the door (no id given)",
      "status": "PASS",
      "ok": true,
-     "note": ""
+     "note": "new value served in 0 ms"
     },
     {
-     "case": "sandbox: the old value is gone from the live facts",
+     "case": "an unrelated fact about the same entity survives the update",
      "status": "PASS",
      "ok": true,
-     "note": ""
+     "note": "still delivered"
     },
     {
-     "case": "sandbox: the new value is live",
+     "case": "restating the current value does not pile up a second copy",
      "status": "PASS",
      "ok": true,
-     "note": ""
-    },
-    {
-     "case": "sandbox: a short fragment does not supersede a rich fact",
-     "status": "PASS",
-     "ok": true,
-     "note": ""
+     "note": "1 copies delivered"
     }
    ],
    "counts": {
-    "PASS": 4,
+    "PASS": 3,
     "FAIL": 0,
     "ERROR": 0,
     "SKIP": 0
@@ -357,6 +352,11 @@
      "supersede": 1
     },
     "v2_share": 1.0,
+    "probe": true,
+    "probe_entity": "zetkeobib",
+    "probe_replace_ms": 0,
+    "probe_reads_with_both": 0,
+    "probe_cleanup_ok": true,
     "sandbox_test": "4/4"
    },
    "warnings": []
@@ -367,7 +367,7 @@
    "score": 1.0,
    "cases": [
     {
-     "case": "semantic memories carry their age (5/5)",
+     "case": "semantic memories carry their age (8/8)",
      "status": "PASS",
      "ok": true,
      "note": "100%"
@@ -411,7 +411,7 @@
    },
    "measures": {
     "share_of_memories_with_age": 1.0,
-    "facts_with_event_date": "8/10",
+    "facts_with_event_date": "7/9",
     "days_tried": [
      "2026-09-10",
      "2026-09-09",
@@ -437,7 +437,7 @@
      "case": "the canary just written is served through the retrieval door",
      "status": "PASS",
      "ok": true,
-     "note": "write-to-serve 0 ms"
+     "note": "write-to-serve 1 ms"
     },
     {
      "case": "…and reaches the text of door 'chat'",
@@ -449,7 +449,7 @@
      "case": "3 canaries served within the budget",
      "status": "PASS",
      "ok": true,
-     "note": "p50 0 ms · p95 0 ms"
+     "note": "p50 0 ms · p95 1 ms"
     },
     {
      "case": "after overwriting the canary the door serves the new value, never the old one",
@@ -485,9 +485,9 @@
    },
    "measures": {
     "live_state_age_min": 7,
-    "write_to_serve_ms": 0,
+    "write_to_serve_ms": 1,
     "write_to_serve_p50_ms": 0,
-    "write_to_serve_p95_ms": 0,
+    "write_to_serve_p95_ms": 1,
     "write_to_serve_samples": 3,
     "write_to_serve_budget_s": 30,
     "overwrite_to_visible_ms": 0,
@@ -510,13 +510,13 @@
       "second": true
      },
      {
-      "t_ms": 1001,
+      "t_ms": 1002,
       "event": "poll",
       "first": false,
       "second": true
      },
      {
-      "t_ms": 2001,
+      "t_ms": 2004,
       "event": "poll",
       "first": false,
       "second": true
@@ -682,8 +682,8 @@
      "case": "How many tools does the mailbox connector expose?",
      "status": "FAIL",
      "ok": false,
-     "note": "the degraded answer reached the door after 0 ms; the starved door did lose the answer",
-     "position_before": 280,
+     "note": "the degraded answer reached the door after 2 ms; the starved door did lose the answer",
+     "position_before": 205,
      "position_after": 205,
      "degraded_position": 337,
      "starved": true
@@ -692,7 +692,7 @@
      "case": "When do backups run?",
      "status": "FAIL",
      "ok": false,
-     "note": "the degraded answer reached the door after 0 ms (before the real answer); the starved door did lose the answer",
+     "note": "the degraded answer reached the door after 1 ms (before the real answer); the starved door did lose the answer",
      "position_before": -1,
      "position_after": -1,
      "degraded_position": 112,
@@ -723,7 +723,7 @@
    "cases": [],
    "counts": {},
    "measures": {
-    "live_facts": 10,
+    "live_facts": 9,
     "cards": 4,
     "episodes": 4
    },
@@ -737,11 +737,11 @@
    "counts": {},
    "measures": {
     "/ask": {
-     "calls": 30,
+     "calls": 37,
      "http_errors": 0,
      "ms_p50": 1,
      "ms_p95": 1,
-     "mean_chars": 309
+     "mean_chars": 293
     }
    },
    "warnings": []
@@ -762,17 +762,17 @@
      "p95": 140000,
      "max": 140000
     },
-    "this_door_mean_chars": 309,
-    "this_door_rank_in_census": 0.45,
+    "this_door_mean_chars": 293,
+    "this_door_rank_in_census": 0.4,
     "declared_vs_returned": {
      "declared_bytes": 2200,
-     "returned_mean_chars": 309,
-     "returned_over_declared": 0.14
+     "returned_mean_chars": 293,
+     "returned_over_declared": 0.13
     }
    },
    "warnings": [
     "this census document carries no declared sizes (declared_bytes = 0: the local recorder does not keep tools/list yet), so declared-vs-returned has no reference",
-    "this door delivers 309 characters on average: larger than 45% of the 20 tool responses in the census"
+    "this door delivers 293 characters on average: larger than 40% of the 20 tool responses in the census"
    ]
   },
   {
@@ -794,7 +794,7 @@
      "PASS": 6,
      "FAIL": 2,
      "ERROR": 0,
-     "min_margin_chars": 673
+     "min_margin_chars": 750
     },
     "p95": {
      "pressure_chars": 140000,

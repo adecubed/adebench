@@ -134,6 +134,12 @@ class Adapter(Protocol):
     #     """Send one question/answer exchange through the memory's NORMAL write
     #     path (what happens after the assistant answers a user); returns the
     #     id(s) for forget_memory. Used by the opt-in write_back section."""
+    # def write_fact(self, text: str) -> str | list | None:
+    #     """Teach the memory one fact through its NORMAL way of learning facts,
+    #     WITHOUT saying which stored fact it replaces; returns the id(s) for
+    #     forget_memory. With it, the updates section runs the harness's own
+    #     update probe (the same for every memory) instead of scoring the
+    #     adapter's sandbox test."""
     # def forget_memory(self, memory_id: str) -> bool:
     #     """Remove what import_memory or ingest_exchange wrote. Both probes
     #     write into the memory they measure; without a way to remove it they

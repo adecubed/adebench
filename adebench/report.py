@@ -18,6 +18,9 @@ STATUSES = ("PASS", "FAIL", "ERROR", "SKIP")
 # if all of it is equal.
 COMPARABILITY_KEYS = ("adapter", "door", "cases_hash", "sections", "voice_cut", "voice_sources",
                       "events_block", "pressure", "sandbox_test", "sandbox_enabled", "repo", "weights", "max_card")
+# Keys that change what a section means, added to the fingerprint only when
+# set: runs from before they existed keep their fingerprint and their delta.
+OPTIONAL_COMPARABILITY_KEYS = ("updates_probe",)
 
 
 def cases_hash() -> str:
@@ -33,6 +36,9 @@ def cases_hash() -> str:
 
 def fingerprint(config: dict) -> str:
     base = {k: config.get(k) for k in COMPARABILITY_KEYS}
+    for k in OPTIONAL_COMPARABILITY_KEYS:
+        if config.get(k) is not None:
+            base[k] = config[k]
     if isinstance(base.get("sections"), list):
         base["sections"] = sorted(base["sections"])
     return hashlib.sha1(json.dumps(base, sort_keys=True, default=str).encode()).hexdigest()[:10]

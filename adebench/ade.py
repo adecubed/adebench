@@ -334,9 +334,17 @@ class AdeAdapter:
                 ids.append(f"turn:{r['id']}")
         return ids or None
 
+    def write_fact(self, text: str) -> str | None:
+        """POST /memory/semantic/learn: the distiller's write (dedup, supersede,
+        vectors), not /semantic/write, which stores the row as given."""
+        r = post("/memory/semantic/learn", {"content": text})
+        return f"fact:{r['key']}" if isinstance(r, dict) and r.get("ok") and r.get("key") else None
+
     def forget_memory(self, memory_id: str) -> bool:
         kind, _, ref = memory_id.partition(":")
-        if kind == "turn":
+        if kind == "fact":
+            r = delete(f"/memory/semantic/{ref}")
+        elif kind == "turn":
             r = delete(f"/sofia/turns/{ref}")
         elif kind == "episode":
             r = delete(f"/memory/episodic/{ref}")

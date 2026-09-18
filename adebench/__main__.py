@@ -171,6 +171,9 @@ def main(argv: list[str] | None = None) -> int:
               "census": ({"spec": cw.spec, "origin": cw.origin, "origin_declared": cw.origin_declared,
                           "generated_at": cw.generated_at, "calls": cw.n} if cw else None),
               "write_back": CFG.write_back,
+              # the harness probe scored 'updates' (not the adapter's sandbox test)
+              "updates_probe": True if any(s.get("name") == "updates" and s.get("measures", {}).get("probe")
+                                           for s in results) else None,
               "sections": chosen, "duration_s": round(time.perf_counter() - t_start)}
     config["fingerprint"] = report.fingerprint(config)
     if args.no_report:
