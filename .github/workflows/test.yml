@@ -22,4 +22,4 @@ jobs:
           python -m adebench --adapter examples.synthetic:SyntheticAdapter \
             --cases examples/synthetic_data/cases --repo examples/synthetic_data/repo \
             --sandbox-test examples/synthetic_data/sandbox_test.py --history /tmp/adebench-run \
-            --census examples/synthetic_data/census.json --pressure-profile
+            --census examples/synthetic_data/census.json --pressure-profile --write-back

@@ -29,6 +29,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--sandbox-test", help="sandbox test script of the fact-update mechanism")
     ap.add_argument("--sections", nargs="*", choices=ORDER, help="only these sections")
     ap.add_argument("--no-sandbox-test", action="store_true", help="skip the sandbox test (faster)")
+    ap.add_argument("--write-back", action="store_true",
+                    help="opt-in, report-only: write a degraded answer through the memory's own write path "
+                         "and check it does not come back through the door (it is removed afterwards)")
     ap.add_argument("--no-report", action="store_true", help="do not save to the history folder")
     ap.add_argument("--validation", action="store_true",
                     help="write validation.md next to the cases, with the memory's real answers")
@@ -43,6 +46,8 @@ def main(argv: list[str] | None = None) -> int:
         CFG.census = args.census
     if args.pressure_profile:
         CFG.pressure_profile = True
+    if args.write_back:
+        CFG.write_back = True
     cw = None
     if CFG.census:
         try:
@@ -123,6 +128,17 @@ def main(argv: list[str] | None = None) -> int:
               f"({time.perf_counter() - t0:.0f}s)")
         results.append(s)
 
+    if CFG.write_back:
+        print("  write-back…", end="", flush=True)
+        try:
+            wb = sections.write_back()
+        except Exception as e:  # noqa: BLE001
+            wb = {"name": "write_back", "weight": 0, "score": None, "measures": {}, "warnings": [],
+                  "cases": [sections._case("write_back", False, f"{type(e).__name__}: {str(e)[:160]}", status="ERROR")],
+                  "counts": {"PASS": 0, "FAIL": 0, "ERROR": 1, "SKIP": 0}}
+        k = wb["counts"]
+        print(f" {k.get('PASS', 0)} PASS {k.get('FAIL', 0)} FAIL {k.get('ERROR', 0)} ERROR {k.get('SKIP', 0)} SKIP")
+        results.append(wb)
     print("  health…", end="", flush=True)
     results.append(sections.health())
     print(" ok")
@@ -154,6 +170,7 @@ def main(argv: list[str] | None = None) -> int:
               "pressure_level": args.pressure if args.pressure and not args.pressure.lstrip("-").isdigit() else None,
               "census": ({"spec": cw.spec, "origin": cw.origin, "origin_declared": cw.origin_declared,
                           "generated_at": cw.generated_at, "calls": cw.n} if cw else None),
+              "write_back": CFG.write_back,
               "sections": chosen, "duration_s": round(time.perf_counter() - t_start)}
     config["fingerprint"] = report.fingerprint(config)
     if args.no_report:

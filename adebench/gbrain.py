@@ -487,3 +487,23 @@ class GbrainAdapter:
         except GbrainError:
             return None
         return len(out.encode("utf-8")) if code == 0 and out.strip() else None
+
+    # ── optional: writes ──────────────────────────────────────────────────
+    def import_memory(self, text: str, written_at: str) -> str | None:
+        """put_page with the original date in the frontmatter: gbrain's
+        effective_date reads frontmatter.date before updated_at."""
+        import uuid
+        slug = f"note/adebench-import-{uuid.uuid4().hex[:8]}"
+        content = (f"---\ntitle: {json.dumps(text[:60])}\ntype: note\ndate: {written_at[:10]}\n---\n\n"
+                   f"# {text[:60]}\n\n{text}\n")
+        self._call("put_page", {"slug": slug, "content": content})
+        return slug
+
+    def ingest_exchange(self, question: str, answer: str) -> str | None:
+        """capture: gbrain's own "just remember this" write."""
+        r = self._call("capture", {"content": f"{question}\n\n{answer}", "type": "note"})
+        return str(r.get("slug")) if isinstance(r, dict) and r.get("slug") else None
+
+    def forget_memory(self, memory_id: str) -> bool:
+        r = self._call("delete_page", {"slug": memory_id})
+        return isinstance(r, dict) and str(r.get("status", "")).endswith("deleted")

@@ -1,11 +1,11 @@
 {
- "when": "2026-09-17T18:17:28",
+ "when": "2026-09-17T18:45:49",
  "total": 90.0,
  "measured_weight": 100,
  "not_run_weight": 0,
  "total_weight": 100,
  "counts": {
-  "PASS": 51,
+  "PASS": 52,
   "FAIL": 5,
   "ERROR": 0,
   "SKIP": 0
@@ -48,6 +48,7 @@
    "generated_at": "2026-09-13T00:00:00Z",
    "calls": 20
   },
+  "write_back": true,
   "sections": [
    "door",
    "cards",
@@ -390,6 +391,12 @@
      "note": "1 episodes"
     },
     {
+     "case": "an imported memory reaches the door with its original date",
+     "status": "PASS",
+     "ok": true,
+     "note": "served with 2021-03-14 (in the uncut answer only: lost through the door's cut)"
+    },
+    {
      "case": "«what did pc2 do?» finds the episodes signed [pc2]",
      "status": "PASS",
      "ok": true,
@@ -397,7 +404,7 @@
     }
    ],
    "counts": {
-    "PASS": 5,
+    "PASS": 6,
     "FAIL": 0,
     "ERROR": 0,
     "SKIP": 0
@@ -503,13 +510,13 @@
       "second": true
      },
      {
-      "t_ms": 1000,
+      "t_ms": 1001,
       "event": "poll",
       "first": false,
       "second": true
      },
      {
-      "t_ms": 2002,
+      "t_ms": 2001,
       "event": "poll",
       "first": false,
       "second": true
@@ -667,6 +674,49 @@
    "warnings": []
   },
   {
+   "name": "write_back",
+   "weight": 0,
+   "score": null,
+   "cases": [
+    {
+     "case": "How many tools does the mailbox connector expose?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "the degraded answer reached the door after 0 ms; the starved door did lose the answer",
+     "position_before": 280,
+     "position_after": 205,
+     "degraded_position": 337,
+     "starved": true
+    },
+    {
+     "case": "When do backups run?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "the degraded answer reached the door after 0 ms (before the real answer); the starved door did lose the answer",
+     "position_before": -1,
+     "position_after": -1,
+     "degraded_position": 112,
+     "starved": true
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 2,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "degraded_answer": "I have no record of that. You asked: {question}",
+    "questions_tested": 2,
+    "poisoned": 2,
+    "cleanup_ok": true,
+    "wait_s": 10
+   },
+   "warnings": [
+    "2 of 2 degraded answers written back reached the door or pushed the real answer out: the memory learns from its own bad answers"
+   ]
+  },
+  {
    "name": "health",
    "weight": 0,
    "score": null,
@@ -687,11 +737,11 @@
    "counts": {},
    "measures": {
     "/ask": {
-     "calls": 23,
+     "calls": 30,
      "http_errors": 0,
      "ms_p50": 1,
      "ms_p95": 1,
-     "mean_chars": 301
+     "mean_chars": 309
     }
    },
    "warnings": []
@@ -712,17 +762,17 @@
      "p95": 140000,
      "max": 140000
     },
-    "this_door_mean_chars": 301,
+    "this_door_mean_chars": 309,
     "this_door_rank_in_census": 0.45,
     "declared_vs_returned": {
      "declared_bytes": 2200,
-     "returned_mean_chars": 301,
+     "returned_mean_chars": 309,
      "returned_over_declared": 0.14
     }
    },
    "warnings": [
     "this census document carries no declared sizes (declared_bytes = 0: the local recorder does not keep tools/list yet), so declared-vs-returned has no reference",
-    "this door delivers 301 characters on average: larger than 45% of the 20 tool responses in the census"
+    "this door delivers 309 characters on average: larger than 45% of the 20 tool responses in the census"
    ]
   },
   {

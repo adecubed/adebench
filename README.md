@@ -35,7 +35,7 @@ data** — so the benchmark grows with the memory and cannot be gamed by editing
 | `door` | 25 | The expected words are inside the text **the client actually receives** through the chosen door (see *Doors*). Not the raw hits: the text. |
 | `cards` | 15 | Every entity card exists, is dated, fits the limit, contains each mandatory item of the owner's corrections; every alias leads to the canonical card. Fully derived from the data. |
 | `updates` | 10 | Facts get **updated**, not accumulated: a sandbox test of the dedup mechanism (`--sandbox-test`). The historical trace is reported, never scored. |
-| `time` | 10 | Every memory reaches the model with its age (a leading bracketed date in any language: `[since 2026-05-10]`, `[dal 2026-05-10]`), the episodic day filter returns only that day, machine-signed episodes are found by a question in the owner's language. |
+| `time` | 10 | Every memory reaches the model with its age (a leading bracketed date in any language: `[since 2026-05-10]`, `[dal 2026-05-10]`), the episodic day filter returns only that day, machine-signed episodes are found by a question in the owner's language, and a memory imported with an old original date reaches the door with **that** date, not the import date (optional `import_memory`, SKIP without it). |
 | `live_state` | 10 | A canary written to working memory is served through the door (polled until it appears: the **write-to-serve latency** is reported in ms, with a p50/p95 over a few canaries, and a memory that never serves one within the budget fails); the same key **overwritten** is served with the new value and never the old one (a stale read right after a write, or both values together, is a fail); **two writes in quick succession** settle on the second and never go back to the first (out-of-order visibility is a fail); the live state key is fresher than N minutes. |
 | `abstention` | 10 | On invented entities: no card, episodes marked as *no direct match*, no keyword hits — the memory says it does not know. |
 | `file_search` | 10 | Real function names sampled from a repository: the grep-replacement search puts the right file in the top 5. |
@@ -163,6 +163,29 @@ when it comes from the published URL — otherwise the report labels it unknown.
 generated documents currently report `declared_bytes = 0` (the recorder does not keep
 `tools/list` yet), so declared-vs-returned has a reference against the published census only.
 
+### Write-back: a memory learning from its own bad answers
+
+A failure no read-side section catches (reported by VodouAI on r/AIMemory): retrieval is
+degraded, the assistant answers "no record of that", the normal write path saves the
+exchange, and the next day that entry outranks the real fact, because it is newer and
+matches the question almost word for word. The real fact is still in the store, so every
+read-side check passes; it just stopped reaching the door.
+
+`--write-back` tests it, opt-in and report-only. For a few golden questions that pass on a
+good day, the door is first starved (pressure equal to its budget) to show the answer really
+gets lost, then a fixed degraded answer (`ADEBENCH_DEGRADED_ANSWER`, default `I have no
+record of that. You asked: {question}`) goes through the memory's **own** write path, and
+the question is asked again with no pressure. A case fails if the degraded answer reaches
+the door or the real answer is no longer delivered. It is the STALE check, except the stale
+value is one the system wrote itself. No LLM runs in the harness: whatever the memory does
+with the exchange, a distiller included, is the memory's business.
+
+An adapter opts in with three optional methods: `ingest_exchange(question, answer)` (the
+normal write path of one exchange), `forget_memory(id)` (what was written is always
+removed; the report says whether the removal was confirmed) and, if the memory processes
+writes later, `settle()`. On the synthetic memory, whose write path stores the exchange as a
+fact ranked first, both probes fail: that is the example of what the section catches.
+
 ## Other memory systems: write an adapter
 
 The sections never talk to a memory system directly. They call an **adapter** — one class
@@ -286,6 +309,9 @@ Options:
 | `--sandbox-test` / `ADEBENCH_SANDBOX_TEST` | sandbox test script of the fact-update mechanism (prints `N/M passed`) |
 | `--sections a b` | run only some sections (the report says what was not run) |
 | `--no-sandbox-test` | skip the sandbox test; recorded in the setup fingerprint, so such a run is never compared with one that ran it |
+| `--write-back` / `ADEBENCH_WRITE_BACK` | opt-in, report-only: a degraded answer through the memory's own write path must not come back through the door; removed afterwards |
+| `ADEBENCH_DEGRADED_ANSWER` | the degraded answer written back, `{question}` replaced by the golden question (default `I have no record of that. You asked: {question}`) |
+| `ADEBENCH_WRITE_BACK_QUESTIONS` / `_S` | how many golden questions to probe (default 2) and how long to wait for the write to reach the door (default 10 s) |
 | `--validation` | write a validation sheet for the golden set (see below) |
 | `ADEBENCH_VOICE_SOURCES`, `ADEBENCH_VOICE_CUT`, `ADEBENCH_EVENTS_BLOCK` | the voice client's sources, cut and events block, if yours differ |
 | `ADEBENCH_MAX_CARD` | max length of an entity card (default 900) |
@@ -293,8 +319,10 @@ Options:
 | `ADEBENCH_LIVE_STATE_SESSION` / `_KEY` / `_MINUTES` | which live-state key must be fresh, and how fresh; an empty `_KEY` means the memory has no such key (the case is SKIP) |
 
 Production memory is only read (SQLite opened read-only through the path the service
-reports). The only writes are a canary in working memory, session `adebench`, TTL one hour,
-removed at the end of the run.
+reports), with three exceptions, each removed at the end of its check: canaries in working
+memory (session `adebench`, TTL one hour); one imported memory dated 2021-03-14, when the
+adapter has `import_memory`; and, only with `--write-back`, the degraded exchanges. Run
+`--write-back` on a sandbox when the memory's write path has side effects you cannot undo.
 
 ## The golden set, and how to validate it
 

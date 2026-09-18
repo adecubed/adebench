@@ -315,6 +315,35 @@ class AdeAdapter:
             post("/brain/memory/tool/search", {"query": q, "limit": 5})
             post("/brain/orchestrator/context", {"user_input": q, "limit_semantic": 5})
 
+    # ── optional: writes ──────────────────────────────────────────────────
+    def import_memory(self, text: str, written_at: str) -> str | None:
+        """An episode recorded with the date it happened (created_at)."""
+        r = post("/memory/episodic/record", {"repl": "adebench_import", "input_summary": text,
+                                             "output_summary": "", "created_at": written_at})
+        return f"episode:{r['task_id']}" if isinstance(r, dict) and r.get("task_id") else None
+
+    def ingest_exchange(self, question: str, answer: str) -> list[str] | None:
+        """The voice path: the user's turn and Sofia's answer land in Sofia's
+        chat log, which the voice door serves as recent conversations. (The
+        distiller path, episode to fact, is covered by the Brain's sandbox
+        test in the updates section.)"""
+        ids = []
+        for role, text in (("user", question), ("sofia", answer)):
+            r = post("/sofia/turns", {"role": role, "text": text})
+            if isinstance(r, dict) and r.get("id"):
+                ids.append(f"turn:{r['id']}")
+        return ids or None
+
+    def forget_memory(self, memory_id: str) -> bool:
+        kind, _, ref = memory_id.partition(":")
+        if kind == "turn":
+            r = delete(f"/sofia/turns/{ref}")
+        elif kind == "episode":
+            r = delete(f"/memory/episodic/{ref}")
+        else:
+            return False
+        return isinstance(r, dict) and bool(r.get("ok"))
+
 
 # The full-text indexes of the Brain and the table each one is built from.
 _FTS_INDEXES = (

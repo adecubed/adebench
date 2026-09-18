@@ -124,6 +124,23 @@ class Adapter(Protocol):
     #     when an invented entity of the golden set is found in the memory:
     #     the benchmark must not write its own answers into what it
     #     measures. Without this method the check is skipped."""
+    # def import_memory(self, text: str, written_at: str) -> str | None:
+    #     """Import one memory written at `written_at` (ISO date or datetime)
+    #     through the memory's own import path; returns an id for
+    #     forget_memory. The time section requires that original date at the
+    #     door: a note imported with the import date reads as today's and wins
+    #     every recency tie-break. Without this method the case is SKIP."""
+    # def ingest_exchange(self, question: str, answer: str) -> str | list | None:
+    #     """Send one question/answer exchange through the memory's NORMAL write
+    #     path (what happens after the assistant answers a user); returns the
+    #     id(s) for forget_memory. Used by the opt-in write_back section."""
+    # def forget_memory(self, memory_id: str) -> bool:
+    #     """Remove what import_memory or ingest_exchange wrote. Both probes
+    #     write into the memory they measure; without a way to remove it they
+    #     do not run."""
+    # def settle(self) -> None:
+    #     """Let the memory process pending writes (a distillation pass, an
+    #     index flush) before the door is asked again. Optional."""
     # def declared_bytes(self) -> int | None:
     #     """Size in bytes of what this memory's MCP server declares in
     #     tools/list. With a callwitness census (--census) the report gives

@@ -61,6 +61,8 @@ def total_score(sections: list[dict], weights: dict | None = None) -> tuple[floa
 def counts(sections: list[dict]) -> dict:
     c = {s: 0 for s in STATUSES}
     for s in sections:
+        if not s.get("weight"):
+            continue   # report-only sections are shown on their own, not in the headline
         for case in s.get("cases", []):
             st = case.get("status", "FAIL")
             c[st] = c.get(st, 0) + 1
@@ -166,6 +168,12 @@ def markdown(run: dict) -> str:
         d = run["delta"]["sections"].get(s["name"])
         lines.append(f"| {s['name']} | {s['weight']} | {points}{_fmt_delta(d)} | {statuses} |")
     for s in run["sections"]:
+        if s.get("weight") or not s.get("cases"):
+            continue
+        k = s.get("counts", {})
+        lines.append(f"| {s['name']} | report-only | — | "
+                     f"{k.get('PASS', 0)}/{k.get('FAIL', 0)}/{k.get('ERROR', 0)}/{k.get('SKIP', 0)} |")
+    for s in run["sections"]:
         lines += ["", f"## {s['name']}"]
         if s.get("measures"):
             lines.append("")
@@ -196,6 +204,12 @@ def print_summary(run: dict, pm: Path):
             continue
         d = run["delta"]["sections"].get(s["name"])
         print(f"  {s['name']:<12} {round(s['score'] * s['weight'], 1):>5}/{s['weight']:<3}{_fmt_delta(d):<8} "
+              f"{k.get('PASS', 0)} PASS {k.get('FAIL', 0)} FAIL {k.get('ERROR', 0)} ERROR {k.get('SKIP', 0)} SKIP")
+    for s in run["sections"]:
+        if s.get("weight") or not s.get("cases"):
+            continue
+        k = s.get("counts", {})
+        print(f"  {s['name']:<12} {'report-only':>17}   "
               f"{k.get('PASS', 0)} PASS {k.get('FAIL', 0)} FAIL {k.get('ERROR', 0)} ERROR {k.get('SKIP', 0)} SKIP")
     warnings = [(s["name"], w) for s in run["sections"] for w in s.get("warnings", [])]
     if warnings:

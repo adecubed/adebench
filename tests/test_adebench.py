@@ -189,6 +189,91 @@ def test_signed_probe_asks_the_configured_question(cases, monkeypatch):
     assert s["measures"]["signed_question"] == "was hat box7 gemacht?"
 
 
+class _Writable(Fake):
+    """A memory with an import path and a write path, configurable faults."""
+    def __init__(self, keep_date=True, poisonable=True):
+        super().__init__(answer={"summary": "x"})
+        self.keep_date, self.poisonable = keep_date, poisonable
+        self.items: dict[str, str] = {}
+        self.forgotten: list[str] = []
+    def import_memory(self, text, written_at):
+        date = written_at[:10] if self.keep_date else "2026-09-17"
+        self.items["imp"] = f"[{date}] {text}"
+        return "imp"
+    def ingest_exchange(self, q, a):
+        self.items["ex"] = a
+        return ["ex"]
+    def forget_memory(self, mid):
+        self.forgotten.append(mid)
+        return self.items.pop(mid, None) is not None
+    def door_text(self, q, door):
+        parts = ["The Brain listens on port 8766."]
+        if "ex" in self.items and self.poisonable:
+            parts.insert(0, self.items["ex"])
+        if "imp" in self.items and "canary" in q:
+            parts.append(self.items["imp"])
+        # doors echo the question, token included, far from the stored canary
+        text = f"CONTEXT for '{q}':\n" + "\n".join(parts)
+        return text[:2400] if CFG.pressure == 0 else (" " * CFG.pressure + text)[:2400], {"summary": text}
+
+
+def _write_cases(cases):
+    (cases / "questions.json").write_text(json.dumps([
+        {"question": "Which port does the Brain use?", "expected": [["8766"]]}]), encoding="utf-8")
+
+
+def test_imported_memory_keeps_its_date(cases, monkeypatch):
+    monkeypatch.setattr(CFG, "write_to_serve_max_s", 0)
+    good = _Writable(keep_date=True)
+    _use(good)
+    s = sections.time_section([{"content": "[since 2026-09-01] fact"}])
+    case = next(c for c in s["cases"] if "original date" in c["case"])
+    assert case["status"] == "PASS" and good.forgotten == ["imp"]
+    bad = _Writable(keep_date=False)
+    _use(bad)
+    s = sections.time_section([{"content": "[since 2026-09-01] fact"}])
+    case = next(c for c in s["cases"] if "original date" in c["case"])
+    assert case["status"] == "FAIL" and "2026-09-17" in case["note"] and bad.forgotten == ["imp"]
+
+
+def test_import_case_is_skip_without_an_import_path(cases):
+    _use(Fake(answer={"summary": "x"}))
+    s = sections.time_section([{"content": "[since 2026-09-01] fact"}])
+    case = next(c for c in s["cases"] if "original date" in c["case"])
+    assert case["status"] == "SKIP"
+
+
+def test_write_back_catches_a_memory_that_serves_its_own_degraded_answer(cases, monkeypatch):
+    _write_cases(cases)
+    monkeypatch.setattr(CFG, "write_back_wait_s", 0)
+    monkeypatch.setattr(CFG, "degraded_answer", "I have no record of that. You asked: {question}")
+    monkeypatch.setattr(sections.time, "sleep", lambda s: None)
+    poisoned = _Writable(poisonable=True)
+    _use(poisoned)
+    s = sections.write_back()
+    assert s["weight"] == 0 and s["score"] is None
+    assert s["counts"]["FAIL"] == 1 and "reached the door" in s["cases"][0]["note"]
+    assert s["measures"]["poisoned"] == 1 and s["measures"]["cleanup_ok"] is True and poisoned.forgotten == ["ex"]
+    clean = _Writable(poisonable=False)
+    _use(clean)
+    s = sections.write_back()
+    assert s["counts"]["PASS"] == 1 and s["measures"]["poisoned"] == 0
+
+
+def test_write_back_is_skip_without_a_write_path(cases):
+    _write_cases(cases)
+    _use(Fake(answer={"summary": "x"}))
+    s = sections.write_back()
+    assert s["counts"]["SKIP"] == 1 and s["measures"]["questions_tested"] == 0
+
+
+def test_report_only_cases_stay_out_of_the_headline():
+    runs = [{"name": "door", "weight": 25, "cases": [{"status": "PASS"}]},
+            {"name": "write_back", "weight": 0, "cases": [{"status": "FAIL"}]}]
+    c = report.counts(runs)
+    assert c["PASS"] == 1 and c["FAIL"] == 0
+
+
 def test_live_state_with_broken_age_read_is_error(cases):
     _use(BrokenRead("age", answer={"summary": "x"}))
     assert sections.live_state()["counts"]["ERROR"] == 1
@@ -521,7 +606,7 @@ def test_synthetic_example_matches_reference(tmp_path, monkeypatch):
     assert main(["--adapter", "examples.synthetic:SyntheticAdapter",
                  "--cases", "examples/synthetic_data/cases", "--repo", "examples/synthetic_data/repo",
                  "--sandbox-test", "examples/synthetic_data/sandbox_test.py",
-                 "--census", "examples/synthetic_data/census.json", "--pressure-profile",
+                 "--census", "examples/synthetic_data/census.json", "--pressure-profile", "--write-back",
                  "--history", str(tmp_path)]) == 0
     run = json.loads(next(tmp_path.glob("*.json")).read_text(encoding="utf-8"))
     assert run["total"] == reference["total"]

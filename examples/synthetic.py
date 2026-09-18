@@ -15,6 +15,9 @@ PURPOSE, so the report shows FAIL and SKIP as well as PASS:
     hands over the calendar card for an invented thing
   - one golden question asks a fact the memory never stored
   - 'travel' facts have no event date
+  - its write path stores a question and the assistant's answer as one fact,
+    newest first, so a degraded answer written back ("I have no record of
+    that") comes straight back through the door (--write-back)
 
 It also shows what the contract needs from a memory that has no voice
 assistant: two doors, 'chat' (a plain composed answer) and 'raw'.
@@ -90,9 +93,13 @@ class SyntheticAdapter:
     def __init__(self) -> None:
         self.working: dict[tuple[str, str], str] = {}
         self._traces: list[dict] = []
+        # instance copies: import_memory and ingest_exchange write here
+        self.facts = [dict(f) for f in FACTS]
+        self.episodes = [dict(e) for e in EPISODES]
+        self._written = 0
         self._known = set()
-        for t in list(CARDS.values()) + [f["content"] for f in FACTS] + \
-                [e["input_summary"] + " " + e["output_summary"] for e in EPISODES]:
+        for t in list(CARDS.values()) + [f["content"] for f in self.facts] + \
+                [e["input_summary"] + " " + e["output_summary"] for e in self.episodes]:
             self._known |= _words(t)
         self._known |= set(CARDS) | {a["alias"] for a in ALIASES}
 
@@ -116,7 +123,7 @@ class SyntheticAdapter:
             if any(n in q or n.replace("_", " ") in query.lower() for n in names):
                 cards.append({"key": f"card:{ent}", "content": CARDS[ent]})
         semantic = []
-        for f in FACTS:
+        for f in self.facts:
             hit = len(_words(f["content"]) & q)
             if hit:
                 age = f"[since {f['event_date']}] " if f["event_date"] else "[since 2026-09-01] "
@@ -124,7 +131,7 @@ class SyntheticAdapter:
         semantic.sort(key=lambda s: -s["_hit"])
         semantic = semantic[:5]
         episodic = []
-        for e in EPISODES:
+        for e in self.episodes:
             if _words(e["input_summary"] + " " + e["output_summary"]) & q:
                 episodic.append(dict(e))
         if unknown:
@@ -194,17 +201,17 @@ class SyntheticAdapter:
         return {"superseded_live": 1, "relation_updates": 1, "archive_by_reason": {"supersede": 1}, "v2_share": 1.0}
 
     def event_date_share(self) -> tuple[int, int]:
-        return sum(1 for f in FACTS if f["event_date"]), len(FACTS)
+        return sum(1 for f in self.facts if f["event_date"]), len(self.facts)
 
     # ── episodes ──
     def recent_days(self, n: int) -> list[str]:
-        return sorted({e["created_at"][:10] for e in EPISODES}, reverse=True)[:n]
+        return sorted({e["created_at"][:10] for e in self.episodes}, reverse=True)[:n]
 
     def episodes_of_day(self, day: str, limit: int) -> list[dict]:
-        return [e for e in EPISODES if e["created_at"].startswith(day)][:limit]
+        return [e for e in self.episodes if e["created_at"].startswith(day)][:limit]
 
     def signed_episodes(self, prefix: str) -> int:
-        return sum(1 for e in EPISODES if e["input_summary"].startswith(prefix))
+        return sum(1 for e in self.episodes if e["input_summary"].startswith(prefix))
 
     # ── working memory ──
     def working_write(self, session: str, key: str, value: str, ttl_hours: int) -> bool:
@@ -241,7 +248,7 @@ class SyntheticAdapter:
 
     # ── report-only ──
     def health_report(self) -> tuple[dict, list[str]]:
-        return {"live_facts": len(FACTS), "cards": len(CARDS), "episodes": len(EPISODES)}, []
+        return {"live_facts": len(self.facts), "cards": len(CARDS), "episodes": len(self.episodes)}, []
 
     def measured_doors(self) -> list[str]:
         return ["/ask"]
@@ -255,3 +262,28 @@ class SyntheticAdapter:
     # ── optional: what this memory's MCP server declares in tools/list ──
     def declared_bytes(self) -> int | None:
         return 2200
+
+    # ── optional: writes (import with a date, the write path, removal) ──
+    def import_memory(self, text: str, written_at: str) -> str | None:
+        self._written += 1
+        mid = f"import-{self._written}"
+        self.episodes.append({"id": mid, "created_at": written_at, "repl": "import",
+                              "input_summary": text, "output_summary": ""})
+        self._known |= _words(text)
+        return mid
+
+    def ingest_exchange(self, question: str, answer: str) -> str | None:
+        # deliberately naive: the exchange becomes a fact dated today, and it
+        # matches the question word for word, so it ranks first
+        self._written += 1
+        mid = f"exchange-{self._written}"
+        self.facts.insert(0, {"id": mid, "key": mid, "content": f"Asked: {question} Answered: {answer}",
+                              "event_date": "2026-09-17"})
+        self._known |= _words(question + " " + answer)
+        return mid
+
+    def forget_memory(self, memory_id: str) -> bool:
+        before = len(self.facts) + len(self.episodes)
+        self.facts = [f for f in self.facts if f.get("id") != memory_id]
+        self.episodes = [e for e in self.episodes if e.get("id") != memory_id]
+        return len(self.facts) + len(self.episodes) < before

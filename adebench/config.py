@@ -60,6 +60,15 @@ class Config:
     # owner's language (the default is English; set the question in yours).
     signed_prefix: str = os.environ.get("ADEBENCH_SIGNED_PREFIX", "[pc2]")
     signed_question: str = os.environ.get("ADEBENCH_SIGNED_QUESTION", "what did pc2 do?")
+    # Write-back probe (opt-in, --write-back): a degraded answer goes through
+    # the memory's own write path and must not come back through the door.
+    # {question} is replaced by the golden question: a real degraded answer
+    # names its subject, which is what makes it retrievable next time.
+    write_back: bool = os.environ.get("ADEBENCH_WRITE_BACK", "0").lower() in ("1", "true", "yes")
+    degraded_answer: str = os.environ.get("ADEBENCH_DEGRADED_ANSWER",
+                                          "I have no record of that. You asked: {question}")
+    write_back_questions: int = int(os.environ.get("ADEBENCH_WRITE_BACK_QUESTIONS", "2"))
+    write_back_wait_s: int = int(os.environ.get("ADEBENCH_WRITE_BACK_S", "10"))
     # Write-to-serve latency: how long the canary may take to become
     # retrievable after the write (polled every second). A memory with
     # asynchronous indexing pays here; the number is reported either way.

@@ -377,6 +377,7 @@ def time_section(semantic_seen: list[dict] | None = None) -> dict:
             ok = bool(eps) and all(config.local_day(e.get("created_at", "")) == day for e in eps)
             return _case(f"day filter {day} returns only that day's episodes", ok, f"{len(eps)} episodes")
         cases.append(_try(f"day filter {day}", _day))
+    cases.append(_try("imported memory keeps its original date", lambda: _import_date(ada)))
     prefix, question = CFG.signed_prefix, CFG.signed_question
     n_signed = _read("reading the signed episodes", lambda: ada.signed_episodes(prefix), None, cases)
     if n_signed:
@@ -397,6 +398,65 @@ def time_section(semantic_seen: list[dict] | None = None) -> dict:
         warnings.append(f"only {d} facts out of {n} carry the event date: for the others the age "
                         "the model hears is the derivation date, not the fact's")
     return _section("time", cases, measures, warnings)
+
+
+IMPORT_DATE = "2021-03-14"   # far enough back that nobody confuses it with today
+_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
+
+
+def _has(ada, *methods: str) -> bool:
+    return all(callable(getattr(ada, m, None)) for m in methods)
+
+
+def _forget(ada, ids) -> bool:
+    ids = ids if isinstance(ids, (list, tuple)) else [ids]
+    ok = True
+    for i in ids:
+        try:
+            ok = bool(ada.forget_memory(i)) and ok
+        except Exception:  # noqa: BLE001
+            ok = False
+    return ok
+
+
+def _import_date(ada) -> dict:
+    """A memory imported with an old original date must reach the door with
+    THAT date, not the import date (VodouAI on r/AIMemory: a two-year-old note
+    stamped with the import date looked like today's and won every recency
+    tie-break). The canary is removed afterwards."""
+    name = "an imported memory reaches the door with its original date"
+    if not _has(ada, "import_memory", "forget_memory"):
+        return _case(name, None, "no import path in this adapter (import_memory / forget_memory)")
+    token = uuid.uuid4().hex[:10]
+    mid = ada.import_memory(f"adebench import canary {token}: the spare keys are in the blue box",
+                            f"{IMPORT_DATE}T09:30:00")
+    if not mid:
+        return _case(name, False, "import_memory returned no id")
+    try:
+        # the question carries the token to find the canary, and doors echo the
+        # question ("CONTEXT for '...'"): the canary itself is recognised by
+        # "<token>:", which only the stored text has
+        needle = f"{token}:"
+        deadline = time.perf_counter() + CFG.write_to_serve_max_s
+        text, summary = "", ""
+        while True:
+            text, r = ada.door_text(f"adebench import canary {token} spare keys", CFG.door)
+            summary = r.get("summary") or ""
+            if needle in text or needle in summary or time.perf_counter() >= deadline:
+                break
+            time.sleep(1)
+        where = text if needle in text else summary
+        if needle not in where:
+            return _case(name, False, f"imported memory not served within {CFG.write_to_serve_max_s} s")
+        i = where.find(needle)
+        window = where[max(0, i - 240): i + len(needle) + 60]
+        dates = sorted(set(_DATE.findall(window)))
+        note = f"served with {', '.join(dates) if dates else 'no date'}"
+        if where is summary:
+            note += " (in the uncut answer only: lost through the door's cut)"
+        return _case(name, IMPORT_DATE in dates, note)
+    finally:
+        _forget(ada, mid)
 
 
 # ─── E. Live state (working memory) ──────────────────────────────────────────
@@ -573,6 +633,122 @@ def live_state() -> dict:
                                           "out_of_order_reads": latency["out_of_order"],
                                           # ms from the first write: the second write, then every poll
                                           "repeated_writes_timeline": latency["timeline"]})
+
+
+# ─── E2. Write-back: the memory learning from its own degraded answer ───────
+
+def _marker(template: str) -> str:
+    """The fixed words of the degraded answer, to recognise it at the door
+    even when the question around it is also there."""
+    parts = [p.strip(" :.,;\"'«»-") for p in template.split("{question}")]
+    return max(parts, key=len) if parts else template
+
+
+def _degraded_at(text: str, marker: str) -> int:
+    t = re.sub(r"\s+", " ", text).lower()
+    return t.find(re.sub(r"\s+", " ", marker).lower()) if marker else -1
+
+
+def write_back() -> dict:
+    """Report-only, opt-in (--write-back). While retrieval was degraded the
+    assistant answered "no record of that"; the normal write path saved the
+    exchange; the next day that entry outranked the real fact, because it was
+    newer and matched the question almost word for word. Every read-side check
+    still passed: the real fact was in the store, it just stopped reaching the
+    door. (VodouAI on r/AIMemory, September 2026.)
+
+    For each golden question that passes at baseline: the door is starved
+    (pressure = its budget) to show the answer really gets lost, a fixed
+    degraded answer goes through the memory's own write path, and the door is
+    asked again with no pressure. FAIL if the degraded answer reaches the door
+    or the real answer is no longer delivered. What was written is removed."""
+    ada = current()
+    name = "write_back"
+    marker = _marker(CFG.degraded_answer)
+    m: dict = {"degraded_answer": CFG.degraded_answer, "questions_tested": 0, "poisoned": 0,
+               "cleanup_ok": None, "wait_s": CFG.write_back_wait_s}
+    warnings: list[str] = []
+    cases: list[dict] = []
+    if not _has(ada, "ingest_exchange", "forget_memory"):
+        cases.append(_case("the degraded answer does not come back through the door", None,
+                           "no write path in this adapter (ingest_exchange / forget_memory)"))
+        return {"name": name, "weight": 0, "score": None, "cases": cases,
+                "counts": {s: sum(1 for c in cases if c["status"] == s) for s in STATUSES},
+                "measures": m, "warnings": warnings}
+    questions = _load("questions.json")
+    # answers that live in facts and episodes first: that is where a newer,
+    # word-for-word match outranks the real memory; then validated ones
+    questions = sorted(questions, key=lambda q: (bool(q.get("entity")), not q.get("validated")))
+    keep, budget = CFG.pressure, ada.door_cut(CFG.door)
+    cleanup = []
+    try:
+        for q in questions:
+            if m["questions_tested"] >= CFG.write_back_questions:
+                break
+            CFG.pressure = 0
+            text, _ = ada.door_text(q["question"], CFG.door)
+            if [g for g in q["expected"] if not present(text, g)]:
+                continue   # not a candidate: the memory does not answer it even on a good day
+            found = [present(text, g) for g in q["expected"]]
+            before = min(text.lower().find(t.lower()) for t in found)
+            starved = None
+            if budget:
+                CFG.pressure = budget
+                s_text, _ = ada.door_text(q["question"], CFG.door)
+                starved = bool([g for g in q["expected"] if not present(s_text, g)])
+                CFG.pressure = 0
+            answer = CFG.degraded_answer.replace("{question}", q["question"])
+            m["questions_tested"] += 1
+
+            def _probe(q=q, answer=answer, before=before, starved=starved) -> dict:
+                ids = ada.ingest_exchange(q["question"], answer)
+                if not ids:
+                    return _case(q["question"], False, "ingest_exchange returned no id", status="ERROR")
+                cleanup.append(ids)
+                if callable(getattr(ada, "settle", None)):
+                    ada.settle()
+                t0 = time.perf_counter()
+                deadline = t0 + CFG.write_back_wait_s
+                while True:
+                    after, _ = ada.door_text(q["question"], CFG.door)
+                    at = _degraded_at(after, marker)
+                    if at >= 0 or time.perf_counter() >= deadline:
+                        break
+                    time.sleep(1)
+                lost = [g for g in q["expected"] if not present(after, g)]
+                real = [present(after, g) for g in q["expected"] if present(after, g)]
+                pos = min((after.lower().find(t.lower()) for t in real), default=-1)
+                reasons = []
+                if at >= 0:
+                    reasons.append(f"the degraded answer reached the door after {round((time.perf_counter() - t0) * 1000)} ms"
+                                   + (" (before the real answer)" if pos < 0 or at < pos else ""))
+                if lost:
+                    reasons.append("the real answer is no longer delivered: missing " + " | ".join("/".join(g) for g in lost))
+                note = "; ".join(reasons) or f"the real answer still reaches the door (position {before} -> {pos})"
+                if starved is not None:
+                    note += "; the starved door " + ("did lose the answer" if starved else "kept the answer anyway")
+                if reasons:
+                    m["poisoned"] += 1
+                return _case(q["question"], not reasons, note, position_before=before, position_after=pos,
+                             degraded_position=at, starved=starved)
+
+            cases.append(_try(q["question"], _probe))
+    finally:
+        CFG.pressure = keep
+        if cleanup:
+            m["cleanup_ok"] = all(_forget(ada, ids) for ids in cleanup)
+    if not m["questions_tested"]:
+        cases.append(_case("the degraded answer does not come back through the door", None,
+                           "no golden question passes at baseline: nothing to poison"))
+    if m["cleanup_ok"] is False:
+        warnings.append("forget_memory did not confirm the removal of the write-back probe: "
+                        "the degraded answer may still be in the memory")
+    if m["poisoned"]:
+        warnings.append(f"{m['poisoned']} of {m['questions_tested']} degraded answers written back reached the door "
+                        "or pushed the real answer out: the memory learns from its own bad answers")
+    return {"name": name, "weight": 0, "score": None, "cases": cases,
+            "counts": {s: sum(1 for c in cases if c["status"] == s) for s in STATUSES},
+            "measures": m, "warnings": warnings}
 
 
 # ─── F. Abstention ───────────────────────────────────────────────────────────

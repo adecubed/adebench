@@ -1,7 +1,7 @@
-# adebench — 2026-09-17T18:17:28
+# adebench — 2026-09-17T18:45:49
 
 **Score: 90.0 / 100**
-Cases: 51 PASS · 5 FAIL · 0 ERROR · 0 SKIP
+Cases: 52 PASS · 5 FAIL · 0 ERROR · 0 SKIP
 Adapter `examples.synthetic:SyntheticAdapter` · door `chat` · cases `0f9a4640dc` · setup `ff086bb57c` · sections door, cards, updates, time, live_state, abstention, file_search, graph
 
 | Section | Weight | Points | PASS/FAIL/ERROR/SKIP |
@@ -9,11 +9,12 @@ Adapter `examples.synthetic:SyntheticAdapter` · door `chat` · cases `0f9a4640d
 | door | 25 | 18.8 | 6/2/0/0 |
 | cards | 15 | 14.1 | 15/1/0/0 |
 | updates | 10 | 10.0 | 4/0/0/0 |
-| time | 10 | 10.0 | 5/0/0/0 |
+| time | 10 | 10.0 | 6/0/0/0 |
 | live_state | 10 | 10.0 | 8/0/0/0 |
 | abstention | 10 | 9.2 | 3/1/0/0 |
 | file_search | 10 | 10.0 | 6/0/0/0 |
 | graph | 10 | 8.0 | 4/1/0/0 |
+| write_back | report-only | — | 0/2/0/0 |
 
 ## door
 
@@ -75,7 +76,7 @@ Not passed:
 - stale_reads_after_overwrite: `0`
 - repeated_writes_settle_ms: `0`
 - out_of_order_reads: `0`
-- repeated_writes_timeline: `[{"t_ms": 0, "event": "first write"}, {"t_ms": 0, "event": "second write"}, {"t_ms": 0, "event": "poll", "first": false, "second": true}, {"t_ms": 1000, "event": "poll", "first": false, "second": true}, {"t_ms": 2002, "event": "poll", "first": false, "second": true}]`
+- repeated_writes_timeline: `[{"t_ms": 0, "event": "first write"}, {"t_ms": 0, "event": "second write"}, {"t_ms": 0, "event": "poll", "first": false, "second": true}, {"t_ms": 1001, "event": "poll", "first": false, "second": true}, {"t_ms": 2001, "event": "poll", "first": false, "second": true}]`
 
 ## abstention
 
@@ -98,6 +99,20 @@ Not passed:
 Not passed:
 - FAIL mailbox: edges in the graph — 0 edges
 
+## write_back
+
+- degraded_answer: `"I have no record of that. You asked: {question}"`
+- questions_tested: `2`
+- poisoned: `2`
+- cleanup_ok: `true`
+- wait_s: `10`
+
+- ⚠ 2 of 2 degraded answers written back reached the door or pushed the real answer out: the memory learns from its own bad answers
+
+Not passed:
+- FAIL How many tools does the mailbox connector expose? — the degraded answer reached the door after 0 ms; the starved door did lose the answer
+- FAIL When do backups run? — the degraded answer reached the door after 0 ms (before the real answer); the starved door did lose the answer
+
 ## health
 
 - live_facts: `10`
@@ -106,7 +121,7 @@ Not passed:
 
 ## doors
 
-- /ask: `{"calls": 23, "http_errors": 0, "ms_p50": 1, "ms_p95": 1, "mean_chars": 301}`
+- /ask: `{"calls": 30, "http_errors": 0, "ms_p50": 1, "ms_p95": 1, "mean_chars": 309}`
 
 ## census
 
@@ -115,12 +130,12 @@ Not passed:
 - calls: `20`
 - servers_called: `3`
 - tool_response_bytes: `{"median": 512, "p95": 140000, "max": 140000}`
-- this_door_mean_chars: `301`
+- this_door_mean_chars: `309`
 - this_door_rank_in_census: `0.45`
-- declared_vs_returned: `{"declared_bytes": 2200, "returned_mean_chars": 301, "returned_over_declared": 0.14}`
+- declared_vs_returned: `{"declared_bytes": 2200, "returned_mean_chars": 309, "returned_over_declared": 0.14}`
 
 - ⚠ this census document carries no declared sizes (declared_bytes = 0: the local recorder does not keep tools/list yet), so declared-vs-returned has no reference
-- ⚠ this door delivers 301 characters on average: larger than 45% of the 20 tool responses in the census
+- ⚠ this door delivers 309 characters on average: larger than 45% of the 20 tool responses in the census
 
 ## pressure_profile
 
