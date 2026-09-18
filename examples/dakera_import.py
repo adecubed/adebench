@@ -27,6 +27,11 @@ from examples.synthetic import CARDS, CARD_DATES, FACTS, EPISODES, ALIASES  # no
 BASE = os.environ.get("DAKERA_URL", "http://localhost:3000")
 KEY = os.environ["DAKERA_API_KEY"]
 AID = "adebench-eval"
+# Same session the adapter recalls with. Dakera scopes a sessioned recall to the
+# session's memories AND applies its supersession demotion there, so the golden
+# set and the update probe's writes share one session. A session is Dakera's
+# normal scope for a run; the facts themselves are still stored verbatim.
+SESSION = os.environ.get("DAKERA_RECALL_SESSION", "adebench-eval-session")
 
 
 def call(path: str, body: dict):
@@ -43,7 +48,7 @@ def call(path: str, body: dict):
 
 def store(content, mtype, tags, importance=0.7):
     r = call("/v1/memory/store", {"agent_id": AID, "content": content, "memory_type": mtype,
-                                  "importance": importance, "tags": tags})
+                                  "importance": importance, "tags": tags, "session_id": SESSION})
     return r.get("memory", r).get("id")
 
 

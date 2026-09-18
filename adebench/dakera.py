@@ -49,6 +49,11 @@ BASE = os.environ.get("DAKERA_URL", "http://localhost:3000")
 KEY = os.environ.get("DAKERA_API_KEY", "")
 AID = "adebench-eval"
 
+# A session id on recall turns on Dakera's supersession demotion: a fact with an
+# incoming Supersedes edge — a newer, >=0.92-cosine, entity-sharing, strictly-later
+# sibling — is scored x0.05, so an id-less update surfaces the current value.
+RECALL_SESSION = os.environ.get("DAKERA_RECALL_SESSION", "adebench-eval-session")
+
 STOP = {"the", "what", "which", "who", "how", "does", "do", "is", "are", "for", "and", "with", "about",
         "many", "when", "where", "much", "on", "in", "of", "a", "an", "to", "owner", "owners"}
 
@@ -201,9 +206,19 @@ class DakeraAdapter:
         return 2400 if door == "chat" else None
 
     def _recall(self, query: str, k: int = TOPK) -> list[dict]:
-        out, _ = self._post("/v1/memory/recall", {"agent_id": AID, "query": query, "top_k": k})
+        # session_id present -> Dakera applies supersession demotion (a stale fact
+        # with an incoming Supersedes edge is scored x0.05). The engine's score
+        # rides along on each hit so the reader can respect it.
+        out, _ = self._post("/v1/memory/recall",
+                            {"agent_id": AID, "query": query, "top_k": k, "session_id": RECALL_SESSION})
         hits = out.get("memories", []) if isinstance(out, dict) else []
-        return [h.get("memory", h) for h in hits]
+        res = []
+        for h in hits:
+            mm = h.get("memory", h)
+            if isinstance(mm, dict):
+                mm["_score"] = h.get("score", h.get("similarity")) if isinstance(h, dict) else None
+            res.append(mm)
+        return res
 
     def _named_cards(self, query: str) -> list[dict]:
         ql = query.lower()
@@ -243,7 +258,7 @@ class DakeraAdapter:
                 if date in ("", "none"):
                     date = _ca_date(mm.get("created_at"))  # Dakera's real stored timestamp, not a constant
                 semantic.append({"source": "semantic_v2:fact", "content": "[since %s] %s" % (date, content),
-                                 "_hit": len(_words(content) & qwords)})
+                                 "_hit": len(_words(content) & qwords), "_score": mm.get("_score")})
             elif "episode" in tags:
                 ts = next((t.split(":", 1)[1] for t in tags if t.startswith("ts:")),
                           next((t.split(":", 1)[1] for t in tags if t.startswith("date:")), ""))
@@ -251,6 +266,13 @@ class DakeraAdapter:
                 episodic.append({"created_at": ts, "input_summary": inp,
                                  "output_summary": content.split(" -> ", 1)[1] if " -> " in content else "",
                                  "repl": next((t.split(":", 1)[1] for t in tags if t.startswith("repl:")), "")})
+        # Respect Dakera's relevance score: when a strongly-scored fact is present,
+        # drop any fact the engine demoted to near-zero — a stale value that a newer
+        # id-less write superseded is scored x0.05 by Dakera's supersession, so it
+        # must not reach the door next to the current value.
+        scored = [s["_score"] for s in semantic if s.get("_score") is not None]
+        if scored and max(scored) >= 0.5:
+            semantic = [s for s in semantic if s.get("_score") is None or s["_score"] >= 0.12]
         strong = [s for s in semantic if s["_hit"] > 0]
         semantic = strong if strong else semantic
         semantic.sort(key=lambda s: -s["_hit"])
@@ -312,6 +334,31 @@ class DakeraAdapter:
     def event_date_share(self):
         dated = sum(1 for f in self.facts if f.get("date") and f["date"] != "none")
         return (dated, len(self.facts))
+
+    # ── updates: the harness's own id-less update probe (adebench 0.2.12) ──
+    def write_fact(self, text: str):
+        """Teach Dakera one fact the normal way — a plain store, with NO id of
+        what it replaces. Salient terms ride along as `entity:` tags so Dakera's
+        own engine can form a Supersedes edge (new -> old) between two
+        near-identical facts (>=0.92 cosine, a shared entity, strictly later) and
+        demote the retired value at recall. The adapter never says which fact is
+        replaced; Dakera decides, and a sessioned recall serves the current one."""
+        ents = ["entity:" + w for w in sorted(_tokens(text)) if not w.isdigit()]
+        out, _ = self._post("/v1/memory/store", {
+            "agent_id": AID, "content": text, "memory_type": "semantic", "importance": 0.6,
+            "session_id": RECALL_SESSION, "tags": ["adebench-eval", "fact"] + ents})
+        m = out.get("memory", out) if isinstance(out, dict) else {}
+        return m.get("id")
+
+    def settle(self) -> None:
+        """Dakera builds its Supersedes edges asynchronously after a write returns,
+        and the edge needs a >=1 s created-at gap; give both room before the door
+        is asked again."""
+        time.sleep(1.5)
+
+    def forget_memory(self, memory_id: str) -> bool:
+        out, _ = self._post("/v1/memory/forget", {"agent_id": AID, "memory_ids": [memory_id]})
+        return isinstance(out, dict) and (out.get("deleted_count", 0) or 0) > 0
 
     # ── episodes / time ───────────────────────────────────────────────────
     def recent_days(self, n: int) -> list[str]:
