@@ -258,6 +258,40 @@ door questions are the dataset's deliberate defects, the same two the synthetic 
 fails. The report is in [`examples/gbrain_report/`](examples/gbrain_report/). Any embedding
 provider gbrain supports works; keyless mode leaves it with keyword search only.
 
+### Third real memory: Dakera
+
+[`adebench/dakera.py`](adebench/dakera.py) is the adapter for [Dakera](https://dakera.ai), a self-hosted vector memory server for AI agents. It talks to Dakera's REST API only (no engine code imported), scoped to a single `agent_id` namespace so a run never touches other data. Dakera is a retrieval + memory engine rather than a full personal brain, so the adapter supplies the thin reference reader `door_text` needs: cards first, then dated semantic facts, then episodic, then working, with an unknown-terms path so an invented subject abstains. [`examples/dakera_import.py`](examples/dakera_import.py) loads the synthetic set the way `gbrain_import.py` does — everything **stored as written**, no step edits the golden data.
+
+What maps and what does not:
+
+- **cards** stored verbatim; owner corrections / a distiller: none, so the correction cases SKIP
+- **fact updates** — with adebench 0.2.12's optional `write_fact`, the `updates` section runs the **harness's own id-less update probe** (the same for every memory), and Dakera **passes it 3/3**. `write_fact` is a plain store with no id of what it replaces; Dakera's engine then forms a `Supersedes` edge to the near-identical earlier fact (shared entity, ≥0.92 cosine, strictly later), and a session-scoped recall **demotes the retired value**, so the door serves the new value and never the old, an unrelated fact about the same entity survives, and restating the value adds no copy. The adapter never says which fact is superseded — Dakera does. The adapter's own `--sandbox-test` ([`examples/dakera_sandbox_test.py`](examples/dakera_sandbox_test.py), 3 checks on a throwaway namespace) still runs and is **reported as evidence, no longer scored**, now that the harness probe measures the section
+- **time** facts carry Dakera's stored timestamp as their age; episodes are dated
+- **live state** store / recall / forget over a working-memory tag with a TTL; no scheduled live-state key, so that case is SKIP
+- **files** the repo files are stored and matched through Dakera's full-text search
+- **graph** entity edges and orphans read from Dakera's own knowledge graph (`GET /v1/knowledge/export`)
+
+Run it against a **fresh, isolated Dakera instance** — a benchmark should not share a live index. This adapter changes nothing in adebench's harness; the only knobs are Dakera-server env on your side:
+
+```bash
+# fresh, isolated Dakera for the benchmark (in-memory, no persistence, no shared index).
+# The CE31 / DECOMP knobs pin Dakera's recall-time sentence-decomposition so a small golden
+# set isn't crowded by auto-generated sub-memories — this makes recall deterministic.
+docker run -d --name dakera-eval -p 127.0.0.1:3001:3001 \
+  -e DAKERA_PORT=3001 -e DAKERA_TIERED=1 -e DAKERA_STORAGE=memory -e DAKERA_AUTH_ENABLED=false \
+  -e DAKERA_CE31_MAX_SENTENCES=0 -e DAKERA_BATCH_SENTENCE_DECOMP=0 \
+  -v <dakera-models>:/app/models:ro  ghcr.io/dakera-ai/dakera:<version>
+
+export DAKERA_URL=http://localhost:3001 DAKERA_API_KEY=          # auth disabled above
+python examples/dakera_import.py                                # load the synthetic set
+ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.dakera:DakeraAdapter \
+    --cases examples/synthetic_data/cases --repo examples/synthetic_data/repo \
+    --sandbox-test examples/dakera_sandbox_test.py \
+    --door chat --history /tmp/dakera-run
+```
+
+On the synthetic golden set Dakera scores **96.9 / 100** on this configuration, stable across repeated runs (report in [`examples/dakera_report/`](examples/dakera_report/)); on the 80 points gbrain is also measured on it is **76.9 vs gbrain's 73.8**. The one door miss is a golden question whose fact (the owner's phone number) isn't in the set. Genuine supersession *is* exercised — and passes — in the `updates` section through `write_fact` (above), where Dakera's engine retires the old value. The door's stale question (`mailbox_version`) is a **different, softer case**: its pass is a **door result, not supersession** — the retired value (`1.3.0`) is stored verbatim and simply wasn't returned within `top_k=8` for that question, and the entity card (which carries only `1.4.2`) is what the door delivers; a query that ranked the historical line higher would serve it next to `1.4.2`. adebench scores what the door delivers, and here it did not deliver the stale line. Note: on a *default* Dakera instance, recall-time sentence-decomposition is on, which on a fresh tiny namespace crowds recall and makes the score non-deterministic run-to-run until it settles — hence the pinned config above.
+
 ## Reproducible example, no service needed
 
 `examples/synthetic.py` is a second adapter: a small memory that lives in the process, with
