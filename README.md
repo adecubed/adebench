@@ -265,7 +265,7 @@ provider gbrain supports works; keyless mode leaves it with keyword search only.
 What maps and what does not:
 
 - **cards** stored verbatim; owner corrections / a distiller: none, so the correction cases SKIP
-- **fact updates** exercised by a Dakera-specific sandbox test ([`examples/dakera_sandbox_test.py`](examples/dakera_sandbox_test.py)) that drives Dakera's real update + dedup + importance APIs on a throwaway namespace — nothing touches the golden set
+- **fact updates** — the `updates` section scores the adapter's own `--sandbox-test` ([`examples/dakera_sandbox_test.py`](examples/dakera_sandbox_test.py)); its **3 checks** are real Dakera API calls on a throwaway namespace (update-by-id, dedup dry-run detection, importance update) and nothing touches the golden set. These exercise Dakera's update machinery but are not the harness's canonical *"a new id-less write supersedes the old value so the door never serves it again"* probe — that case is planned as an optional `write_fact(text)` in a future adebench version, at which point every memory runs the same one and the adapter's sandbox test stays as extra evidence
 - **time** facts carry Dakera's stored timestamp as their age; episodes are dated
 - **live state** store / recall / forget over a working-memory tag with a TTL; no scheduled live-state key, so that case is SKIP
 - **files** the repo files are stored and matched through Dakera's full-text search
@@ -290,7 +290,7 @@ ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.dakera:DakeraAdap
     --door chat --history /tmp/dakera-run
 ```
 
-On the synthetic golden set Dakera scores **96.9 / 100** on this configuration, stable across repeated runs (report in [`examples/dakera_report/`](examples/dakera_report/)). The one door miss is a golden question whose fact isn't in the set; where a card exists the door delivers the entity **card** (current value) rather than a retired historical line. Note: on a *default* Dakera instance, recall-time sentence-decomposition is on, which on a fresh tiny namespace crowds recall and makes the score non-deterministic run-to-run until it settles — hence the pinned config above.
+On the synthetic golden set Dakera scores **96.9 / 100** on this configuration, stable across repeated runs (report in [`examples/dakera_report/`](examples/dakera_report/)). The one door miss is a golden question whose fact isn't in the set. On the stale question (`mailbox_version`), the pass is a **door result, not supersession**: the retired value (`1.3.0`) is stored verbatim and simply wasn't returned within `top_k=8` for that question — a query that ranked it higher would serve it next to `1.4.2`. adebench scores what the door delivers, and here it did not deliver the stale line. Note: on a *default* Dakera instance, recall-time sentence-decomposition is on, which on a fresh tiny namespace crowds recall and makes the score non-deterministic run-to-run until it settles — hence the pinned config above.
 
 ## Reproducible example, no service needed
 
