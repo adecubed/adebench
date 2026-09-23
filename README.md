@@ -292,6 +292,55 @@ ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.dakera:DakeraAdap
 
 On the synthetic golden set Dakera scores **96.9 / 100** on this configuration, stable across repeated runs (report in [`examples/dakera_report/`](examples/dakera_report/)); on the 80 points gbrain is also measured on it is **76.9 vs gbrain's 73.8**. The one door miss is a golden question whose fact (the owner's phone number) isn't in the set. Genuine supersession *is* exercised — and passes — in the `updates` section through `write_fact` (above), where Dakera's engine retires the old value. The door's stale question (`mailbox_version`) is a **different, softer case**: its pass is a **door result, not supersession** — the retired value (`1.3.0`) is stored verbatim and simply wasn't returned within `top_k=8` for that question, and the entity card (which carries only `1.4.2`) is what the door delivers; a query that ranked the historical line higher would serve it next to `1.4.2`. adebench scores what the door delivers, and here it did not deliver the stale line. Note: on a *default* Dakera instance, recall-time sentence-decomposition is on, which on a fresh tiny namespace crowds recall and makes the score non-deterministic run-to-run until it settles — hence the pinned config above.
 
+### Fourth real memory: Memoose
+
+[`adebench/memoose.py`](adebench/memoose.py) is the adapter for
+[Memoose](https://github.com/AndrewNgo-ini/memoose), a local knowledge graph in SQLite.
+Everything goes through its own CLI, `memoose --json ...`, the same surface its 26 MCP tools
+expose; the report-only measures read the dataset read-only. Two doors: `recall` (entities,
+facts as triples, and the lexical chunks, in the mode Memoose routes the query to) and
+`facts` (the graph alone). Entity descriptions are the cards, a session's standing context
+is the live state, session turns are the episodes, and the graph section measures what
+Memoose is built around. Corrections, aliases and a repository do not exist there: SKIP.
+
+Memoose is two halves, and only one of them is measured here: a deterministic engine, and a
+harness of skills that a model runs on top of it. It is the model that reads a sentence,
+decides it means `zetaprobe --listens_on--> port_9000`, and calls supersede. No model runs
+inside adebench, so what is scored is the engine on its own, and the skills' judgment is out
+of the picture. For the same reason there is no `write_fact`: the harness's update probe
+hands a memory a plain sentence, and the engine alone has nothing to do with one.
+[`examples/memoose_sandbox_test.py`](examples/memoose_sandbox_test.py) asks the same
+question through Memoose's own API instead.
+
+```bash
+pip install memoose fastembed        # fastembed: without it the vectors fall back to a hash
+python examples/memoose_import.py    # the synthetic memory, into dataset 'adebench'
+python -m adebench --adapter adebench.memoose:MemooseAdapter     --cases examples/synthetic_data/cases --sandbox-test examples/memoose_sandbox_test.py     --history /tmp/memoose-run
+memoose -d adebench forget --all     # the dataset was a scratch one
+```
+
+On the synthetic golden set Memoose scores 68.3 of the 90 points it can be measured on
+(report in [`examples/memoose_report/`](examples/memoose_report/)). What the run says, and
+it is about the engine, not about the project:
+
+- **updates 2 of 4 in the sandbox test.** A second value for a relation does not retire the
+  first: Memoose keeps both and flags the subject as a hotspot for a model to judge. Declare
+  the relation functional (`declare_functional_relations`) and the newest assertion retires
+  the older ones by itself, with nobody saying which. But the retired sentence stays in the
+  lexical chunks, and `recall` keeps serving it: after 8000 was retired by 9000 the door
+  still carried both.
+- **door 18.8 / 25.** The same stale value reaches the door next to the current one, the
+  golden set's deliberate defect.
+- **abstention 5.8 / 10.** `recall` returns its nearest neighbours whatever is asked, with no
+  threshold, so an invented entity comes back with a full page of real facts. The memory
+  never says it does not know.
+- **time 5 / 10.** Facts carry `valid_from`, chunks carry no date at all, and a session turn
+  is stamped with the moment it is written: an episode cannot be given the day it happened.
+- **live_state 8.8 / 10**, **cards 15 / 15**, **graph 10 / 10**.
+
+Cleanup is partial by design: Memoose deletes entities, relations and sessions, but not a
+stored chunk. Run it against a dataset of its own, as above, and drop the dataset at the end.
+
 ## Reproducible example, no service needed
 
 `examples/synthetic.py` is a second adapter: a small memory that lives in the process, with
