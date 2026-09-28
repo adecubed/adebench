@@ -390,6 +390,56 @@ One harness change came with this run (0.2.14): when a memory has no entity card
 the door no longer fails a question for the missing card of the entity it names; it is
 judged on the text it delivers. Memories with cards are unchanged.
 
+### Sixth real memory: Hindsight
+
+[`adebench/hindsight.py`](adebench/hindsight.py) is the adapter for
+[Hindsight](https://github.com/vectorize-io/hindsight) (Vectorize), agent memory with world
+facts, experiences and observations, MCP server 0.10.1. Everything goes through the MCP
+tools of one bank: `sync_retain` writes (an LLM extracts facts, entities and relations,
+with the event's own time), `recall` is the door (the fused, reranked results, in its
+order), `delete_document` removes what a write produced, `list_memories` feeds the report.
+`reflect` is left out: it answers, and the benchmark measures what reaches the model.
+Cards, files and graph edges are not exposed as such: SKIP. The live-state section is not
+run: `retain` runs an extractor, and an arbitrary string is not a fact it keeps.
+
+The extraction model is part of the configuration and the report says which one ran:
+`gemini-3.5-flash-lite`, prompt caching off. `gemini-3.5-flash`, the model the docs name,
+answered 503 for the whole day of the run; a question to the maintainers on the
+representative configuration ([discussion #4840](https://github.com/vectorize-io/hindsight/discussions/4840))
+was still unanswered. Recall ran with the deployment defaults (`budget` mid, no
+`min_scores`).
+
+```bash
+docker run -d -p 127.0.0.1:8888:8888 -e HINDSIGHT_API_LLM_PROVIDER=gemini     -e HINDSIGHT_API_LLM_API_KEY=... -e HINDSIGHT_API_LLM_MODEL=gemini-3.5-flash-lite     -e HINDSIGHT_API_LLM_PROMPT_CACHE_ENABLED=false     -v hindsight-data:/home/hindsight/.pg0 ghcr.io/vectorize-io/hindsight:latest
+python examples/hindsight_import.py           # the synthetic memory, retain by retain
+python -m adebench --adapter adebench.hindsight:HindsightAdapter --cases examples/synthetic_data/cases     --history /tmp/hindsight-run --write-back --sections door cards updates time abstention file_search graph
+```
+
+On the synthetic golden set Hindsight scores 36.2 of the 55 points it can be measured on
+(report in [`examples/hindsight_report/`](examples/hindsight_report/)); on the 45 points
+gbrain is also measured on, 32.9 vs gbrain's 38.8. What the run says:
+
+- **door 18.8 / 25.** Six of eight; the two misses are the golden set's deliberate defects,
+  and one of them is the STALE case: `MailBridge 1.4.2 replaced 1.3.0` and the older
+  memory are both served.
+- **abstention 6.7 / 10, and a knob.** `recall` scores every result: 1.0 and more when the
+  reranker agrees, 1e-5 to 1e-2 when it does not, and on a question with no match it
+  returns the whole bank at 1e-5, 28 memories for "the Zarpetta module". Delivered as the
+  deployment does, that is 0 of 4 abstentions. With `ADEBENCH_HINDSIGHT_MIN_SCORE=0.1`
+  the adapter drops what the reranker rejected: abstention 4 of 4, but the door loses
+  "Where does the owner live?", whose facts say Alex and scored 0.006
+  ([report](examples/hindsight_report/reference_floor_0.1.md): 36.5 / 55). Hindsight's own
+  `min_scores` is the server-side version of the same floor; the headline number is the
+  default.
+- **updates 3.3 / 10.** A new retain with 9000 does not retire the one with 8000 (both
+  served, 20 reads with both), and restating a value leaves three copies. Replacement
+  arrives in 561 ms.
+- **time 7.5 / 10.** Memories carry `mentioned_at`; the imported canary dated 2021-03-14
+  did not reach the door as stored: the extractor rewrites what it keeps.
+- **write-back 0 of 2 poisoned.** The degraded exchange ("I have no record of that") is
+  kept as nothing: the extractor found no fact in it. The best result of the six memories
+  on this probe, for the opposite reason of the Brain's rule.
+
 ## Reproducible example, no service needed
 
 `examples/synthetic.py` is a second adapter: a small memory that lives in the process, with
