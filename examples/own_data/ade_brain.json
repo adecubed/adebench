@@ -1,0 +1,111 @@
+{
+ "memory": "ADE Brain",
+ "owner": "adecubed",
+ "repo": null,
+ "what": "the Brain on its owner's real memory: 165 probes written on that memory, private",
+ "when": "2026-09-28T17:15:37",
+ "adebench": "0.2.15",
+ "cases_hash": "9a276b567d",
+ "door": "voice",
+ "max_card": 1000,
+ "total": 98.0,
+ "measured_weight": 100,
+ "total_weight": 100,
+ "counts": {
+  "PASS": 161,
+  "FAIL": 3,
+  "ERROR": 0,
+  "SKIP": 1
+ },
+ "sections": [
+  {
+   "name": "door",
+   "weight": 25,
+   "score": 0.9615,
+   "counts": {
+    "PASS": 25,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+   }
+  },
+  {
+   "name": "cards",
+   "weight": 15,
+   "score": 1.0,
+   "counts": {
+    "PASS": 77,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+   }
+  },
+  {
+   "name": "updates",
+   "weight": 10,
+   "score": 1.0,
+   "counts": {
+    "PASS": 3,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+   }
+  },
+  {
+   "name": "time",
+   "weight": 10,
+   "score": 1.0,
+   "counts": {
+    "PASS": 5,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 1
+   }
+  },
+  {
+   "name": "live_state",
+   "weight": 10,
+   "score": 1.0,
+   "counts": {
+    "PASS": 8,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+   }
+  },
+  {
+   "name": "abstention",
+   "weight": 10,
+   "score": 1.0,
+   "counts": {
+    "PASS": 6,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+   }
+  },
+  {
+   "name": "file_search",
+   "weight": 10,
+   "score": 0.9333,
+   "counts": {
+    "PASS": 14,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+   }
+  },
+  {
+   "name": "graph",
+   "weight": 10,
+   "score": 0.9583,
+   "counts": {
+    "PASS": 23,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+   }
+  }
+ ],
+ "note": "The golden set and the report stay private: they are the owner's facts. Only the totals are published."
+}

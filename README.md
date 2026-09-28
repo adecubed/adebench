@@ -240,10 +240,11 @@ To run the same golden set on both memories:
 
 ```bash
 bun install -g github:garrytan/gbrain#latest-stable
-gbrain init --pglite --non-interactive --embedding-model google:gemini-embedding-001 --embedding-dimensions 768
+gbrain init --pglite --non-interactive --path ~/.gbrain/adebench-synthetic \
+    --embedding-model ollama:nomic-embed-text --embedding-dimensions 768
 python examples/gbrain_import.py            # the synthetic memory, page by page
 ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.gbrain:GbrainAdapter \
-    --cases examples/synthetic_data/cases --history /tmp/gbrain-run
+    --cases examples/synthetic_data/cases --history /tmp/gbrain-run --write-back
 ```
 
 Two reports side by side, scored on the sections both measured:
@@ -252,11 +253,22 @@ Two reports side by side, scored on the sections both measured:
 python -m adebench.compare history/brain.json /tmp/gbrain-run/gbrain.json brain gbrain
 ```
 
-On the synthetic golden set gbrain scores 73.8 of the 80 points it can be measured on
-(`updates` needs a sandbox test of its own, `file_search` a repository); the two failing
-door questions are the dataset's deliberate defects, the same two the synthetic memory
-fails. The report is in [`examples/gbrain_report/`](examples/gbrain_report/). Any embedding
-provider gbrain supports works; keyless mode leaves it with keyword search only.
+On the synthetic golden set gbrain 0.50 scores 75.4 of the 90 points it can be measured on
+(`file_search` needs a repository); the report is in
+[`examples/gbrain_report/`](examples/gbrain_report/), run of 28 Sep 2026 with adebench
+0.2.15, PGLite, embeddings `ollama:nomic-embed-text`. Any embedding provider gbrain supports
+works; keyless mode leaves it with keyword search only. What the run says:
+
+- **door 18.8 / 25.** The two misses are the dataset's deliberate defects, the same two
+  every memory fails.
+- **updates 3.3 / 10.** A `remember` with a changed value does not retire the earlier one:
+  the new value is served after 2.3 s, but the old one stays next to it (10 reads with
+  both), and restating the current value leaves two copies. The run of 13 Sep (73.8 / 80)
+  predates this probe.
+- **abstention 8.3 / 10.** "What does the calendar plugin Girandola do?" gets the calendar
+  page and eight keyword facts.
+- **write-back 2 of 2 poisoned.** A degraded exchange written back through `remember`
+  comes straight back through the door, once ahead of the real answer.
 
 ### Third real memory: Dakera
 
@@ -290,7 +302,7 @@ ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.dakera:DakeraAdap
     --door chat --history /tmp/dakera-run
 ```
 
-On the synthetic golden set Dakera scores **96.9 / 100** on this configuration, stable across repeated runs (report in [`examples/dakera_report/`](examples/dakera_report/)); on the 80 points gbrain is also measured on it is **76.9 vs gbrain's 73.8**. The one door miss is a golden question whose fact (the owner's phone number) isn't in the set. Genuine supersession *is* exercised — and passes — in the `updates` section through `write_fact` (above), where Dakera's engine retires the old value. The door's stale question (`mailbox_version`) is a **different, softer case**: its pass is a **door result, not supersession** — the retired value (`1.3.0`) is stored verbatim and simply wasn't returned within `top_k=8` for that question, and the entity card (which carries only `1.4.2`) is what the door delivers; a query that ranked the historical line higher would serve it next to `1.4.2`. adebench scores what the door delivers, and here it did not deliver the stale line. Note: on a *default* Dakera instance, recall-time sentence-decomposition is on, which on a fresh tiny namespace crowds recall and makes the score non-deterministic run-to-run until it settles — hence the pinned config above.
+On the synthetic golden set Dakera scores **96.9 / 100** on this configuration, stable across repeated runs (report in [`examples/dakera_report/`](examples/dakera_report/)); on the 90 points gbrain is also measured on it is **86.9 vs gbrain's 75.4** (gbrain run of 28 Sep). The one door miss is a golden question whose fact (the owner's phone number) isn't in the set. Genuine supersession *is* exercised — and passes — in the `updates` section through `write_fact` (above), where Dakera's engine retires the old value. The door's stale question (`mailbox_version`) is a **different, softer case**: its pass is a **door result, not supersession** — the retired value (`1.3.0`) is stored verbatim and simply wasn't returned within `top_k=8` for that question, and the entity card (which carries only `1.4.2`) is what the door delivers; a query that ranked the historical line higher would serve it next to `1.4.2`. adebench scores what the door delivers, and here it did not deliver the stale line. Note: on a *default* Dakera instance, recall-time sentence-decomposition is on, which on a fresh tiny namespace crowds recall and makes the score non-deterministic run-to-run until it settles — hence the pinned config above.
 
 ### Fourth real memory: Memoose
 
@@ -364,8 +376,8 @@ ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.aionforge:Aionfor
 ```
 
 On the synthetic golden set Aionforge scores 51.8 of the 65 points it can be measured on
-(report in [`examples/aionforge_report/`](examples/aionforge_report/)); on the 55 points
-gbrain is also measured on, 45.1 vs gbrain's 48.8. What the run says:
+(report in [`examples/aionforge_report/`](examples/aionforge_report/)); on the 65 points
+gbrain is also measured on, 51.8 vs gbrain's 50.4 (gbrain run of 28 Sep). What the run says:
 
 - **door 18.8 / 25.** Six of eight; the two misses are the golden set's deliberate defects,
   and one of them is the STALE case: `MailBridge 1.4.2 replaced 1.3.0` and the older
@@ -416,8 +428,8 @@ python -m adebench --adapter adebench.hindsight:HindsightAdapter --cases example
 ```
 
 On the synthetic golden set Hindsight scores 36.2 of the 55 points it can be measured on
-(report in [`examples/hindsight_report/`](examples/hindsight_report/)); on the 45 points
-gbrain is also measured on, 32.9 vs gbrain's 38.8. What the run says:
+(report in [`examples/hindsight_report/`](examples/hindsight_report/)); on the 55 points
+gbrain is also measured on, 36.3 vs gbrain's 40.4 (gbrain run of 28 Sep). What the run says:
 
 - **door 18.8 / 25.** Six of eight; the two misses are the golden set's deliberate defects,
   and one of them is the STALE case: `MailBridge 1.4.2 replaced 1.3.0` and the older
@@ -439,6 +451,48 @@ gbrain is also measured on, 32.9 vs gbrain's 38.8. What the run says:
 - **write-back 0 of 2 poisoned.** The degraded exchange ("I have no record of that") is
   kept as nothing: the extractor found no fact in it. The best result of the six memories
   on this probe, for the opposite reason of the Brain's rule.
+
+### The ADE Brain on the same set
+
+The Brain is the memory adebench was written against, and its numbers in this README are
+on its owner's real memory. For the leaderboard it runs on the synthetic set like everyone
+else: [`examples/ade_import.py`](examples/ade_import.py) loads the set into an EMPTY Brain
+through its own paths (facts and card texts via `POST /memory/semantic/learn`, with the
+event date and the entity each fact is about; aliases; episodes at their own time), then
+asks the Brain to write each entity's card from what it holds, with its model. Nothing is
+stored as given. The instance is the evaluation one (Ubuntu, `BRAIN_LANG=en`, cards and
+distillation with `gemini-3-flash-preview`, decay off). The set's example repository is
+indexed by the Brain's own indexer, full-text stage only (no folder summaries: those need
+the model and are not part of the set). There is no mailbox on the instance, so the
+mailbox live-state key is not measured (one SKIP inside live state).
+
+```bash
+BRAIN_URL=http://127.0.0.1:8766 python examples/ade_import.py
+python -c "import asyncio; from brain.memory.indexer import index_project;     asyncio.run(index_project('examples/synthetic_data/repo', force=True))"   # GOOGLE_API_KEY unset
+ADEBENCH_LIVE_STATE_KEY= python -m adebench --brain http://127.0.0.1:8766     --cases examples/synthetic_data/cases --repo examples/synthetic_data/repo     --history /tmp/brain-synthetic-run --no-sandbox-test --write-back
+```
+
+On the synthetic golden set the Brain scores 93.8 / 100 (report in
+[`examples/ade_synthetic_report/`](examples/ade_synthetic_report/)). What the run says:
+
+- **door 18.8 / 25.** Six of eight, the same two misses as every other memory: the golden
+  set's STALE fact and the phone number nobody stored.
+- **cards 15 / 15, graph 10 / 10, updates 10 / 10, time 10 / 10, live state 10 / 10,
+  file search 10 / 10.** Replacement visible in 93 ms, write to serve 106 ms. The graph
+  needed a change: a fact
+  loaded as text carried no entities, so the graph stayed empty (0 / 10 on the first run);
+  `learn` now takes the fact's entities, as the distiller extracts them from an episode.
+- **abstention 10 / 10, after a change.** "What does the calendar plugin Girandola do?"
+  got the calendar card next to the unknown-terms line (9.2 / 10): the card is the nearest
+  thing, not an answer. With an unknown proper noun in the question the door now keeps
+  the card back; the facts by meaning and the unknown-terms line stay.
+- **write-back 0 of 2 poisoned.** The degraded exchange stays in the chat log and does not
+  come back through the door.
+- Three things the run found in the Brain itself and that are fixed: the card above, a
+  memory that had never pruned could not forget (`no such table: semantic_archive` on the
+  first delete), and the card model was fixed in the source instead of the environment.
+  Each change was re-measured on the owner's own set too, the way the bench is meant to
+  be used.
 
 ## Reproducible example, no service needed
 

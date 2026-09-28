@@ -1,19 +1,19 @@
 {
- "when": "2026-09-28T16:25:08",
- "total": 75.4,
- "measured_weight": 90,
+ "when": "2026-09-28T14:48:04",
+ "total": 93.8,
+ "measured_weight": 100,
  "not_run_weight": 0,
  "total_weight": 100,
  "counts": {
-  "PASS": 34,
-  "FAIL": 5,
+  "PASS": 48,
+  "FAIL": 2,
   "ERROR": 0,
-  "SKIP": 4
+  "SKIP": 1
  },
  "config": {
-  "adapter": "adebench.gbrain:GbrainAdapter",
-  "brain_url": "http://localhost:8766",
-  "door": "search",
+  "adapter": "adebench.ade:AdeAdapter",
+  "brain_url": "http://127.0.0.1:8766",
+  "door": "voice",
   "cases_hash": "0f9a4640dc",
   "voice_sources": [
    "working",
@@ -37,7 +37,7 @@
   },
   "max_card": 900,
   "cases": "examples/synthetic_data/cases",
-  "repo": null,
+  "repo": "examples/synthetic_data/repo",
   "sandbox_test": null,
   "sandbox_enabled": false,
   "pressure_level": null,
@@ -54,8 +54,8 @@
    "file_search",
    "graph"
   ],
-  "duration_s": 211,
-  "fingerprint": "5c9ffcacad"
+  "duration_s": 31,
+  "fingerprint": "2942d1d84b"
  },
  "sections": [
   {
@@ -68,10 +68,10 @@
      "status": "PASS",
      "ok": true,
      "note": "",
-     "position": 139,
-     "margin": null,
-     "chars": 515,
-     "ms": 1068,
+     "position": 184,
+     "margin": 2212,
+     "chars": 1661,
+     "ms": 114,
      "stale": false,
      "duplicates": 0,
      "validated": true
@@ -81,10 +81,10 @@
      "status": "PASS",
      "ok": true,
      "note": "",
-     "position": 232,
-     "margin": null,
-     "chars": 1376,
-     "ms": 1076,
+     "position": 390,
+     "margin": 2006,
+     "chars": 1665,
+     "ms": 80,
      "stale": false,
      "duplicates": 0,
      "validated": true
@@ -94,10 +94,10 @@
      "status": "FAIL",
      "ok": false,
      "note": "STALE value delivered next to the current one: 1.3.0",
-     "position": 153,
-     "margin": null,
-     "chars": 1383,
-     "ms": 995,
+     "position": 224,
+     "margin": 2171,
+     "chars": 1203,
+     "ms": 104,
      "stale": true,
      "duplicates": 0,
      "validated": true
@@ -107,10 +107,10 @@
      "status": "PASS",
      "ok": true,
      "note": "",
-     "position": 205,
-     "margin": null,
-     "chars": 1350,
-     "ms": 975,
+     "position": 591,
+     "margin": 1807,
+     "chars": 1195,
+     "ms": 101,
      "stale": false,
      "duplicates": 0,
      "validated": true
@@ -120,10 +120,10 @@
      "status": "PASS",
      "ok": true,
      "note": "",
-     "position": 136,
-     "margin": null,
-     "chars": 1266,
-     "ms": 1066,
+     "position": 826,
+     "margin": 1572,
+     "chars": 1148,
+     "ms": 83,
      "stale": false,
      "duplicates": 0,
      "validated": true
@@ -133,10 +133,10 @@
      "status": "PASS",
      "ok": true,
      "note": "",
-     "position": 108,
-     "margin": null,
-     "chars": 1264,
-     "ms": 1039,
+     "position": 138,
+     "margin": 2257,
+     "chars": 1476,
+     "ms": 86,
      "stale": false,
      "duplicates": 0,
      "validated": true
@@ -147,9 +147,9 @@
      "ok": true,
      "note": "",
      "position": -1,
-     "margin": null,
-     "chars": 1353,
-     "ms": 1258,
+     "margin": 1988,
+     "chars": 508,
+     "ms": 73,
      "stale": false,
      "duplicates": 0,
      "validated": true
@@ -161,8 +161,8 @@
      "note": "missing +39",
      "position": -1,
      "margin": null,
-     "chars": 1249,
-     "ms": 1000,
+     "chars": 1324,
+     "ms": 89,
      "stale": false,
      "duplicates": 0,
      "validated": true
@@ -175,18 +175,18 @@
     "SKIP": 0
    },
    "measures": {
-    "door": "search",
-    "door_budget_chars": null,
+    "door": "voice",
+    "door_budget_chars": 2400,
     "pressure_chars": 0,
     "questions": 8,
     "validated": 8,
-    "mean_answer_position": 162,
-    "mean_door_text_chars": 1220,
-    "min_margin_chars": null,
+    "mean_answer_position": 392,
+    "mean_door_text_chars": 1272,
+    "min_margin_chars": 1572,
     "passes_within_300_chars_of_the_edge": 0,
     "questions_with_forbidden_values": 1,
     "stale_values_delivered": 1,
-    "chars_before_answer_mean": 162,
+    "chars_before_answer_mean": 392,
     "duplicate_chunks_total": 0
    },
    "warnings": [
@@ -199,16 +199,16 @@
    "score": 1.0,
    "cases": [
     {
-     "case": "card owner exists and is dated",
+     "case": "card brain exists and is dated",
      "status": "PASS",
      "ok": true,
      "note": ""
     },
     {
-     "case": "card owner within 900 characters",
+     "case": "card brain within 900 characters",
      "status": "PASS",
      "ok": true,
-     "note": "124 characters"
+     "note": "490 characters"
     },
     {
      "case": "card calendar exists and is dated",
@@ -220,7 +220,7 @@
      "case": "card calendar within 900 characters",
      "status": "PASS",
      "ok": true,
-     "note": "130 characters"
+     "note": "362 characters"
     },
     {
      "case": "card mailbox exists and is dated",
@@ -232,23 +232,41 @@
      "case": "card mailbox within 900 characters",
      "status": "PASS",
      "ok": true,
-     "note": "148 characters"
+     "note": "314 characters"
     },
     {
-     "case": "card brain exists and is dated",
+     "case": "card owner exists and is dated",
      "status": "PASS",
      "ok": true,
      "note": ""
     },
     {
-     "case": "card brain within 900 characters",
+     "case": "card owner within 900 characters",
      "status": "PASS",
      "ok": true,
-     "note": "202 characters"
+     "note": "336 characters"
+    },
+    {
+     "case": "alias 'mail_bridge' leads to card mailbox",
+     "status": "PASS",
+     "ok": true,
+     "note": "cards seen: ['scheda:mailbox']"
+    },
+    {
+     "case": "alias 'agenda' leads to card calendar",
+     "status": "PASS",
+     "ok": true,
+     "note": "cards seen: ['scheda:calendar']"
+    },
+    {
+     "case": "alias 'the_brain' leads to card brain",
+     "status": "PASS",
+     "ok": true,
+     "note": "cards seen: ['scheda:brain']"
     }
    ],
    "counts": {
-    "PASS": 8,
+    "PASS": 11,
     "FAIL": 0,
     "ERROR": 0,
     "SKIP": 0
@@ -256,21 +274,21 @@
    "measures": {
     "cards": 4,
     "corrections": 0,
-    "aliases": 0,
-    "aliases_tried": 0
+    "aliases": 3,
+    "aliases_tried": 3
    },
    "warnings": []
   },
   {
    "name": "updates",
    "weight": 10,
-   "score": 0.3333,
+   "score": 1.0,
    "cases": [
     {
      "case": "a new write with a changed value replaces the old one at the door (no id given)",
-     "status": "FAIL",
-     "ok": false,
-     "note": "new value served in 2281 ms; STALE: the old value is still delivered (10 reads with both)"
+     "status": "PASS",
+     "ok": true,
+     "note": "new value served in 124 ms"
     },
     {
      "case": "an unrelated fact about the same entity survives the update",
@@ -280,22 +298,27 @@
     },
     {
      "case": "restating the current value does not pile up a second copy",
-     "status": "FAIL",
-     "ok": false,
-     "note": "2 copies delivered"
+     "status": "PASS",
+     "ok": true,
+     "note": "1 copies delivered"
     }
    ],
    "counts": {
-    "PASS": 1,
-    "FAIL": 2,
+    "PASS": 3,
+    "FAIL": 0,
     "ERROR": 0,
     "SKIP": 0
    },
    "measures": {
+    "superseded_live": 0,
+    "relation_updates": 0,
+    "archive_by_reason": {},
+    "archive_has_v2_columns": false,
+    "v2_share": 1.0,
     "probe": true,
-    "probe_entity": "zetdcjlac",
-    "probe_replace_ms": 2281,
-    "probe_reads_with_both": 10,
+    "probe_entity": "zetijafcg",
+    "probe_replace_ms": 124,
+    "probe_reads_with_both": 0,
     "probe_cleanup_ok": true
    },
    "warnings": [
@@ -308,7 +331,7 @@
    "score": 1.0,
    "cases": [
     {
-     "case": "semantic memories carry their age (59/59)",
+     "case": "semantic memories carry their age (17/17)",
      "status": "PASS",
      "ok": true,
      "note": "100%"
@@ -335,30 +358,30 @@
      "case": "an imported memory reaches the door with its original date",
      "status": "PASS",
      "ok": true,
-     "note": "served with 2021-03-14, 2026-09-05 (in the uncut answer only: lost through the door's cut)"
+     "note": "served with 2021-03-14, 2026-09-08, 2026-09-10"
     },
     {
-     "case": "episodes signed by another machine",
-     "status": "SKIP",
-     "ok": false,
-     "note": "none in this memory"
+     "case": "«what did pc2 do?» finds the episodes signed [pc2]",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 episodes in the answer"
     }
    ],
    "counts": {
-    "PASS": 5,
+    "PASS": 6,
     "FAIL": 0,
     "ERROR": 0,
-    "SKIP": 1
+    "SKIP": 0
    },
    "measures": {
     "share_of_memories_with_age": 1.0,
-    "facts_with_event_date": "0/0",
+    "facts_with_event_date": "12/14",
     "days_tried": [
      "2026-09-10",
      "2026-09-09",
      "2026-09-08"
     ],
-    "signed_episodes": 0,
+    "signed_episodes": 1,
     "signed_question": "what did pc2 do?"
    },
    "warnings": []
@@ -378,10 +401,10 @@
      "case": "the canary just written is served through the retrieval door",
      "status": "PASS",
      "ok": true,
-     "note": "write-to-serve 2609 ms"
+     "note": "write-to-serve 101 ms"
     },
     {
-     "case": "…and reaches the text of door 'search'",
+     "case": "…and reaches the text of door 'voice'",
      "status": "PASS",
      "ok": true,
      "note": ""
@@ -390,19 +413,19 @@
      "case": "3 canaries served within the budget",
      "status": "PASS",
      "ok": true,
-     "note": "p50 2538 ms · p95 2609 ms"
+     "note": "p50 95 ms · p95 101 ms"
     },
     {
      "case": "after overwriting the canary the door serves the new value, never the old one",
      "status": "PASS",
      "ok": true,
-     "note": "overwrite-to-visible 2566 ms"
+     "note": "overwrite-to-visible 72 ms"
     },
     {
      "case": "two writes in quick succession: the door settles on the second, never back on the first",
      "status": "PASS",
      "ok": true,
-     "note": "second write visible in 2581 ms",
+     "note": "second write visible in 66 ms",
      "timeline": null
     },
     {
@@ -426,14 +449,14 @@
    },
    "measures": {
     "live_state_age_min": null,
-    "write_to_serve_ms": 2609,
-    "write_to_serve_p50_ms": 2538,
-    "write_to_serve_p95_ms": 2609,
+    "write_to_serve_ms": 101,
+    "write_to_serve_p50_ms": 95,
+    "write_to_serve_p95_ms": 101,
     "write_to_serve_samples": 3,
     "write_to_serve_budget_s": 30,
-    "overwrite_to_visible_ms": 2566,
+    "overwrite_to_visible_ms": 72,
     "stale_reads_after_overwrite": 0,
-    "repeated_writes_settle_ms": 2581,
+    "repeated_writes_settle_ms": 66,
     "out_of_order_reads": 0,
     "repeated_writes_timeline": [
      {
@@ -441,23 +464,23 @@
       "event": "first write"
      },
      {
-      "t_ms": 2353,
+      "t_ms": 4,
       "event": "second write"
      },
      {
-      "t_ms": 7034,
+      "t_ms": 74,
       "event": "poll",
       "first": false,
       "second": true
      },
      {
-      "t_ms": 10353,
+      "t_ms": 1185,
       "event": "poll",
       "first": false,
       "second": true
      },
      {
-      "t_ms": 13847,
+      "t_ms": 2297,
       "event": "poll",
       "first": false,
       "second": true
@@ -469,40 +492,40 @@
   {
    "name": "abstention",
    "weight": 10,
-   "score": 0.8333,
+   "score": 1.0,
    "cases": [
     {
      "case": "What is the Zarpetta module?",
      "status": "PASS",
      "ok": true,
-     "note": "flagged unknown: ['Zarpetta', 'module']",
+     "note": "flagged unknown: ['zarpetta', 'module']",
      "fraction": 1.0
     },
     {
      "case": "Who is Ottavio Brambillesco?",
      "status": "PASS",
      "ok": true,
-     "note": "flagged unknown: ['Ottavio', 'Brambillesco']",
+     "note": "flagged unknown: ['ottavio', 'brambillesco']",
      "fraction": 1.0
     },
     {
      "case": "Which port does the Fulmicotone service use?",
      "status": "PASS",
      "ok": true,
-     "note": "flagged unknown: ['Which', 'Fulmicotone', 'service']",
+     "note": "flagged unknown: ['fulmicotone']",
      "fraction": 1.0
     },
     {
      "case": "What does the calendar plugin Girandola do?",
-     "status": "FAIL",
-     "ok": false,
-     "note": "produced an entity card; 8 keyword facts for something that does not exist",
-     "fraction": 0.3333333333333333
+     "status": "PASS",
+     "ok": true,
+     "note": "flagged unknown: ['plugin', 'girandola']",
+     "fraction": 1.0
     }
    ],
    "counts": {
-    "PASS": 3,
-    "FAIL": 1,
+    "PASS": 4,
+    "FAIL": 0,
     "ERROR": 0,
     "SKIP": 0
    },
@@ -514,25 +537,56 @@
   {
    "name": "file_search",
    "weight": 10,
-   "score": null,
+   "score": 1.0,
    "cases": [
     {
-     "case": "file search",
-     "status": "SKIP",
-     "ok": false,
-     "note": "no repo configured (--repo)"
+     "case": "compute_backup_schedule → brain_service.py",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "distill_episodes_nightly → brain_service.py",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "refresh_calendar_cache → mailbridge.py",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "register_connector_tools → mailbridge.py",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "supersede_older_fact → brain_service.py",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "list_unread_messages → mailbridge.py",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
     }
    ],
    "counts": {
-    "PASS": 0,
+    "PASS": 6,
     "FAIL": 0,
     "ERROR": 0,
-    "SKIP": 1
+    "SKIP": 0
    },
-   "measures": {},
-   "warnings": [
-    "section not measured: no repo configured (--repo)"
-   ]
+   "measures": {
+    "indexable_functions": 6,
+    "tried": 6
+   },
+   "warnings": []
   },
   {
    "name": "graph",
@@ -540,56 +594,46 @@
    "score": 1.0,
    "cases": [
     {
-     "case": "owner: edges in the graph",
+     "case": "brain: edges in the graph",
      "status": "PASS",
      "ok": true,
-     "note": "2 edges"
+     "note": "3 edges"
     },
     {
      "case": "calendar: edges in the graph",
      "status": "PASS",
      "ok": true,
-     "note": "1 edges"
+     "note": "2 edges"
     },
     {
      "case": "mailbox: edges in the graph",
      "status": "PASS",
      "ok": true,
-     "note": "2 edges"
+     "note": "3 edges"
     },
     {
-     "case": "brain: edges in the graph",
+     "case": "owner: edges in the graph",
      "status": "PASS",
      "ok": true,
-     "note": "2 edges"
+     "note": "3 edges"
     },
     {
      "case": "orphan fact nodes = 0",
-     "status": "SKIP",
-     "ok": false,
-     "note": "the graph has no fact nodes: nothing to check"
+     "status": "PASS",
+     "ok": true,
+     "note": "0 orphans out of 11"
     }
    ],
    "counts": {
-    "PASS": 4,
+    "PASS": 5,
     "FAIL": 0,
     "ERROR": 0,
-    "SKIP": 1
+    "SKIP": 0
    },
    "measures": {
-    "page_count": 18,
-    "chunk_count": 19,
-    "embedded_count": 19,
-    "link_count": 7,
-    "tag_count": 0,
-    "timeline_entry_count": 4,
-    "pages_by_type": {
-     "atom": 10,
-     "note": 4,
-     "project": 3,
-     "person": 1
-    },
-    "orphan_fact_nodes": "the graph has no fact nodes: nothing to check"
+    "nodes": 15,
+    "edges": 11,
+    "orphan_fact_nodes": "0 orphans out of 11"
    },
    "warnings": []
   },
@@ -600,41 +644,39 @@
    "cases": [
     {
      "case": "How many tools does the mailbox connector expose?",
-     "status": "FAIL",
-     "ok": false,
-     "note": "the degraded answer reached the door after 3409 ms",
-     "position_before": 205,
-     "position_after": 205,
-     "degraded_position": 783,
-     "starved": null
+     "status": "PASS",
+     "ok": true,
+     "note": "the real answer still reaches the door (position 591 -> 591); the starved door kept the answer anyway",
+     "position_before": 591,
+     "position_after": 591,
+     "degraded_position": -1,
+     "starved": false
     },
     {
      "case": "When do backups run?",
-     "status": "FAIL",
-     "ok": false,
-     "note": "the degraded answer reached the door after 2563 ms (before the real answer)",
+     "status": "PASS",
+     "ok": true,
+     "note": "the real answer still reaches the door (position -1 -> -1); the starved door did lose the answer",
      "position_before": -1,
      "position_after": -1,
-     "degraded_position": 576,
-     "starved": null
+     "degraded_position": -1,
+     "starved": true
     }
    ],
    "counts": {
-    "PASS": 0,
-    "FAIL": 2,
+    "PASS": 2,
+    "FAIL": 0,
     "ERROR": 0,
     "SKIP": 0
    },
    "measures": {
     "degraded_answer": "I have no record of that. You asked: {question}",
     "questions_tested": 2,
-    "poisoned": 2,
+    "poisoned": 0,
     "cleanup_ok": true,
     "wait_s": 10
    },
-   "warnings": [
-    "2 of 2 degraded answers written back reached the door or pushed the real answer out: the memory learns from its own bad answers"
-   ]
+   "warnings": []
   },
   {
    "name": "health",
@@ -643,52 +685,36 @@
    "cases": [],
    "counts": {},
    "measures": {
-    "page_count": 18,
-    "linkable_page_count": 8,
-    "embed_coverage": 1,
-    "stale_pages": 18,
-    "orphan_pages": 4,
-    "missing_embeddings": 0,
-    "brain_score": 67,
-    "dead_links": 0,
-    "entity_page_count": 1,
-    "link_coverage": null,
-    "timeline_coverage": null,
-    "most_connected": [
-     {
-      "slug": "people/owner",
-      "link_count": 2
+    "index_coverage": {
+     "episodic_memory_fts": {
+      "stored": 4,
+      "indexed": 4
+     },
+     "episodic_archive_fts": {
+      "stored": 0,
+      "indexed": 0
+     },
+     "semantic_fts": {
+      "stored": 18,
+      "indexed": 18
      }
-    ],
-    "embed_coverage_score": 35,
-    "link_density_score": 10,
-    "timeline_coverage_score": 4,
-    "no_orphans_score": 8,
-    "no_dead_links_score": 10,
-    "migrations": {
-     "pending": [
-      "0.11.0",
-      "0.12.0",
-      "0.12.2",
-      "0.13.0",
-      "0.13.1",
-      "0.14.0",
-      "0.16.0",
-      "0.18.0",
-      "0.18.1",
-      "0.21.0",
-      "0.22.4",
-      "0.28.0",
-      "0.29.1",
-      "0.31.0",
-      "0.32.2",
-      "0.43.0",
-      "0.46.3"
-     ],
-     "partial": [],
-     "wedged": [],
-     "skipped_future": 0
-    }
+    },
+    "live_facts": 18,
+    "archived_facts": 3,
+    "by_relation_type": {
+     "fact": 14,
+     "scheda": 4
+    },
+    "facts_by_producer": {
+     "cross_": 0,
+     "folder:": 0,
+     "distiller/other": 14
+    },
+    "at_floor_0.3": 0,
+    "mojibake": 0,
+    "episodes_to_distill": 4,
+    "unacknowledged_anomalies": 5,
+    "episodes": 4
    },
    "warnings": []
   },
@@ -699,26 +725,43 @@
    "cases": [],
    "counts": {},
    "measures": {
-    "search": {
-     "calls": 42,
+    "/sofia/ask": {
+     "calls": 56,
      "http_errors": 0,
-     "ms_p50": 1267,
-     "ms_p95": 3345,
-     "mean_chars": 5184
+     "ms_p50": 104,
+     "ms_p95": 156,
+     "mean_chars": 723
     },
-    "recall": {
-     "calls": 41,
+    "/brain/memory/tool/search": {
+     "calls": 14,
      "http_errors": 0,
-     "ms_p50": 1226,
-     "ms_p95": 1410,
-     "mean_chars": 3576
+     "ms_p50": 2,
+     "ms_p95": 10,
+     "mean_chars": 218
+    },
+    "/brain/orchestrator/context": {
+     "calls": 8,
+     "http_errors": 0,
+     "ms_p50": 96,
+     "ms_p95": 114,
+     "mean_chars": 1071
     }
    },
    "warnings": []
   }
  ],
  "delta": {
-  "total": null,
-  "sections": {}
+  "total": 0.9,
+  "sections": {
+   "door": 0.0,
+   "cards": 0.0,
+   "updates": 0.0,
+   "time": 0.0,
+   "live_state": 0.0,
+   "abstention": 0.8,
+   "file_search": 0.0,
+   "graph": 0.0
+  },
+  "against": "2026-09-28T14:22:53"
  }
 }
