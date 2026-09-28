@@ -133,6 +133,13 @@ def door() -> dict:
     questions = _load("questions.json")
     cases, positions, lengths, semantic_seen = [], [], [], []
     budget = ada.door_cut(CFG.door)
+    # a memory with no entity cards at all (Aionforge, 28 Sep 2026) is judged
+    # on the text it delivers: "card X absent" is a failure only where cards
+    # exist and the one named in the question was not delivered
+    try:
+        has_cards = bool(ada.cards())
+    except Exception:  # noqa: BLE001
+        has_cards = True
 
     def _one(q: dict) -> dict:
         text, r = ada.door_text(q["question"], CFG.door)
@@ -148,7 +155,7 @@ def door() -> dict:
         stale = [present(text, g) for g in q.get("forbidden", []) if present(text, g)]
         pos = min((text.lower().find(t.lower()) for t in found), default=-1)
         card_ok = True
-        if q.get("entity"):
+        if q.get("entity") and has_cards:
             keys = [str(c.get("key", "")) for c in r.get("cards", [])]
             card_ok = any(k.endswith(q["entity"]) for k in keys)
         whole_ok = not [g for g in q["expected"] if not present(summary, g)]

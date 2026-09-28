@@ -341,6 +341,55 @@ it is about the engine, not about the project:
 Cleanup is partial by design: Memoose deletes entities, relations and sessions, but not a
 stored chunk. Run it against a dataset of its own, as above, and drop the dataset at the end.
 
+### Fifth real memory: Aionforge Memory
+
+[`adebench/aionforge.py`](adebench/aionforge.py) is the adapter for
+[Aionforge Memory](https://github.com/jscott3201/aionforge-memory), a bi-temporal graph
+memory in Rust with an MCP server, 0.4.0. Everything goes through that MCP surface over
+Streamable HTTP, the door an agent has: `capture` writes an event with its own time,
+`search` returns a bounded bundle of snippets fused from lexical, vector, graph, recency
+and trust signals, `forget` and `unforget` are explicit, `consolidate` derives facts and
+entities from the episodes without a model, and `session_manifest` lists a session's
+captures. Cards, files and graph edges are not exposed as such: those sections are SKIP.
+Embeddings were Google's `gemini-embedding-001` (3,072 dimensions) through the
+OpenAI-compatible endpoint, behind a loopback shim that adds the `index` field Aionforge's
+decoder requires and Google omits; the maintainer's daily configuration is
+`gemini-embedding-2` on OpenRouter, the same family. Forgetting is off by default and was
+enabled with the floors lowered, so the benchmark can remove what it writes.
+
+```bash
+docker run -d --network host -v aionforge:/data -v ./config.toml:/config.toml:ro     -e AIONFORGE_EMBEDDER_API_KEY=... ghcr.io/jscott3201/aionforge-memory:0.4.0     --config /config.toml serve http --listen 127.0.0.1:3918
+python examples/aionforge_import.py            # the synthetic memory, capture by capture
+ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.aionforge:AionforgeAdapter     --cases examples/synthetic_data/cases --history /tmp/aionforge-run --write-back
+```
+
+On the synthetic golden set Aionforge scores 51.8 of the 65 points it can be measured on
+(report in [`examples/aionforge_report/`](examples/aionforge_report/)); on the 55 points
+gbrain is also measured on, 45.1 vs gbrain's 48.8. What the run says:
+
+- **door 18.8 / 25.** Six of eight; the two misses are the golden set's deliberate defects,
+  and one of them is the STALE case: `MailBridge 1.4.2 replaced 1.3.0` and the older
+  capture are both served, the model has to guess.
+- **updates 6.7 / 10.** A new capture with 9000 does not retire the one with 8000 on its
+  own: `capture` takes a `supersedes` id, the client naming what it replaces; without it
+  both stay live and the door serves both (23 reads with both values).
+- **live_state 10 / 10.** A capture is served by the next search: write-to-serve 452 ms
+  p50, 483 ms p95, an overwrite visible in 455 ms, no out-of-order reads.
+- **abstention 8.3 / 10.** `search` returns nothing for a query with no match ("hits: 0 of
+  35 considered"), which the adapter passes on as unknown terms; two invented entities
+  still pull one to four neighbouring facts. The deployment default has no relevance floor
+  (`min_relevance` 0); the adapter runs the default.
+- **time 8 / 10.** Captures carry `captured_at`, and an imported memory reaches the door
+  with its original date; the aliases were captured without a date, hence 89% of memories
+  with an age.
+- **write-back 2 of 2 poisoned.** A degraded answer written through `capture` reaches the
+  door in 448 ms and ranks above the real fact: recency is a signal, and the store has no
+  rule against storing an absence of information.
+
+One harness change came with this run (0.2.14): when a memory has no entity cards at all,
+the door no longer fails a question for the missing card of the entity it names; it is
+judged on the text it delivers. Memories with cards are unchanged.
+
 ## Reproducible example, no service needed
 
 `examples/synthetic.py` is a second adapter: a small memory that lives in the process, with
