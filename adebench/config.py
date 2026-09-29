@@ -67,6 +67,11 @@ class Config:
     write_back: bool = os.environ.get("ADEBENCH_WRITE_BACK", "0").lower() in ("1", "true", "yes")
     degraded_answer: str = os.environ.get("ADEBENCH_DEGRADED_ANSWER",
                                           "I have no record of that. You asked: {question}")
+    # what recognises the degraded answer at the door: its core, not its
+    # wording. A memory that rewrites what it stores keeps the meaning and
+    # loses the sentence (Nemp: "assistant answered no record on file"), and
+    # the whole sentence as marker missed it (0.2.16)
+    degraded_marker: str = os.environ.get("ADEBENCH_DEGRADED_MARKER", "no record")
     write_back_questions: int = int(os.environ.get("ADEBENCH_WRITE_BACK_QUESTIONS", "2"))
     write_back_wait_s: int = int(os.environ.get("ADEBENCH_WRITE_BACK_S", "10"))
     # Write-to-serve latency: how long the canary may take to become

@@ -452,6 +452,111 @@ gbrain is also measured on, 36.3 vs gbrain's 40.4 (gbrain run of 28 Sep). What t
   kept as nothing: the extractor found no fact in it. The best result of the six memories
   on this probe, for the opposite reason of the Brain's rule.
 
+### Seventh real memory: Jev-Mem
+
+[`adebench/jevmem.py`](adebench/jevmem.py) is the adapter for
+[Jev-Mem](https://github.com/libingzheren/Jev-Mem) (paper:
+[arXiv 2609.23986](https://arxiv.org/abs/2609.23986)), agentic memory whose memory
+decisions (typing, relations, routing, stopping) are taken by a small System-One model
+instead of an LLM, over a graph with semantic, temporal, causal and entity links.
+Jev-Mem is a Python library with heavy dependencies, so adebench does not import it:
+the adapter starts [`adebench/jevmem_bridge.py`](adebench/jevmem_bridge.py) with
+Jev-Mem's own Python and talks to it in JSON lines. Writes go through the explicit
+write path (`MemoryBuilder.build`), the door is what `QueryEngine.query` returns: the
+ranked evidence block the answer model would read, each item with its date. No answer
+model runs. Jev-Mem has no forget: the adapter removes the node, its links, its vector
+and its keyword-index entries. No entity cards and no files: those sections are SKIP.
+
+The configuration is the local one, with no API key: decisions by
+[Laya](https://huggingface.co/convaiinnovations/laya) (`config/laya_mem.json`, on an
+RTX 4050), embeddings `all-MiniLM-L6-v2`. The default profile calls TypeSafe's Jev API
+instead.
+
+```bash
+git clone https://github.com/libingzheren/Jev-Mem && cd Jev-Mem
+python3.11 -m venv .venv && .venv/bin/pip install -e '.[laya]'
+export JEVMEM_HOME=$PWD JEVMEM_PYTHON=$PWD/.venv/bin/python
+python examples/jevmem_import.py      # from the adebench checkout: a fresh store
+ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.jevmem:JevMemAdapter \
+    --cases examples/synthetic_data/cases --history /tmp/jevmem-run --no-sandbox-test --write-back
+```
+
+**The build is not deterministic.** The same 21 observations, loaded twice, give
+different link sets (on CPU as on GPU: 95 causal links in one build, 116 in the next),
+and retrieval follows the links. So the number is the mean of six runs, each on a fresh
+build: **41.9 of 65**, from 39.0 to 42.9
+([`examples/jevmem_report/repeats.json`](examples/jevmem_report/repeats.json); the
+reference report is a median run, 42.1). Door, updates, time and live state were the
+same in five builds of six; abstention moves by 0.8, and one build lost the "Nova"
+fact at the door. What the runs say:
+
+- **door 18.8 / 25.** The two misses are the dataset's deliberate defects.
+- **updates 3.3 / 10.** "Port 9000" after "port 8000" does not retire 8000: both are
+  served (28 reads with both), and restating the value leaves six copies. The write
+  path judges contradiction and obsolescence, but no such link was made on this set.
+- **time 6.7 / 10.** Every dated item reaches the door with its date, and the imported
+  canary keeps 2021-03-14. Items written without a date stay undated (14 of 35 served
+  items carried one), and "what did pc2 do?" does not find the episodes signed [pc2].
+- **live state 10 / 10.** A write is served in 3.4 s, an overwrite in 4.3 s.
+- **abstention 3.3 / 10.** The query engine always returns its top items: for "the
+  Zarpetta module" three to four facts and the latest episodes, ranked as matches.
+- **write-back 2 of 2 poisoned.** A degraded exchange written back comes through the
+  door ahead of the real answer.
+
+adebench 0.2.16 came out of this run: Jev-Mem writes dates out ("[10 May 2026]"), and
+the time checks recognised only ISO dates. A date written out now counts as a date.
+
+### Eighth real memory: Nemp, measured inside Claude Code
+
+[`adebench/nemp.py`](adebench/nemp.py) is the adapter for
+[Nemp](https://github.com/SukinShetty/Nemp-memory), a Claude Code plugin. Nemp has no
+code: its memory is a JSON file in the project (`.nemp/memories.json`) and every command
+is a markdown file of instructions the model follows with its own tools. So the only
+honest door is the harness itself. Every operation is one `claude -p "/nemp:<command> ..."`
+in a scratch git project, with Nemp loaded for that call only (`--plugin-dir`), no user
+settings, no MCP servers, model `sonnet`. The adapter reads the stream-json transcript:
+the **context** door is everything the model received from its tools while running
+`/nemp:context <question>`, the **shown** door is what the command printed. The store is
+read directly only for report measures. It is the first memory measured inside an agent
+harness rather than through an API.
+
+```bash
+git clone https://github.com/SukinShetty/Nemp-memory
+export NEMP_PLUGIN=$PWD/Nemp-memory NEMP_PROJECT=/tmp/nemp-project
+python examples/nemp_import.py        # 21 /nemp:save, one model turn each
+ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.nemp:NempAdapter \
+    --cases examples/synthetic_data/cases --history /tmp/nemp-run --no-sandbox-test --write-back
+```
+
+On the synthetic golden set Nemp scores **36.4 of the 65 points** it can be measured on
+(report in [`examples/nemp_report/`](examples/nemp_report/); 45 model turns, $6.93 at API
+prices, about 50 minutes). Two runs gave the same door, updates, time and abstention.
+What the run says:
+
+- **door 18.8 / 25.** The two misses are the dataset's deliberate defects. But
+  `/nemp:context` has the model `cat` and `Read` the whole `memories.json` before
+  matching: the model receives the entire store on every lookup, 20,000 to 30,000
+  characters with 21 memories, growing with the store. The matching happens in the
+  model's head.
+- **updates 3.3 / 10.** A key is the only id: a new value under a new key does not
+  retire the old one (8000 and 9000 both served), and the contradiction check only
+  warns, within a key family.
+- **time 2.5 / 10.** A memory carries its write time, not the time of the fact; the
+  imported canary dated 2021-03-14 reaches the door with no date.
+- **live state 4.3 / 10.** Every read and every write is a model turn of 25 to 50 s, so
+  a value just written reaches the door after 65 to 106 s, against a budget of 30.
+- **abstention 7.5 / 10.** For three of four invented entities the command shows one to four nearby
+  memories, and the whole store is in context anyway.
+- **write-back: it depends on the turn.** `/nemp:save` compresses the value. In one run
+  the degraded exchange was saved as "assistant answered no record on file" and then
+  served with the rest of the store; in the reference run the model declined to save it.
+
+adebench 0.2.16 also came out of this run. A value found by a read that started before
+the live-state budget and ended after it counted as in budget: with reads of a few ms
+nobody noticed, with 25-second reads 44 s passed as "within 30". And the write-back probe
+now recognises the degraded answer by its core, "no record" (`ADEBENCH_DEGRADED_MARKER`),
+because a memory that rewrites what it stores keeps the meaning and loses the sentence.
+
 ### The ADE Brain on the same set
 
 The Brain is the memory adebench was written against, and its numbers in this README are

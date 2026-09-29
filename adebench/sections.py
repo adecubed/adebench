@@ -467,10 +467,32 @@ def updates(with_sandbox: bool = True) -> dict:
 # Until 0.2.10 only the Italian "[dal " counted, so an English adapter had to
 # write Italian to pass.
 _AGE_PREFIX = re.compile(r"^\[[^\]\n]{0,40}?\d{4}-\d{2}-\d{2}")
+# a date written out is a date too: "[10 May 2026]", "[May 10, 2026]"
+# (Jev-Mem, 0.2.16). Until then only ISO counted, and a memory that dated
+# every item failed the age check for its spelling.
+_MONTHS = {m: i for i, names in enumerate(
+    [("jan", "january"), ("feb", "february"), ("mar", "march"), ("apr", "april"), ("may",),
+     ("jun", "june"), ("jul", "july"), ("aug", "august"), ("sep", "sept", "september"),
+     ("oct", "october"), ("nov", "november"), ("dec", "december")], 1) for m in names}
+_MONTH_RE = "|".join(sorted(_MONTHS, key=len, reverse=True))
+_WRITTEN_DMY = re.compile(rf"\b(\d{{1,2}})\s+({_MONTH_RE})\.?,?\s+(\d{{4}})\b", re.I)
+_WRITTEN_MDY = re.compile(rf"\b({_MONTH_RE})\.?\s+(\d{{1,2}}),?\s+(\d{{4}})\b", re.I)
+_AGE_PREFIX_WRITTEN = re.compile(rf"^\[[^\]\n]{{0,40}}?(?:\d{{1,2}}\s+(?:{_MONTH_RE})|(?:{_MONTH_RE})\.?\s+\d{{1,2}},?)\s*\d{{4}}", re.I)
+
+
+def iso_dates(text: str) -> list[str]:
+    """Every date in the text as YYYY-MM-DD: ISO ones and English written ones."""
+    out = set(re.findall(r"\d{4}-\d{2}-\d{2}", text or ""))
+    for d, m, y in _WRITTEN_DMY.findall(text or ""):
+        out.add(f"{y}-{_MONTHS[m.lower()]:02d}-{int(d):02d}")
+    for m, d, y in _WRITTEN_MDY.findall(text or ""):
+        out.add(f"{y}-{_MONTHS[m.lower()]:02d}-{int(d):02d}")
+    return sorted(out)
 
 
 def carries_age(text: str) -> bool:
-    return bool(_AGE_PREFIX.match(str(text or "").lstrip()))
+    t = str(text or "").lstrip()
+    return bool(_AGE_PREFIX.match(t) or _AGE_PREFIX_WRITTEN.match(t))
 
 
 def time_section(semantic_seen: list[dict] | None = None) -> dict:
@@ -569,9 +591,9 @@ def _import_date(ada) -> dict:
             return _case(name, False, f"imported memory not served within {CFG.write_to_serve_max_s} s")
         i = where.find(needle)
         window = where[max(0, i - 240): i + len(needle) + 60]
-        dates = sorted(set(_DATE.findall(window)))
+        dates = iso_dates(window)
         note = f"served with {', '.join(dates) if dates else 'no date'}"
-        if where is summary:
+        if needle not in text:
             note += " (in the uncut answer only: lost through the door's cut)"
         return _case(name, IMPORT_DATE in dates, note)
     finally:
@@ -585,6 +607,14 @@ def _pct(values: list, q: float):
         return None
     v = sorted(values)
     return v[min(len(v) - 1, int(q * len(v)))]
+
+
+def _in_budget(ms: int | None) -> bool:
+    """A value served after the budget is a latency, not a pass. Until 0.2.16
+    a read that STARTED before the deadline and found the value passed however
+    long it took: with reads of a few ms nobody noticed; with a memory whose
+    every read is a model turn (Nemp, 25 s) 44 s passed as "within 30"."""
+    return ms is not None and ms <= CFG.write_to_serve_max_s * 1000
 
 
 def _poll_working(ada, query: str, want: str, avoid: str | None = None) -> tuple[int | None, str, int]:
@@ -627,9 +657,11 @@ def live_state() -> dict:
             if served_ms is not None:
                 latency["samples"].append(served_ms)
             return [_case("the canary just written is served through the retrieval door",
-                          served_ms is not None,
-                          f"write-to-serve {served_ms} ms" if served_ms is not None
-                          else f"not served within {CFG.write_to_serve_max_s} s"),
+                          _in_budget(served_ms),
+                          (f"write-to-serve {served_ms} ms" if served_ms is not None
+                           else f"not served within {CFG.write_to_serve_max_s} s")
+                          + ("" if served_ms is None or _in_budget(served_ms)
+                             else f" (over the {CFG.write_to_serve_max_s} s budget)")),
                     _case(f"…and reaches the text of door '{CFG.door}'", token in text)]
 
         def _more_samples() -> dict:
@@ -640,15 +672,15 @@ def live_state() -> dict:
                 t = uuid.uuid4().hex[:10]
                 ada.working_write("adebench", f"adebench_canary_{i}", f"canarino adebench {t}: campione {i}", 1)
                 ms, _, _ = _poll_working(ada, f"canarino adebench {t}", t)
-                if ms is None:
-                    failed += 1
-                else:
+                if ms is not None:
                     latency["samples"].append(ms)
+                if not _in_budget(ms):
+                    failed += 1
             n = len(latency["samples"])
             return _case(f"{CFG.write_to_serve_samples} canaries served within the budget",
                          failed == 0 and n == CFG.write_to_serve_samples,
                          f"p50 {_pct(latency['samples'], 0.5)} ms · p95 {_pct(latency['samples'], 0.95)} ms"
-                         + (f" · {failed} never served" if failed else ""))
+                         + (f" · {failed} not served within {CFG.write_to_serve_max_s} s" if failed else ""))
 
         def _overwrite() -> dict:
             # consistency: the same key overwritten with a new value. The door
@@ -666,8 +698,10 @@ def live_state() -> dict:
                 note += f" · {stale} stale read(s) of the old value after the write"
             if both:
                 note += " · STALE: old and new value delivered together"
+            if ms is not None and not _in_budget(ms):
+                note += f" (over the {CFG.write_to_serve_max_s} s budget)"
             return _case("after overwriting the canary the door serves the new value, never the old one",
-                         ms is not None and not both and not stale, note)
+                         _in_budget(ms) and not both and not stale, note)
 
         def _repeated() -> dict:
             # two writes to the same key back to back, no wait between them.
@@ -708,7 +742,9 @@ def live_state() -> dict:
                 f"second write not served within {CFG.write_to_serve_max_s} s"
             if out_of_order:
                 note += f" · {out_of_order} read(s) served the first write after the second was already visible"
-            ok = ms is not None and out_of_order == 0 and not (has3 and has4)
+            if ms is not None and not _in_budget(ms):
+                note += f" (over the {CFG.write_to_serve_max_s} s budget)"
+            ok = _in_budget(ms) and out_of_order == 0 and not (has3 and has4)
             latency["timeline"] = timeline
             return _case("two writes in quick succession: the door settles on the second, never back on the first",
                          ok, note, timeline=None if ok else timeline)
@@ -716,6 +752,7 @@ def live_state() -> dict:
         try:
             cases.extend(_find())
             if latency["ms"] is not None:
+                # served late still gets its samples measured: the latency is the finding
                 cases.append(_try("write-to-serve samples", _more_samples))
                 cases.append(_try("overwrite consistency", _overwrite))
                 cases.append(_try("repeated writes", _repeated))
@@ -783,7 +820,7 @@ def write_back() -> dict:
     or the real answer is no longer delivered. What was written is removed."""
     ada = current()
     name = "write_back"
-    marker = _marker(CFG.degraded_answer)
+    marker = CFG.degraded_marker or _marker(CFG.degraded_answer)
     m: dict = {"degraded_answer": CFG.degraded_answer, "questions_tested": 0, "poisoned": 0,
                "cleanup_ok": None, "wait_s": CFG.write_back_wait_s}
     warnings: list[str] = []

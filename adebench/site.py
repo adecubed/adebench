@@ -4,11 +4,11 @@
 
 One page per memory, one table on the front page. Every number on the site
 comes from a report file in the repository, named on the page, so anyone
-can rerun it. Memories measure different things: the table shows the score
-over the points each one could be measured on, the coverage, and the score
-on the points it shares with a reference memory (gbrain, the one every
-other memory has in common), never a single number pretending they are
-the same test.
+can rerun it. Memories measure different things: the ranking is on the core
+(the sections every memory can be measured on), the full score is over what
+each one could be measured on, and the cost of an answer (characters handed
+to the model) and the speed of a write are shown next to them, because two
+memories with the same score can cost the model 300 characters or 20,000.
 """
 from __future__ import annotations
 
@@ -21,28 +21,50 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "site"
 DOMAIN = "adebench.dev"
 
-# name, report folder, repository, what it is, the configuration that ran.
 # The synthetic example memory (examples/synthetic.py) is not listed: it is
 # the harness's own test double, with defects on purpose, not a product.
+# facts: how the memory is reached and what it needs, as the run used it.
 MEMORIES = [
-    ("ADE Brain", "ade_synthetic_report", "https://github.com/adecubed/adebench",
-     "episodes, cards, a fact layer that retires a value when a newer one contradicts it",
-     "empty instance, BRAIN_LANG=en, cards and distillation with gemini-3-flash-preview, the set's repository indexed (full-text stage only)"),
-    ("gbrain", "gbrain_report", "https://github.com/garrytan/gbrain",
-     "entity pages, chronicle, remember/recall/forget, hybrid search",
-     "gbrain 0.50, PGLite, embeddings ollama:nomic-embed-text (768), doors search, no character cut"),
-    ("Dakera", "dakera_report", "https://dakera.ai",
-     "REST memory with supersession edges and session-scoped recall",
-     "adapter by its founder; fresh instance, pinned config in its README section"),
-    ("Memoose", "memoose_report", "https://github.com/AndrewNgo-ini/memoose",
-     "local knowledge graph in SQLite, triples plus lexical chunks, 26 MCP tools",
-     "engine only (no model harness), fastembed vectors"),
-    ("Aionforge", "aionforge_report", "https://github.com/jscott3201/aionforge-memory",
-     "bi-temporal graph in Rust, hybrid recall, explicit forgetting, MCP only",
-     "0.4.0 Docker image, embeddings gemini-embedding-001 (3072) behind a loopback shim"),
-    ("Hindsight", "hindsight_report", "https://github.com/vectorize-io/hindsight",
-     "world facts, experiences and observations; LLM extraction on retain; per-bank MCP",
-     "MCP server 0.10.1, extraction gemini-3.5-flash-lite, prompt caching off, recall defaults"),
+    {"name": "ADE Brain", "folder": "ade_synthetic_report", "repo": "https://github.com/adecubed/adebench",
+     "what": "episodes, cards, a fact layer that retires a value when a newer one contradicts it",
+     "cfg": "empty instance, BRAIN_LANG=en, cards and distillation with gemini-3-flash-preview, the set's repository indexed (full-text stage only)",
+     "access": "REST", "model_on_write": "yes: cards and distillation (Gemini)", "key": "model provider",
+     "where": "self-hosted", "license": "private", "deterministic": "yes, except model-written cards"},
+    {"name": "gbrain", "folder": "gbrain_report", "repo": "https://github.com/garrytan/gbrain",
+     "what": "entity pages, chronicle, remember/recall/forget, hybrid search",
+     "cfg": "gbrain 0.50, PGLite, embeddings ollama:nomic-embed-text (768), door search, no character cut",
+     "access": "CLI / MCP", "model_on_write": "embeddings only", "key": "none (local Ollama)",
+     "where": "local", "license": "MIT", "deterministic": "yes"},
+    {"name": "Dakera", "folder": "dakera_report", "repo": "https://dakera.ai",
+     "what": "REST memory with supersession edges and session-scoped recall",
+     "cfg": "adapter by its founder; fresh Docker instance, pinned config in its README section. Dakera returns records, not text: the adapter's reference reader composes the door (cards, dated facts, episodes, working memory, an unknown-terms path)",
+     "access": "REST", "model_on_write": "embeddings only (local models)", "key": "none (auth off, local models)",
+     "where": "self-hosted", "license": "engine not public", "deterministic": "yes with the pinned config"},
+    {"name": "Memoose", "folder": "memoose_report", "repo": "https://github.com/AndrewNgo-ini/memoose",
+     "what": "local knowledge graph in SQLite, triples plus lexical chunks, 26 MCP tools",
+     "cfg": "engine only (no model harness), fastembed vectors",
+     "access": "CLI / SQLite", "model_on_write": "no", "key": "none",
+     "where": "local", "license": "Apache-2.0", "deterministic": "yes"},
+    {"name": "Aionforge", "folder": "aionforge_report", "repo": "https://github.com/jscott3201/aionforge-memory",
+     "what": "bi-temporal graph in Rust, hybrid recall, explicit forgetting, MCP only",
+     "cfg": "0.4.0 Docker image, embeddings gemini-embedding-001 (3072) behind a loopback shim",
+     "access": "MCP", "model_on_write": "embeddings only", "key": "embedding provider",
+     "where": "self-hosted", "license": "Apache-2.0", "deterministic": "yes"},
+    {"name": "Jev-Mem", "folder": "jevmem_report", "repo": "https://github.com/libingzheren/Jev-Mem",
+     "what": "graph memory whose decisions are taken by a small System-One model",
+     "cfg": "Laya local decisions (config/laya_mem.json), embeddings all-MiniLM-L6-v2, no answer model; reference = median run of six builds (mean 41.9, 39.0 to 42.9)",
+     "access": "Python library", "model_on_write": "yes: a small System-One model (Laya, local)", "key": "none (Laya)",
+     "where": "local", "license": "MIT", "deterministic": "no: the same input builds different links"},
+    {"name": "Hindsight", "folder": "hindsight_report", "repo": "https://github.com/vectorize-io/hindsight",
+     "what": "world facts, experiences and observations; LLM extraction on retain; per-bank MCP",
+     "cfg": "MCP server 0.10.1, extraction gemini-3.5-flash-lite, prompt caching off, recall defaults",
+     "access": "MCP", "model_on_write": "yes: an LLM extracts every write", "key": "LLM provider",
+     "where": "self-hosted", "license": "MIT", "deterministic": "no: extraction is a model call"},
+    {"name": "Nemp", "folder": "nemp_report", "repo": "https://github.com/SukinShetty/Nemp-memory",
+     "what": "Claude Code plugin: a JSON file in the project, and the model itself as the engine",
+     "cfg": "measured inside Claude Code: every operation is one claude -p turn (sonnet), Nemp loaded with --plugin-dir",
+     "access": "inside Claude Code", "model_on_write": "yes: every operation is a model turn", "key": "Claude Code",
+     "where": "local file", "license": "MIT", "deterministic": "no: every operation is a model turn"},
 ]
 REFERENCE = "gbrain"
 SECTIONS = ["door", "cards", "updates", "time", "live_state", "abstention", "file_search", "graph"]
@@ -62,10 +84,7 @@ def load(folder: str) -> dict | None:
 
 
 def sections(d: dict) -> dict[str, dict]:
-    out = {}
-    for s in d.get("sections", []):
-        out[s["name"]] = s
-    return out
+    return {s["name"]: s for s in d.get("sections", [])}
 
 
 def points(sec: dict | None, weight: int) -> float | None:
@@ -105,6 +124,31 @@ def core(d: dict) -> tuple[float, int, list[str]]:
     return round(pts, 1), w, missing
 
 
+def measures(d: dict) -> dict:
+    """The numbers next to the score: what an answer costs, how fast a write
+    is seen, what the write-back probe found."""
+    secs = sections(d)
+    dm = (secs.get("door") or {}).get("measures") or {}
+    lm = (secs.get("live_state") or {}).get("measures") or {}
+    um = (secs.get("updates") or {}).get("measures") or {}
+    wm = (secs.get("write_back") or {}).get("measures") or {}
+    return {"chars": dm.get("mean_door_text_chars"), "position": dm.get("chars_before_answer_mean"),
+            "stale": dm.get("stale_values_delivered"), "write_ms": lm.get("write_to_serve_ms"),
+            "write_p95": lm.get("write_to_serve_p95_ms"), "replace_ms": um.get("probe_replace_ms"),
+            "poisoned": wm.get("poisoned"), "wb_tested": wm.get("questions_tested")}
+
+
+def fmt_ms(ms) -> str:
+    if ms is None:
+        return "—"
+    ms = float(ms)
+    return f"{ms:.0f} ms" if ms < 1000 else f"{ms / 1000:.1f} s"
+
+
+def fmt_chars(n) -> str:
+    return "—" if n is None else f"{int(n):,}"
+
+
 def own_data() -> list[dict]:
     """Runs on a memory's own data: examples/own_data/*.json, totals only."""
     out = []
@@ -113,6 +157,10 @@ def own_data() -> list[dict]:
         d["_file"] = f"examples/own_data/{p.name}"
         out.append(d)
     return out
+
+
+def esc(s) -> str:
+    return html.escape(str(s))
 
 
 def own_rows(own: list[dict]) -> str:
@@ -128,95 +176,138 @@ def own_rows(own: list[dict]) -> str:
     return "".join(rows)
 
 
-def esc(s) -> str:
-    return html.escape(str(s))
-
+FONTS = ("https://fonts.googleapis.com/css2?family=Jersey+10&family=IBM+Plex+Mono:wght@400;500;600&display=swap")
 
 CSS = """
-:root{--bg:#0f1115;--fg:#e8e8e8;--muted:#9aa0a6;--line:#2a2e36;--accent:#6ee7c8;--warn:#f9d84a}
-@media (prefers-color-scheme: light){:root{--bg:#fbfbfb;--fg:#15171b;--muted:#5d6470;--line:#e2e5ea;--accent:#0f766e;--warn:#9a6b00}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
-main{max-width:1040px;margin:0 auto;padding:32px 16px 64px}h1{font-size:2rem;margin:0 0 4px}h2{margin-top:2.2rem}
-.sub{color:var(--muted);margin:0 0 24px}table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--muted);font-weight:600;font-size:.85rem}
-td.n,th.n{text-align:right;white-space:nowrap}.big{font-size:1.25rem;font-weight:700}.muted{color:var(--muted)}
-a{color:var(--accent)}code{background:var(--line);padding:1px 5px;border-radius:4px;font-size:.9em}
-.skip{color:var(--muted)}.fail{color:var(--warn)}.note{border-left:3px solid var(--line);padding:8px 14px;color:var(--muted);margin:16px 0}
-@media (max-width:640px){table{font-size:.9rem}th,td{padding:8px 4px}.hide-sm{display:none}}
+:root{--bg:#000;--fg:#f2f2f2;--muted:#8a8a8a;--rule:#f2f2f2;--soft:#2b2b2b;--hot:#ff4f00;--warn:#ffb000;
+--display:'Jersey 10',Impact,'Arial Narrow',sans-serif;--mono:'IBM Plex Mono',ui-monospace,Consolas,monospace}
+*{box-sizing:border-box}html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.55 var(--mono)}
+main{max-width:1280px;margin:0 auto;padding:18px 24px 40px}
+a{color:inherit;text-decoration:none}a:hover{color:var(--hot)}
+.bar{display:flex;justify-content:space-between;gap:16px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;
+border-bottom:1px solid var(--rule);padding-bottom:6px}
+.hero{font-family:var(--display);color:var(--hot);font-size:clamp(88px,19vw,300px);line-height:.82;margin:14px 0 6px;letter-spacing:.01em}
+.lede{max-width:760px;font-size:15px;margin:0 0 28px}
+.label{font-size:12px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--rule);padding-bottom:6px;margin:36px 0 0}
+.board{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.board th{font:500 11px/1.4 var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;
+padding:10px 8px 8px;border-bottom:1px solid var(--soft);vertical-align:bottom}
+.board td{padding:12px 8px;border-bottom:1px solid var(--soft);vertical-align:top}
+.board .n{text-align:right;white-space:nowrap}
+.name{font-family:var(--display);font-size:clamp(30px,4vw,46px);line-height:.95;text-transform:uppercase;white-space:nowrap}
+.name:before{content:"\\2731";font-size:.55em;vertical-align:.35em;margin-right:.18em}
+.what{color:var(--muted);font-size:12px;margin-top:4px;max-width:420px}
+.score{font-family:var(--display);font-size:clamp(34px,4.4vw,54px);line-height:.9;color:var(--hot)}
+.score.plain{color:var(--fg)}
+.sm{color:var(--muted);font-size:12px}
+.cols{display:grid;grid-template-columns:repeat(4,1fr);gap:0 28px;margin-top:44px;border-top:1px solid var(--rule)}
+.cols h3{font-family:var(--display);font-weight:400;font-size:34px;line-height:1;text-transform:uppercase;margin:10px 0 8px;
+padding-bottom:8px;border-bottom:1px solid var(--rule)}
+.cols p{font-size:12.5px;margin:0 0 10px}
+code{font-family:var(--mono);background:var(--soft);padding:1px 5px}
+.note{font-size:12.5px;color:var(--muted);max-width:900px;margin:14px 0 0}
+.note b{color:var(--fg);font-weight:500}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:0 28px;border-top:1px solid var(--rule);margin-top:20px}
+.facts div{padding:10px 0;border-bottom:1px solid var(--soft)}
+.facts dt{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.facts dd{margin:2px 0 0}
+.pageh{font-family:var(--display);color:var(--hot);font-size:clamp(64px,12vw,170px);line-height:.85;text-transform:uppercase;margin:14px 0 6px}
+.fail{color:var(--hot)}.skip{color:var(--muted)}
+.wrap{overflow-x:auto}
+@media (max-width:860px){.cols,.facts{grid-template-columns:1fr 1fr}.hide-md{display:none}}
+@media (max-width:560px){main{padding:14px 16px 32px}.cols,.facts{grid-template-columns:1fr}.hide-sm{display:none}
+.board td,.board th{padding:10px 4px}.name{white-space:normal}}
 """
 
 
 def page(title: str, body: str, description: str) -> str:
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{esc(title)}</title><meta name="description" content="{esc(description)}"><style>{CSS}</style></head>
-<body><main>{body}
-<p class="muted" style="margin-top:48px">adebench is MIT. Every number here comes from a report file in
-<a href="https://github.com/adecubed/adebench">adecubed/adebench</a>; the adapters and the golden set are in the same repository.
-Built {datetime.now(timezone.utc).strftime('%Y-%m-%d')}.</p></main></body></html>"""
+<title>{esc(title)}</title><meta name="description" content="{esc(description)}">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="{FONTS}" rel="stylesheet"><style>{CSS}</style></head>
+<body><main>
+<div class="bar"><span>&copy;{datetime.now(timezone.utc).year} adebench &middot; adecubed</span><span>built {datetime.now(timezone.utc).strftime('%Y-%m-%d')} from the reports in the repo</span></div>
+{body}
+</main></body></html>"""
+
+
+def pct(a, b) -> str:
+    return f"{100 * float(a) / float(b):.0f}%" if b else "—"
 
 
 def build() -> None:
     OUT.mkdir(exist_ok=True)
-    loaded = [(n, f, repo, what, cfg, load(f)) for n, f, repo, what, cfg in MEMORIES]
-    ref = next((d for n, f, repo, what, cfg, d in loaded if n == REFERENCE and d), None)
-
+    loaded = [dict(m, d=load(m["folder"])) for m in MEMORIES]
+    ref = next((m["d"] for m in loaded if m["name"] == REFERENCE and m["d"]), None)
     rows = []
-    for name, folder, repo, what, cfg, d in loaded:
+    for m in loaded:
+        d = m["d"]
         if not d:
             continue
-        total = d.get("total")
-        measured = d.get("measured_weight")
-        cov = d.get("total_weight") or 100
-        cm = common(d, ref) if ref and name != REFERENCE else None
-        rows.append((name, folder, repo, what, cfg, d, total, measured, cov, cm, core(d)))
+        m["total"], m["measured"], m["cov"] = d.get("total"), d.get("measured_weight"), d.get("total_weight") or 100
+        m["cm"] = common(d, ref) if ref and m["name"] != REFERENCE else None
+        m["core"] = core(d)
+        m["m"] = measures(d)
+        rows.append(m)
     # order: the core, the same 55 points for everyone; a SKIP elsewhere costs nothing
-    rows.sort(key=lambda r: -(r[10][0] / r[10][1] if r[10][1] else 0))
+    rows.sort(key=lambda r: -(r["core"][0] / r["core"][1] if r["core"][1] else 0))
 
     trs = []
-    for name, folder, repo, what, cfg, d, total, measured, cov, cm, (cpts, cw, cmiss) in rows:
-        share = f"{100 * float(total) / float(measured):.0f}%" if measured else "—"
-        core_share = f"{100 * cpts / cw:.0f}%" if cw else "—"
-        core_note = f"{cpts} / {cw}" + (f" (no {', '.join(cmiss)})" if cmiss else "")
-        common_txt = (f"{cm[0]} vs {cm[1]} on {cm[2]}" if cm else ("reference" if name == REFERENCE else "—"))
-        trs.append(f"""<tr><td><a href="{esc(folder)}.html"><b>{esc(name)}</b></a><br><span class="muted hide-sm">{esc(what)}</span></td>
-<td class="n"><span class="big">{core_share}</span><br><span class="muted">{esc(core_note)}</span></td>
-<td class="n"><span class="big">{share}</span><br><span class="muted">{esc(total)} / {esc(measured)}</span></td>
-<td class="n">{esc(measured)} / {esc(cov)}</td><td class="n">{esc(common_txt)}</td></tr>""")
+    for r in rows:
+        cpts, cw, cmiss = r["core"]
+        mm = r["m"]
+        core_note = f"{cpts} / {cw}" + (f" · no {', '.join(cmiss)}" if cmiss else "")
+        trs.append(f"""<tr><td><a href="{esc(r['folder'])}.html"><div class="name">{esc(r['name'])}</div></a><div class="what hide-sm">{esc(r['what'])}</div></td>
+<td class="n"><div class="score">{pct(cpts, cw)}</div><div class="sm">{esc(core_note)}</div></td>
+<td class="n"><div class="score plain">{pct(r['total'], r['measured'])}</div><div class="sm">{esc(r['total'])} / {esc(r['measured'])}</div></td>
+<td class="n hide-sm">{fmt_chars(mm['chars'])}</td>
+<td class="n hide-sm">{fmt_ms(mm['write_ms'])}</td>
+<td class="hide-md">{esc(r['access'])}</td></tr>""")
 
     own = own_data()
-    body = f"""<h1>adebench</h1>
-<p class="sub">A benchmark for agent memory that scores the text the memory actually delivers to the model, on one golden set, with no LLM judge.</p>
-<table><thead><tr><th>Memory</th><th class="n">Core (55)</th><th class="n">Full</th><th class="n">Measured of 100</th><th class="n">Common points vs {esc(REFERENCE)}</th></tr></thead>
-<tbody>{''.join(trs)}</tbody></table>
-<div class="note">Same synthetic golden set for every memory (eight door questions, four invented entities, the same
-update, live-state and write-back probes). <b>Core</b> is the part every memory can be measured on, because it needs
-nothing but a write and a read through the door: door (25), updates (10), time (10), abstention (10). The ranking is on
-it. <b>Full</b> adds what a memory has behind the door (cards, live state, file search, graph): a memory that does not
-have a thing is not scored on it, and <i>measured</i> says how much of the 100 was. The last column scores two
-memories only on the sections both measured.</div>
-<h2>On their own data</h2>
-<p>The golden set above is small on purpose, so that it runs anywhere. The bench was built for something else: a memory
-measured on <i>its owner's</i> data, with probes written on the facts it really holds, rerun after every change. That
-number is not comparable across memories, since every owner has different data, and it is the one that tells an owner
-whether a change helped. Totals only: the probes and the reports are the owner's facts.</p>
-<table><thead><tr><th>Memory</th><th class="n">Score</th><th class="n">Probes</th><th class="n">Run</th></tr></thead><tbody>
-{own_rows(own)}
-</tbody></table>
-<div class="note">Run it on your own memory: write your probes (<code>cases/questions.json</code>, <code>cases/abstention.json</code>,
-the README says how to validate them), point the harness at your memory, and send the totals with a pull request. The
-harness prints the set's hash, so a number is always tied to the probes that produced it.</div>
-<h2>What it measures</h2>
-<p>Eight sections, weights in brackets: door (25) — the expected words are in the text the client receives, and a retired value next to the current one is a failure;
-cards (15); updates (10) — a new write with no id must replace the old value at the door; time (10); live state (10) — write-to-serve latency and overwrite consistency;
-abstention (10) — invented entities; file search (10); graph (10). Report-only: write-back (a degraded answer written through the memory's own path must not come back), census pressure, doors.
-The <a href="https://github.com/adecubed/adebench#what-it-measures">README</a> has the rules.</p>
-<h2>Run it yourself</h2>
-<p><code>pip install</code> nothing: the harness has no dependencies. Every adapter and importer is in the repository, and each memory's page names the exact configuration that produced its numbers.
-To add a memory, write an adapter against <code>adebench/adapter.py</code> and open a pull request; results are reviewed with the author before they appear here.</p>"""
+    own_trs = []
+    for o in own:
+        probes = sum(int(v) for v in (o.get("counts") or {}).values())
+        own_trs.append(f"""<tr><td><div class="name">{esc(o.get('memory'))}</div><div class="what hide-sm">{esc(o.get('what', ''))}</div></td>
+<td class="n"><div class="score">{pct(o['total'], o['measured_weight'])}</div><div class="sm">{esc(o['total'])} / {esc(o['measured_weight'])}</div></td>
+<td class="n">{probes}<div class="sm">set {esc(o.get('cases_hash', ''))}</div></td>
+<td class="n hide-sm">{esc(str(o.get('when', ''))[:10])}<div class="sm">adebench {esc(o.get('adebench', ''))}</div></td></tr>""")
+
+    body = f"""<div class="hero">ADEBENCH</div>
+<p class="lede">A benchmark for agent memory. It scores the text a memory actually delivers to the model, on one golden set, with no LLM judge.</p>
+<div class="label">Leaderboard &middot; synthetic golden set</div>
+<div class="wrap"><table class="board"><thead><tr><th>Memory</th><th class="n">Core &middot; 55</th><th class="n">Full</th>
+<th class="n hide-sm">Chars per answer</th><th class="n hide-sm">Write &rarr; visible</th><th class="hide-md">Reached through</th></tr></thead>
+<tbody>{''.join(trs)}</tbody></table></div>
+<p class="note"><b>Core</b> is what every memory can be measured on, a write and a read through the door: door 25, updates 10,
+time 10, abstention 10. The ranking is on it. <b>Full</b> adds what a memory has behind the door (cards, live state, file
+search, graph), over the points it could be measured on. <b>Chars per answer</b> is what the model receives for one question:
+the same score at 300 characters and at 20,000 is not the same memory. <b>Write &rarr; visible</b> is how long a value just
+written takes to reach the door.</p>
+<div class="label">On their own data</div>
+<div class="wrap"><table class="board"><thead><tr><th>Memory</th><th class="n">Score</th><th class="n">Probes</th><th class="n hide-sm">Run</th></tr></thead>
+<tbody>{''.join(own_trs)}</tbody></table></div>
+<p class="note">The golden set is small on purpose, so it runs anywhere. The bench was built for something else: a memory measured on
+<b>its owner's</b> data, with probes written on the facts it really holds, rerun after every change. Not comparable across
+memories, and the number that tells an owner whether a change helped. Totals only: the probes are the owner's facts.</p>
+<div class="cols">
+<div><h3>Method</h3><p>Eight sections: door, cards, updates, time, live state, abstention, file search, graph. A point is
+earned when the expected words are in the text the model receives; a retired value next to the current one is a failure.</p>
+<p><a href="https://github.com/adecubed/adebench#what-it-measures">Rules in the README &rarr;</a></p></div>
+<div><h3>Run it</h3><p>No dependencies. Every adapter and importer is in the repository, and each memory's page names the
+configuration that produced its numbers.</p><p><code>python -m adebench --help</code></p></div>
+<div><h3>Your memory</h3><p>Write your probes, point the harness at your memory, send the totals with a pull request. The
+set's hash ties a number to the probes that produced it.</p></div>
+<div><h3>GitHub</h3><p>adebench is MIT. Adapters, golden set, reports: <a href="https://github.com/adecubed/adebench">adecubed/adebench</a>.
+Results are reviewed with each memory's author before they appear here.</p></div>
+</div>"""
     (OUT / "index.html").write_text(page("adebench — agent memory, measured at the door", body,
                                          "Leaderboard of agent memory systems on the adebench golden set"), encoding="utf-8")
 
-    for name, folder, repo, what, cfg, d, total, measured, cov, cm, (cpts, cw, cmiss) in rows:
+    for r in rows:
+        d, mm = r["d"], r["m"]
+        cpts, cw, cmiss = r["core"]
         secs = sections(d)
         srows = []
         for s in SECTIONS:
@@ -224,32 +315,40 @@ To add a memory, write an adapter against <code>adebench/adapter.py</code> and o
             w = int((sec or {}).get("weight") or 0)
             p = points(sec, w)
             if sec is None:
-                srows.append(f"<tr><td>{s}</td><td class='n skip'>not run</td><td></td></tr>")
+                srows.append(f"<tr><td class='name' style='font-size:26px'>{s.replace('_', ' ')}</td><td class='n skip'>not run</td><td></td></tr>")
                 continue
             counts = sec.get("counts") or {}
             fails = [c for c in sec.get("cases", []) if c.get("status") in ("FAIL", "ERROR")]
             notes = "<br>".join(f"<span class='fail'>{esc(c.get('status'))}</span> {esc(c.get('case'))}"
-                                + (f" — <span class='muted'>{esc(c.get('note'))}</span>" if c.get("note") else "")
+                                + (f" <span class='sm'>— {esc(c.get('note'))}</span>" if c.get("note") else "")
                                 for c in fails[:6])
+            label = f"<td><div class='name' style='font-size:26px'>{s.replace('_', ' ')}</div></td>"
             if p is None:
-                srows.append(f"<tr><td>{s}</td><td class='n skip'>not measured</td><td class='muted'>{esc((sec.get('warnings') or [''])[0])}</td></tr>")
+                srows.append(f"<tr>{label}<td class='n skip'>not measured</td><td class='sm'>{esc((sec.get('warnings') or [''])[0])}</td></tr>")
             else:
-                srows.append(f"<tr><td>{s}</td><td class='n'><b>{p}</b> / {w}<br><span class='muted'>{esc(counts.get('PASS', 0))} pass · {esc(counts.get('FAIL', 0))} fail</span></td><td>{notes}</td></tr>")
-        wb = secs.get("write_back")
-        wb_txt = ""
-        if wb:
-            c = wb.get("counts") or {}
-            wb_txt = f"<p>Write-back (report-only): {esc(c.get('PASS', 0))} of {esc((c.get('PASS', 0) or 0) + (c.get('FAIL', 0) or 0))} probes clean.</p>"
-        body = f"""<p><a href="index.html">← leaderboard</a></p><h1>{esc(name)}</h1>
-<p class="sub">{esc(what)} — <a href="{esc(repo)}">{esc(repo)}</a></p>
-<p><span class="big">{(100 * cpts / cw) if cw else 0:.0f}%</span> <span class="muted">core, {cpts} / {cw}{(' (no ' + ', '.join(cmiss) + ')') if cmiss else ''}</span>
-· <span class="big">{(100 * float(total) / float(measured)):.0f}%</span> <span class="muted">full, {esc(total)} / {esc(measured)} · {esc(measured)} of {esc(cov)} points measured</span>
-{('· common with ' + esc(REFERENCE) + f': {cm[0]} vs {cm[1]} on {cm[2]}') if cm else ''}</p>
-<p><b>Configuration:</b> {esc(cfg)}. <b>Run:</b> {esc(str(d.get('when', ''))[:10])}, door <code>{esc(d.get('config', {}).get('door', ''))}</code>, fingerprint <code>{esc(str(d.get('config', {}).get('fingerprint', ''))[:12])}</code>.
-<b>Report:</b> <a href="https://github.com/adecubed/adebench/blob/main/{esc(d['_file'])}">{esc(d['_file'])}</a></p>
-<table><thead><tr><th>Section</th><th class="n">Points</th><th>Not passed</th></tr></thead><tbody>{''.join(srows)}</tbody></table>
-{wb_txt}"""
-        (OUT / f"{folder}.html").write_text(page(f"{name} — adebench", body, f"{name} on the adebench golden set"), encoding="utf-8")
+                srows.append(f"<tr>{label}<td class='n'><div class='score' style='font-size:34px'>{p}</div><div class='sm'>of {w} · {esc(counts.get('PASS', 0))} pass · {esc(counts.get('FAIL', 0))} fail</div></td><td>{notes}</td></tr>")
+        wb = "not run" if mm["wb_tested"] is None else f"{mm['poisoned']} of {mm['wb_tested']} degraded answers came back"
+        cm = r["cm"]
+        facts = [("Core", f"{pct(cpts, cw)} · {cpts} / {cw}" + (f" · no {', '.join(cmiss)}" if cmiss else "")),
+                 ("Full", f"{pct(r['total'], r['measured'])} · {r['total']} / {r['measured']} · {r['measured']} of {r['cov']} measured"),
+                 ("Common with " + REFERENCE, f"{cm[0]} vs {cm[1]} on {cm[2]}" if cm else "reference"),
+                 ("Chars per answer", f"{fmt_chars(mm['chars'])} · answer after {fmt_chars(mm['position'])}"),
+                 ("Write → visible", fmt_ms(mm["write_ms"]) + (f" · p95 {fmt_ms(mm['write_p95'])}" if mm["write_p95"] else "")),
+                 ("Write-back", wb),
+                 ("Reached through", r["access"]), ("Model on write", r["model_on_write"]),
+                 ("Key needed", r["key"]), ("Runs", r["where"]), ("License", r["license"]),
+                 ("Deterministic", r["deterministic"])]
+        facts_html = "".join(f"<div><dt>{esc(k)}</dt><dd>{esc(v)}</dd></div>" for k, v in facts)
+        body = f"""<p style="margin:10px 0 0"><a href="index.html">&larr; leaderboard</a></p>
+<div class="pageh">{esc(r['name'])}</div>
+<p class="lede">{esc(r['what'])}. <a href="{esc(r['repo'])}" style="color:var(--hot)">{esc(r['repo'])}</a></p>
+<dl class="facts">{facts_html}</dl>
+<p class="note"><b>Configuration:</b> {esc(r['cfg'])}. <b>Run</b> {esc(str(d.get('when', ''))[:10])}, door <code>{esc(d.get('config', {}).get('door', ''))}</code>,
+fingerprint <code>{esc(str(d.get('config', {}).get('fingerprint', ''))[:12])}</code>. <b>Report:</b>
+<a href="https://github.com/adecubed/adebench/blob/main/{esc(d['_file'])}" style="color:var(--hot)">{esc(d['_file'])}</a></p>
+<div class="label">Sections</div>
+<div class="wrap"><table class="board"><tbody>{''.join(srows)}</tbody></table></div>"""
+        (OUT / f"{r['folder']}.html").write_text(page(f"{r['name']} — adebench", body, f"{r['name']} on the adebench golden set"), encoding="utf-8")
 
     (OUT / "CNAME").write_text(DOMAIN + "\n", encoding="utf-8")
     (OUT / ".nojekyll").write_text("", encoding="utf-8")

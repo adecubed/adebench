@@ -1,0 +1,81 @@
+{
+ "builds": 6,
+ "mean": 41.9,
+ "min": 39.0,
+ "max": 42.9,
+ "runs": [
+  {
+   "when": "2026-09-29T11:07:36",
+   "total": 42.1,
+   "measured": 65,
+   "sections": {
+    "door": 18.8,
+    "updates": 3.3,
+    "time": 6.7,
+    "live_state": 10.0,
+    "abstention": 3.3
+   }
+  },
+  {
+   "when": "2026-09-29T11:11:01",
+   "total": 42.1,
+   "measured": 65,
+   "sections": {
+    "door": 18.8,
+    "updates": 3.3,
+    "time": 6.7,
+    "live_state": 10.0,
+    "abstention": 3.3
+   }
+  },
+  {
+   "when": "2026-09-29T11:14:28",
+   "total": 42.9,
+   "measured": 65,
+   "sections": {
+    "door": 18.8,
+    "updates": 3.3,
+    "time": 6.7,
+    "live_state": 10.0,
+    "abstention": 4.2
+   }
+  },
+  {
+   "when": "2026-09-29T11:17:54",
+   "total": 42.1,
+   "measured": 65,
+   "sections": {
+    "door": 18.8,
+    "updates": 3.3,
+    "time": 6.7,
+    "live_state": 10.0,
+    "abstention": 3.3
+   }
+  },
+  {
+   "when": "2026-09-29T11:21:21",
+   "total": 42.9,
+   "measured": 65,
+   "sections": {
+    "door": 18.8,
+    "updates": 3.3,
+    "time": 6.7,
+    "live_state": 10.0,
+    "abstention": 4.2
+   }
+  },
+  {
+   "when": "2026-09-29T10:30:00",
+   "total": 39.0,
+   "measured": 65,
+   "sections": {
+    "door": 15.6,
+    "updates": 3.3,
+    "time": 6.7,
+    "live_state": 10.0,
+    "abstention": 3.3
+   }
+  }
+ ],
+ "note": "each run on a fresh build: Jev-Mem's write path is not deterministic (same input, different links)"
+}
