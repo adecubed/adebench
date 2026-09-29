@@ -14,12 +14,16 @@ from __future__ import annotations
 
 import html
 import json
+import re
+import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "site"
+ASSETS = ROOT / "site_assets"      # og.png (social preview) and favicon.svg, made once, committed
 DOMAIN = "adebench.dev"
+BASE = f"https://{DOMAIN}"
 
 # The synthetic example memory (examples/synthetic.py) is not listed: it is
 # the harness's own test double, with defects on purpose, not a product.
@@ -135,7 +139,8 @@ def measures(d: dict) -> dict:
     return {"chars": dm.get("mean_door_text_chars"), "position": dm.get("chars_before_answer_mean"),
             "stale": dm.get("stale_values_delivered"), "write_ms": lm.get("write_to_serve_ms"),
             "write_p95": lm.get("write_to_serve_p95_ms"), "replace_ms": um.get("probe_replace_ms"),
-            "poisoned": wm.get("poisoned"), "wb_tested": wm.get("questions_tested")}
+            "poisoned": wm.get("poisoned"), "wb_tested": wm.get("questions_tested"),
+            "wb_errors": sum(1 for c in (secs.get("write_back") or {}).get("cases", []) if c.get("status") == "ERROR")}
 
 
 def fmt_ms(ms) -> str:
@@ -187,7 +192,8 @@ main{max-width:1280px;margin:0 auto;padding:18px 24px 40px}
 a{color:inherit;text-decoration:none}a:hover{color:var(--hot)}
 .bar{display:flex;justify-content:space-between;gap:16px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;
 border-bottom:1px solid var(--rule);padding-bottom:6px}
-.hero{font-family:var(--display);color:var(--hot);font-size:clamp(88px,19vw,300px);line-height:.82;margin:14px 0 6px;letter-spacing:.01em}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.hero{font-weight:400;font-family:var(--display);color:var(--hot);font-size:clamp(88px,19vw,300px);line-height:.82;margin:14px 0 6px;letter-spacing:.01em}
 .lede{max-width:760px;font-size:15px;margin:0 0 28px}
 .label{font-size:12px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--rule);padding-bottom:6px;margin:36px 0 0}
 .board{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
@@ -212,7 +218,7 @@ code{font-family:var(--mono);background:var(--soft);padding:1px 5px}
 .facts div{padding:10px 0;border-bottom:1px solid var(--soft)}
 .facts dt{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
 .facts dd{margin:2px 0 0}
-.pageh{font-family:var(--display);color:var(--hot);font-size:clamp(64px,12vw,170px);line-height:.85;text-transform:uppercase;margin:14px 0 6px}
+.pageh{font-weight:400;font-family:var(--display);color:var(--hot);font-size:clamp(64px,12vw,170px);line-height:.85;text-transform:uppercase;margin:14px 0 6px}
 .fail{color:var(--hot)}.skip{color:var(--muted)}
 .wrap{overflow-x:auto}
 @media (max-width:860px){.cols,.facts{grid-template-columns:1fr 1fr}.hide-md{display:none}}
@@ -221,15 +227,34 @@ code{font-family:var(--mono);background:var(--soft);padding:1px 5px}
 """
 
 
-def page(title: str, body: str, description: str) -> str:
+def page(title: str, body: str, description: str, path: str = "/", ld: list[dict] | None = None,
+         index: bool = True) -> str:
+    url = BASE + path
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(title)}</title><meta name="description" content="{esc(description)}">
+<link rel="canonical" href="{url}">{'' if index else '<meta name="robots" content="noindex">'}
+<meta name="theme-color" content="#000000"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website"><meta property="og:site_name" content="adebench">
+<meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(description)}">
+<meta property="og:url" content="{url}"><meta property="og:image" content="{BASE}/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{esc(title)}">
+<meta name="twitter:description" content="{esc(description)}"><meta name="twitter:image" content="{BASE}/og.png">
+{''.join(jsonld(x) for x in (ld or []))}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="{FONTS}" rel="stylesheet"><style>{CSS}</style></head>
 <body><main>
-<div class="bar"><span>&copy;{datetime.now(timezone.utc).year} adebench &middot; adecubed</span><span>built {datetime.now(timezone.utc).strftime('%Y-%m-%d')} from the reports in the repo</span></div>
+<div class="bar"><a href="/">&copy;{datetime.now(timezone.utc).year} adebench &middot; adecubed</a><span>built {datetime.now(timezone.utc).strftime('%Y-%m-%d')} from the reports in the repo</span></div>
 {body}
 </main></body></html>"""
+
+
+def slug(name: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+
+
+def jsonld(obj: dict) -> str:
+    return '<script type="application/ld+json">' + json.dumps(obj, separators=(",", ":")).replace("</", "<\\/") + "</script>"
 
 
 def pct(a, b) -> str:
@@ -238,6 +263,8 @@ def pct(a, b) -> str:
 
 def build() -> None:
     OUT.mkdir(exist_ok=True)
+    for old in OUT.glob("*_report.html"):   # the pre-0.2.16 flat pages
+        old.unlink()
     loaded = [dict(m, d=load(m["folder"])) for m in MEMORIES]
     ref = next((m["d"] for m in loaded if m["name"] == REFERENCE and m["d"]), None)
     rows = []
@@ -258,7 +285,7 @@ def build() -> None:
         cpts, cw, cmiss = r["core"]
         mm = r["m"]
         core_note = f"{cpts} / {cw}" + (f" · no {', '.join(cmiss)}" if cmiss else "")
-        trs.append(f"""<tr><td><a href="{esc(r['folder'])}.html"><div class="name">{esc(r['name'])}</div></a><div class="what hide-sm">{esc(r['what'])}</div></td>
+        trs.append(f"""<tr><td><a href="/{slug(r['name'])}/"><div class="name">{esc(r['name'])}</div></a><div class="what hide-sm">{esc(r['what'])}</div></td>
 <td class="n"><div class="score">{pct(cpts, cw)}</div><div class="sm">{esc(core_note)}</div></td>
 <td class="n"><div class="score plain">{pct(r['total'], r['measured'])}</div><div class="sm">{esc(r['total'])} / {esc(r['measured'])}</div></td>
 <td class="n hide-sm">{fmt_chars(mm['chars'])}</td>
@@ -274,7 +301,7 @@ def build() -> None:
 <td class="n">{probes}<div class="sm">set {esc(o.get('cases_hash', ''))}</div></td>
 <td class="n hide-sm">{esc(str(o.get('when', ''))[:10])}<div class="sm">adebench {esc(o.get('adebench', ''))}</div></td></tr>""")
 
-    body = f"""<div class="hero">ADEBENCH</div>
+    body = f"""<h1 class="hero">ADEBENCH<span class="sr"> — agent memory benchmark and leaderboard</span></h1>
 <p class="lede">A benchmark for agent memory. It scores the text a memory actually delivers to the model, on one golden set, with no LLM judge.</p>
 <div class="label">Leaderboard &middot; synthetic golden set</div>
 <div class="wrap"><table class="board"><thead><tr><th>Memory</th><th class="n">Core &middot; 55</th><th class="n">Full</th>
@@ -302,8 +329,19 @@ set's hash ties a number to the probes that produced it.</p></div>
 <div><h3>GitHub</h3><p>adebench is MIT. Adapters, golden set, reports: <a href="https://github.com/adecubed/adebench">adecubed/adebench</a>.
 Results are reviewed with each memory's author before they appear here.</p></div>
 </div>"""
-    (OUT / "index.html").write_text(page("adebench — agent memory, measured at the door", body,
-                                         "Leaderboard of agent memory systems on the adebench golden set"), encoding="utf-8")
+    names = ", ".join(r["name"] for r in rows)
+    desc = (f"Open benchmark for AI agent memory: {len(rows)} memory systems ({names}) scored on the text they "
+            "actually deliver to the model. Same golden set, no LLM judge.")
+    ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "adebench", "url": BASE + "/",
+           "description": desc},
+          {"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "adebench",
+           "codeRepository": "https://github.com/adecubed/adebench", "license": "https://opensource.org/licenses/MIT",
+           "programmingLanguage": "Python", "description": "A benchmark for agent memory that scores the text a memory delivers to the model."},
+          {"@context": "https://schema.org", "@type": "ItemList", "name": "adebench leaderboard (core score)",
+           "itemListElement": [{"@type": "ListItem", "position": i + 1, "name": r["name"], "url": f"{BASE}/{slug(r['name'])}/"}
+                               for i, r in enumerate(rows)]}]
+    (OUT / "index.html").write_text(page("adebench — agent memory benchmark and leaderboard", body, desc, "/", ld),
+                                    encoding="utf-8")
 
     for r in rows:
         d, mm = r["d"], r["m"]
@@ -327,7 +365,12 @@ Results are reviewed with each memory's author before they appear here.</p></div
                 srows.append(f"<tr>{label}<td class='n skip'>not measured</td><td class='sm'>{esc((sec.get('warnings') or [''])[0])}</td></tr>")
             else:
                 srows.append(f"<tr>{label}<td class='n'><div class='score' style='font-size:34px'>{p}</div><div class='sm'>of {w} · {esc(counts.get('PASS', 0))} pass · {esc(counts.get('FAIL', 0))} fail</div></td><td>{notes}</td></tr>")
-        wb = "not run" if mm["wb_tested"] is None else f"{mm['poisoned']} of {mm['wb_tested']} degraded answers came back"
+        if mm["wb_tested"] is None:
+            wb = "not run"
+        elif mm["wb_errors"]:
+            wb = f"not measured: {mm['wb_errors']} of {mm['wb_tested']} degraded answers were not stored by the write path"
+        else:
+            wb = f"{mm['poisoned']} of {mm['wb_tested']} degraded answers came back"
         cm = r["cm"]
         facts = [("Core", f"{pct(cpts, cw)} · {cpts} / {cw}" + (f" · no {', '.join(cmiss)}" if cmiss else "")),
                  ("Full", f"{pct(r['total'], r['measured'])} · {r['total']} / {r['measured']} · {r['measured']} of {r['cov']} measured"),
@@ -339,8 +382,8 @@ Results are reviewed with each memory's author before they appear here.</p></div
                  ("Key needed", r["key"]), ("Runs", r["where"]), ("License", r["license"]),
                  ("Deterministic", r["deterministic"])]
         facts_html = "".join(f"<div><dt>{esc(k)}</dt><dd>{esc(v)}</dd></div>" for k, v in facts)
-        body = f"""<p style="margin:10px 0 0"><a href="index.html">&larr; leaderboard</a></p>
-<div class="pageh">{esc(r['name'])}</div>
+        body = f"""<p style="margin:10px 0 0"><a href="/">&larr; leaderboard</a></p>
+<h1 class="pageh">{esc(r['name'])}</h1>
 <p class="lede">{esc(r['what'])}. <a href="{esc(r['repo'])}" style="color:var(--hot)">{esc(r['repo'])}</a></p>
 <dl class="facts">{facts_html}</dl>
 <p class="note"><b>Configuration:</b> {esc(r['cfg'])}. <b>Run</b> {esc(str(d.get('when', ''))[:10])}, door <code>{esc(d.get('config', {}).get('door', ''))}</code>,
@@ -348,8 +391,29 @@ fingerprint <code>{esc(str(d.get('config', {}).get('fingerprint', ''))[:12])}</c
 <a href="https://github.com/adecubed/adebench/blob/main/{esc(d['_file'])}" style="color:var(--hot)">{esc(d['_file'])}</a></p>
 <div class="label">Sections</div>
 <div class="wrap"><table class="board"><tbody>{''.join(srows)}</tbody></table></div>"""
-        (OUT / f"{r['folder']}.html").write_text(page(f"{r['name']} — adebench", body, f"{r['name']} on the adebench golden set"), encoding="utf-8")
+        sl = slug(r["name"])
+        desc = (f"{r['name']} on adebench: {pct(cpts, cw)} on the core, {pct(r['total'], r['measured'])} full "
+                f"({r['total']}/{r['measured']}), {fmt_chars(mm['chars'])} characters per answer. {r['what']}.")
+        ld = [{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+                  {"@type": "ListItem", "position": 1, "name": "adebench", "item": BASE + "/"},
+                  {"@type": "ListItem", "position": 2, "name": r["name"], "item": f"{BASE}/{sl}/"}]}]
+        (OUT / sl).mkdir(exist_ok=True)
+        (OUT / sl / "index.html").write_text(page(f"{r['name']} on adebench — agent memory benchmark results", body, desc,
+                                                  f"/{sl}/", ld), encoding="utf-8")
 
+    for f in ("og.png", "favicon.svg"):
+        if (ASSETS / f).exists():
+            shutil.copyfile(ASSETS / f, OUT / f)
+    day = lambda d: str(d.get("when", ""))[:10]  # noqa: E731
+    latest = max((day(r["d"]) for r in rows), default="")
+    urls = [(BASE + "/", latest)] + [(f"{BASE}/{slug(r['name'])}/", day(r["d"])) for r in rows]
+    (OUT / "sitemap.xml").write_text(
+        '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + "".join(f"<url><loc>{u}</loc><lastmod>{m}</lastmod></url>\n" for u, m in urls) + "</urlset>\n", encoding="utf-8")
+    (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {BASE}/sitemap.xml\n", encoding="utf-8")
+    (OUT / "404.html").write_text(page("Not found — adebench", '<h1 class="hero">404</h1><p class="lede">No such page. '
+                                       '<a href="/" style="color:var(--hot)">Back to the leaderboard</a>.</p>',
+                                       "Page not found", "/404.html", index=False), encoding="utf-8")
     (OUT / "CNAME").write_text(DOMAIN + "\n", encoding="utf-8")
     (OUT / ".nojekyll").write_text("", encoding="utf-8")
     print(f"site: {len(rows)} memories -> {OUT}")

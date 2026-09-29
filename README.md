@@ -1,6 +1,6 @@
 # adebench — a benchmark for personal AI memory, on its own terms
 
-**English** · [Italiano](#lang-it)
+**English** · [Italiano](#lang-it) · **Leaderboard: [adebench.dev](https://adebench.dev)**
 
 `adebench` measures the memory of a personal AI assistant the way that memory is actually
 used, not the way generic memory benchmarks are built. It was born for an

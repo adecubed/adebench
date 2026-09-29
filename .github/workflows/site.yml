@@ -8,6 +8,8 @@ on:
     branches: [main]
     paths:
       - "examples/*_report/reference.json"
+      - "examples/own_data/**"
+      - "site_assets/**"
       - "adebench/site.py"
       - ".github/workflows/site.yml"
   workflow_dispatch:
