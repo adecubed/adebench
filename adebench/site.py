@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import html
 import json
+import os
 import re
 import shutil
 from datetime import datetime, timezone
@@ -181,6 +182,11 @@ def own_rows(own: list[dict]) -> str:
     return "".join(rows)
 
 
+# Visits: GoatCounter (no cookies, so no consent banner). Off unless the site's
+# code is set: GOATCOUNTER=adebench in the Pages workflow counts at
+# https://adebench.goatcounter.com. Outbound clicks are counted by name.
+GOATCOUNTER = os.environ.get("GOATCOUNTER", "").strip()
+
 FONTS = ("https://fonts.googleapis.com/css2?family=Jersey+10&family=IBM+Plex+Mono:wght@400;500;600&display=swap")
 
 CSS = """
@@ -246,7 +252,19 @@ def page(title: str, body: str, description: str, path: str = "/", ld: list[dict
 <body><main>
 <div class="bar"><a href="/">&copy;{datetime.now(timezone.utc).year} adebench &middot; adecubed</a><span>built {datetime.now(timezone.utc).strftime('%Y-%m-%d')} from the reports in the repo</span></div>
 {body}
-</main></body></html>"""
+</main>{analytics()}</body></html>"""
+
+
+def analytics() -> str:
+    if not GOATCOUNTER:
+        return ""
+    return (f'<script data-goatcounter="https://{GOATCOUNTER}.goatcounter.com/count" '
+            'async src="//gc.zgo.at/count.js"></script>')
+
+
+def click(name: str) -> str:
+    """GoatCounter counts a click on a link carrying this attribute as an event."""
+    return f' data-goatcounter-click="{esc(name)}"' if GOATCOUNTER else ""
 
 
 def slug(name: str) -> str:
@@ -326,7 +344,7 @@ earned when the expected words are in the text the model receives; a retired val
 configuration that produced its numbers.</p><p><code>python -m adebench --help</code></p></div>
 <div><h3>Your memory</h3><p>Write your probes, point the harness at your memory, send the totals with a pull request. The
 set's hash ties a number to the probes that produced it.</p></div>
-<div><h3>GitHub</h3><p>adebench is MIT. Adapters, golden set, reports: <a href="https://github.com/adecubed/adebench">adecubed/adebench</a>.
+<div><h3>GitHub</h3><p>adebench is MIT. Adapters, golden set, reports: <a href="https://github.com/adecubed/adebench"{click("out-github-adebench")}>adecubed/adebench</a>.
 Results are reviewed with each memory's author before they appear here.</p></div>
 </div>"""
     names = ", ".join(r["name"] for r in rows)
@@ -384,11 +402,11 @@ Results are reviewed with each memory's author before they appear here.</p></div
         facts_html = "".join(f"<div><dt>{esc(k)}</dt><dd>{esc(v)}</dd></div>" for k, v in facts)
         body = f"""<p style="margin:10px 0 0"><a href="/">&larr; leaderboard</a></p>
 <h1 class="pageh">{esc(r['name'])}</h1>
-<p class="lede">{esc(r['what'])}. <a href="{esc(r['repo'])}" style="color:var(--hot)">{esc(r['repo'])}</a></p>
+<p class="lede">{esc(r['what'])}. <a href="{esc(r['repo'])}" style="color:var(--hot)"{click("out-repo-" + slug(r['name']))}>{esc(r['repo'])}</a></p>
 <dl class="facts">{facts_html}</dl>
 <p class="note"><b>Configuration:</b> {esc(r['cfg'])}. <b>Run</b> {esc(str(d.get('when', ''))[:10])}, door <code>{esc(d.get('config', {}).get('door', ''))}</code>,
 fingerprint <code>{esc(str(d.get('config', {}).get('fingerprint', ''))[:12])}</code>. <b>Report:</b>
-<a href="https://github.com/adecubed/adebench/blob/main/{esc(d['_file'])}" style="color:var(--hot)">{esc(d['_file'])}</a></p>
+<a href="https://github.com/adecubed/adebench/blob/main/{esc(d['_file'])}" style="color:var(--hot)"{click("out-report-" + slug(r['name']))}>{esc(d['_file'])}</a></p>
 <div class="label">Sections</div>
 <div class="wrap"><table class="board"><tbody>{''.join(srows)}</tbody></table></div>"""
         sl = slug(r["name"])
