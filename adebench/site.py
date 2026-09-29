@@ -198,6 +198,13 @@ main{max-width:1280px;margin:0 auto;padding:18px 24px 40px}
 a{color:inherit;text-decoration:none}a:hover{color:var(--hot)}
 .bar{display:flex;justify-content:space-between;gap:16px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;
 border-bottom:1px solid var(--rule);padding-bottom:6px}
+.type{display:inline-block;white-space:nowrap}
+.type span{display:inline-block;max-width:1.2em;overflow:hidden;vertical-align:top;
+animation:key 1ms steps(1) backwards;animation-delay:calc(var(--i) * 130ms + 300ms)}
+.type:after{content:"";display:inline-block;width:.42em;height:.7em;margin-left:.08em;background:var(--hot);
+vertical-align:.02em;animation:blink 1s steps(1) infinite}
+@keyframes key{from,to{max-width:0}}@keyframes blink{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.type span{animation:none}.type:after{animation:none}}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .hero{font-weight:400;font-family:var(--display);color:var(--hot);font-size:clamp(88px,19vw,300px);line-height:.82;margin:14px 0 6px;letter-spacing:.01em}
 .lede{max-width:760px;font-size:15px;margin:0 0 28px}
@@ -319,7 +326,8 @@ def build() -> None:
 <td class="n">{probes}<div class="sm">set {esc(o.get('cases_hash', ''))}</div></td>
 <td class="n hide-sm">{esc(str(o.get('when', ''))[:10])}<div class="sm">adebench {esc(o.get('adebench', ''))}</div></td></tr>""")
 
-    body = f"""<h1 class="hero">ADEBENCH<span class="sr"> — agent memory benchmark and leaderboard</span></h1>
+    typed = "".join(f'<span style="--i:{i}">{c}</span>' for i, c in enumerate("ADEBENCH"))
+    body = f"""<h1 class="hero"><span class="type" aria-hidden="true">{typed}</span><span class="sr">ADEBENCH — agent memory benchmark and leaderboard</span></h1>
 <p class="lede">A benchmark for agent memory. It scores the text a memory actually delivers to the model, on one golden set, with no LLM judge.</p>
 <div class="label">Leaderboard &middot; synthetic golden set</div>
 <div class="wrap"><table class="board"><thead><tr><th>Memory</th><th class="n">Core &middot; 55</th><th class="n">Full</th>
