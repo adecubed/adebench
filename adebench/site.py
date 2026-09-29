@@ -183,8 +183,8 @@ def own_rows(own: list[dict]) -> str:
 
 
 # Visits: GoatCounter (no cookies, so no consent banner). Off unless the site's
-# code is set: GOATCOUNTER=adebench in the Pages workflow counts at
-# https://adebench.goatcounter.com. Outbound clicks are counted by name.
+# code is set: GOATCOUNTER=adecubed in the Pages workflow counts at
+# https://adecubed.goatcounter.com. Outbound clicks are counted by name.
 GOATCOUNTER = os.environ.get("GOATCOUNTER", "").strip()
 
 FONTS = ("https://fonts.googleapis.com/css2?family=Jersey+10&family=IBM+Plex+Mono:wght@400;500;600&display=swap")

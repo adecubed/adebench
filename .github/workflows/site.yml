@@ -33,7 +33,7 @@ jobs:
           python-version: "3.12"
       - run: python -m adebench.site
         env:
-          GOATCOUNTER: adebench   # visits at https://adebench.goatcounter.com
+          GOATCOUNTER: adecubed   # visits at https://adecubed.goatcounter.com
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
