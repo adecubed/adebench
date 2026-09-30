@@ -1,0 +1,10 @@
+{
+ "version": "mem0ai 2.2.1",
+ "mode": "open-source library, not the hosted platform, run through a JSON-lines bridge in mem0's own Python",
+ "door": "Memory.search(query, filters={user_id: \"adebench\"}, top_k=20), one line per result with its metadata",
+ "results": "top_k 20 (mem0's default), threshold 0.1 (mem0's), no cut",
+ "model": "gemini-3-flash-preview (Google, mem0's gemini provider): extracts memories from every add (infer=True, ADD-only)",
+ "embeddings": "models/gemini-embedding-001, 768 dimensions (Google)",
+ "storage": "local Qdrant on disk (vectors, BM25 slot, entity collection), SQLite history",
+ "not_default": "max_tokens 8192 instead of 2000 (the default counts Gemini 3's thinking tokens and cut extractions, items silently lost); Gemini provider for LLM and embedder instead of the OpenAI default, other cloud keys removed so nothing falls back to it; telemetry off (MEM0_TELEMETRY=False, reason not stated)"
+}

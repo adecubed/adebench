@@ -125,6 +125,19 @@ def load(folder: str, file: str = "reference") -> dict | None:
     return d
 
 
+# what every memory declares about the run that produced its numbers
+# (examples/<folder>/memory.json; memory_gemini.json next to reference_gemini)
+CONFIG_FIELDS = ["version", "mode", "door", "results", "model", "embeddings", "storage", "not_default"]
+CONFIG_LABELS = {"version": "Version", "mode": "Mode", "door": "Door", "results": "Results",
+                 "model": "Model inside", "embeddings": "Embeddings", "storage": "Storage",
+                 "not_default": "Not default"}
+
+
+def load_config(folder: str, file: str = "reference") -> dict | None:
+    p = ROOT / "examples" / folder / f"memory{file[len('reference'):]}.json"
+    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else None
+
+
 def load_repeats(folder: str, file: str = "reference") -> dict | None:
     """The memory's repeated runs (adebench.repeats), next to its reference:
     reference -> repeats.json, reference_gemini -> repeats_gemini.json. The
@@ -493,12 +506,17 @@ Each memory's author is told when its results go up; if we ran it wrong, we fix 
                  ("Key needed", r["key"]), ("Where it runs", r["where"]), ("License", r["license"]),
                  ("Deterministic", r["deterministic"])]
         facts_html = "".join(f"<div><dt>{esc(k)}</dt><dd>{esc(v)}</dd></div>" for k, v in facts)
+        cfg = load_config(r["folder"], r.get("file", "reference")) or {}
+        cfg_rows = "".join(f"<tr><td class='sm' style='white-space:nowrap'>{esc(CONFIG_LABELS[f])}</td><td>{esc(cfg.get(f, 'not stated'))}</td></tr>"
+                           for f in CONFIG_FIELDS)
         body = f"""<p style="margin:10px 0 0"><a href="/">&larr; leaderboard</a></p>
 <h1 class="pageh">{esc(r['name'])}</h1>
 <p class="lede">{esc(r['what'])}. <a href="{esc(r['repo'])}" style="color:var(--hot)"{click("out-repo-" + slug(r['name']))}>{esc(r['repo'])}</a></p>
 {f'<p class="note"><b>Note:</b> {esc(r["note"])}</p>' if r.get("note") else ""}
 <dl class="facts">{facts_html}</dl>
-<p class="note"><b>Configuration:</b> {esc(r['cfg'])}. <b>Run</b> {esc(str(d.get('when', ''))[:10])}, door <code>{esc(d.get('config', {}).get('door', ''))}</code>,
+<div class="label">Configuration</div>
+<div class="wrap"><table class="board"><tbody>{cfg_rows}</tbody></table></div>
+<p class="note"><b>Notes:</b> {esc(r['cfg'])}. <b>Run</b> {esc(str(d.get('when', ''))[:10])}, door <code>{esc(d.get('config', {}).get('door', ''))}</code>,
 fingerprint <code>{esc(str(d.get('config', {}).get('fingerprint', ''))[:12])}</code>. <b>Report:</b>
 <a href="https://github.com/adecubed/adebench/blob/main/{esc(d['_file'])}" style="color:var(--hot)"{click("out-report-" + slug(r['name']))}>{esc(d['_file'])}</a>{f' · <b>All runs:</b> <a href="https://github.com/adecubed/adebench/blob/main/{esc(rep["_file"])}" style="color:var(--hot)">{esc(rep["_file"])}</a>' if rep else ""}</p>
 <div class="label">Sections</div>

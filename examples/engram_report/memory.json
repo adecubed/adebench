@@ -1,0 +1,10 @@
+{
+ "version": "engram 2.2.1 (Windows release binary)",
+ "mode": "local binary, MCP stdio with the agent tool profile (engram mcp --tools=agent, 19 tools), fresh store",
+ "door": "mem_search(query, match_mode=\"any\", limit=10) over MCP stdio; the door is the tool's whole JSON text",
+ "results": "limit 10 (Engram's default), no cut",
+ "model": "none",
+ "embeddings": "none (SQLite FTS5 full-text search)",
+ "storage": "SQLite with FTS5",
+ "not_default": "match_mode \"any\" instead of the tool's default \"all\" (with \"all\" a question asked as it is finds nothing); a fresh scratch data directory instead of the default one in the user's home (deletes are soft and the probes' conflict relations stay behind)"
+}

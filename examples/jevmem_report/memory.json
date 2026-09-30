@@ -1,0 +1,10 @@
+{
+ "version": "not stated",
+ "mode": "Python library from a git checkout, local decision profile, no API key, run through a JSON-lines bridge in Jev-Mem's own Python",
+ "door": "QueryEngine.query(question, top_k=5): the ranked evidence block, each item with its date; no answer model",
+ "results": "top_k 5 (the value JevMemSystem.query uses), no cut",
+ "model": "Laya (convaiinnovations/laya), local System-One model: memory decisions (typing, relations, routing, stopping); no answer model",
+ "embeddings": "all-MiniLM-L6-v2, 384 dimensions, local",
+ "storage": "Jev-Mem's own store on disk: graph, vectors and keyword index (format not stated)",
+ "not_default": "decision profile config/laya_mem.json (local Laya, no key) instead of the default profile, which calls TypeSafe's Jev API; OPENAI_API_KEY removed in the bridge so no answer model runs (the benchmark measures what reaches the model)"
+}

@@ -1,0 +1,10 @@
+{
+ "version": "memu-cli 0.11.0b3 from source (git main)",
+ "mode": "self-hosted library, SQLite store, no memu.so account; memU runs no model, an external executor agent writes; run through a JSON-lines bridge",
+ "door": "progressive_retrieve(question), printed as `memu retrieve` prints it (JSON, indent 2): segments, their files with full content, resources",
+ "results": "top-5 segments (memU's own retrieve config, not changed), no relevance floor, no cut",
+ "model": "gemini-3-flash-preview (Google, OpenAI-compatible endpoint, function calling) as memU's external executor agent: writes and patches the wiki pages; no model on read",
+ "embeddings": "gemini-embedding-001, 3072 dimensions (Google, through memU's openai provider with Google's base URL)",
+ "storage": "SQLite plus a markdown workspace of recall files",
+ "not_default": "executor agent is Gemini with memU's own prompt and five workspace-only file tools instead of a shell (memU leaves the executor to the caller); embeddings through MEMU_EMBED_PROVIDER=openai with MEMU_BASE_URL set to Google; memU's own MEMU_EMBED_MODEL cleared by the bridge; workspace under the store instead of the CLI's fixed one in the home; telemetry, template and docs refresh off (reason not stated); built from source because the PyPI wheels do not ship memorize"
+}

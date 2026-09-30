@@ -1,0 +1,10 @@
+{
+ "version": "gbrain 0.50.0.0",
+ "mode": "local, every operation through `gbrain call`, the local dispatch of its MCP tools",
+ "door": "search(query, limit=8, snippet_chars=0) plus recall(query, limit=8), plus get_page for the entity pages the question names",
+ "results": "limit 8 on search and recall (adapter's choice; gbrain's defaults not stated), no character cut; when every hit is a weak semantic match only two are kept",
+ "model": "none",
+ "embeddings": "ollama:nomic-embed-text, 768 dimensions, local Ollama",
+ "storage": "PGLite",
+ "not_default": "embedding model ollama:nomic-embed-text (768) set at init (without an embedding provider gbrain has keyword search only)"
+}

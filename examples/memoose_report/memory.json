@@ -1,0 +1,10 @@
+{
+ "version": "memoose 0.4.0 with fastembed 0.8.1",
+ "mode": "engine only, no model harness (the skills a model runs on top are out of the picture)",
+ "door": "memoose --json -d adebench recall <query> -n 10 (routed mode: entities, facts as triples, chunk summaries), plus the session's standing context",
+ "results": "-n 10 (adapter's choice; Memoose's default not stated), no relevance threshold, no cut",
+ "model": "none",
+ "embeddings": "fastembed, local (model and dimensions not stated)",
+ "storage": "SQLite (one dataset file, 'adebench')",
+ "not_default": "fastembed installed (without it the vectors fall back to a hash)"
+}

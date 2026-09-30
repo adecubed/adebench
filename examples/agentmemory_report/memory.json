@@ -1,0 +1,10 @@
+{
+ "version": "@agentmemory/agentmemory 0.9.29 (npm) with iii-engine 0.11.2",
+ "mode": "keyless: no key reaches the server, provider noop, no LLM feature",
+ "door": "memory_recall(query, limit=10) through POST /agentmemory/mcp/call, the route the MCP stdio shim forwards to; the tool's own text",
+ "results": "limit 10 (its default), format full (its default), no relevance floor, no cut",
+ "model": "none (provider noop)",
+ "embeddings": "Xenova/all-MiniLM-L6-v2, 384 dimensions, local",
+ "storage": "local scratch data directory on the iii engine (format not stated)",
+ "not_default": "EMBEDDING_PROVIDER=local, for local vectors without a key (whether the default provider differs is not stated)"
+}

@@ -1,0 +1,10 @@
+{
+ "version": "supermemory-server 0.0.8 (windows-x64 release binary)",
+ "mode": "self-hosted one-binary server (supermemory local), REST, container 'adebench'",
+ "door": "POST /v4/search {q, containerTag: \"adebench\", limit: 10, include: {documents: true}}, searchMode memories (the default)",
+ "results": "limit 10 and threshold 0.6 (API defaults, threshold not sent), no cut",
+ "model": "gemini-3.1-flash-lite-preview (native Gemini provider, fixed by the binary): a memory agent extracts memory entries from every document and decides which entry updates which",
+ "embeddings": "Xenova/bge-base-en-v1.5, local, 768 dimensions (the self-hosted default)",
+ "storage": "a scratch server data directory (format not stated)",
+ "not_default": "none (the import sends one document per call: a batch of 21 stalled on Windows with 0.0.8)"
+}

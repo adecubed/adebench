@@ -1,0 +1,10 @@
+{
+ "version": "not stated",
+ "mode": "inside Claude Code: every operation is one claude -p turn in a scratch git project, Nemp loaded with --plugin-dir",
+ "door": "claude -p \"/nemp:context <question>\" --model sonnet --output-format stream-json; the door is everything the model received from its tools during the turn",
+ "results": "none: the model reads the whole memories.json on every lookup; no cut",
+ "model": "Claude sonnet through Claude Code: runs every save and every lookup (compresses values, matches in its head)",
+ "embeddings": "none",
+ "storage": "a JSON file in the project (.nemp/memories.json)",
+ "not_default": "plugin loaded per call with --plugin-dir, project settings only (--setting-sources project), no MCP servers (--strict-mcp-config), tools limited to Bash, Read, Write, Edit, Glob, Grep, --permission-mode acceptEdits, no session persistence, model fixed to sonnet (each call isolated and reproducible)"
+}

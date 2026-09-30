@@ -351,14 +351,14 @@ A memory that needs a model to write ran with Gemini, the way its users run it, 
 a smaller local model; where extraction is a model call the reference is the median of
 three fresh builds, and the spread is in the report folder (`repeats.json`).
 
-| Memory | Core · 55 | Full | Model | Report |
+| Memory | Core · 55 (mean) | Full (mean) | Model | Report |
 |---|---|---|---|---|
-| [supermemory](https://github.com/supermemoryai/supermemory) | 38.1 | 48.1 / 65 | gemini-3.1-flash-lite (fixed by its binary) | [`supermemory_report/`](../examples/supermemory_report/) |
-| [agentmemory](https://github.com/rohitg00/agentmemory), keyless and with Gemini | 35.5 | 42.6 / 65 | none / gemini-3-flash | [`agentmemory_report/`](../examples/agentmemory_report/) |
-| [engram](https://github.com/Gentleman-Programming/engram) | 35.2 | 45.2 / 65 | none | [`engram_report/`](../examples/engram_report/) |
-| [mem0](https://github.com/mem0ai/mem0) (open-source library) | 34.8 | 44.8 / 65 | gemini-3-flash | [`mem0_report/`](../examples/mem0_report/) |
-| [cognee](https://github.com/topoteretes/cognee) | 33.7 | 43.7 / 65 | gemini-3-flash | [`cognee_report/`](../examples/cognee_report/) |
-| [memU](https://github.com/NevaMind-AI/memU) | 32.2 | 42.1 / 65 | gemini-3-flash as its executor agent | [`memu_report/`](../examples/memu_report/) |
+| [supermemory](https://github.com/supermemoryai/supermemory) | 40.5 (38.1–43.0, 5 runs) | 50.5 / 65 | gemini-3.1-flash-lite-preview (fixed by its binary) | [`supermemory_report/`](../examples/supermemory_report/) |
+| [agentmemory](https://github.com/rohitg00/agentmemory), keyless and with Gemini | 35.5 (same in 3 runs) | 42.6 / 65 | none / gemini-3-flash | [`agentmemory_report/`](../examples/agentmemory_report/) |
+| [engram](https://github.com/Gentleman-Programming/engram) | 35.2 (same in 3 runs) | 45.2 / 65 | none | [`engram_report/`](../examples/engram_report/) |
+| [mem0](https://github.com/mem0ai/mem0) (open-source library) | 34.2 (30.4–35.5, 5 runs) | 44.2 / 65 | gemini-3-flash | [`mem0_report/`](../examples/mem0_report/) |
+| [cognee](https://github.com/topoteretes/cognee) | 34.4 (33.7–35.4, 5 runs) | 44.4 / 65 | gemini-3-flash | [`cognee_report/`](../examples/cognee_report/) |
+| [memU](https://github.com/NevaMind-AI/memU) | 32.2 (same in 5 runs) | 42.1 / 65 | gemini-3-flash as its executor agent | [`memu_report/`](../examples/memu_report/) |
 
 What they have in common: none abstains (supermemory, with a relevance threshold, comes
 closest at 7.5 / 10), and only agentmemory and supermemory retire an old value on their

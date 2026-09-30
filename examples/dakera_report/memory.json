@@ -1,0 +1,10 @@
+{
+ "version": "not stated",
+ "mode": "self-hosted server, fresh isolated Docker instance, REST, one agent_id namespace (adebench-eval); adapter by Dakera's founder",
+ "door": "POST /v1/memory/recall {agent_id: \"adebench-eval\", query, top_k: 8, session_id}; the adapter's reference reader composes the text: cards, dated facts, episodes, working memory, an unknown-terms path",
+ "results": "top_k 8 (adapter's choice; Dakera's default not stated); facts under score 0.12 dropped when one scores 0.5 or more; at most 5 facts; cut at 2400 characters (chat door)",
+ "model": "none (embeddings only, local models)",
+ "embeddings": "local models (model and dimensions not stated)",
+ "storage": "in memory, no persistence (DAKERA_STORAGE=memory)",
+ "not_default": "DAKERA_CE31_MAX_SENTENCES=0 and DAKERA_BATCH_SENTENCE_DECOMP=0 (recall-time sentence decomposition, on by default, crowds recall on a small set and makes it non-deterministic); DAKERA_STORAGE=memory, DAKERA_AUTH_ENABLED=false, DAKERA_TIERED=1 (fresh, isolated instance for the benchmark)"
+}

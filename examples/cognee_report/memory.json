@@ -1,0 +1,10 @@
+{
+ "version": "cognee 1.6.1",
+ "mode": "Python library in its LLM-based (Gemini) mode, run through a JSON-lines bridge in cognee's own Python",
+ "door": "cognee.recall(question, datasets=[\"adebench\"], only_context=True, retriever_specific_config={include_external_metadata: true, external_metadata_keys: [\"date\"]}, session_id=<fresh>), no query_type (cognee routes to HYBRID_COMPLETION)",
+ "results": "no top_k sent (cognee's own default, value not stated), no cut",
+ "model": "gemini-3-flash-preview (Google): graph extraction (entities, relations) and summaries at cognify; no answer model on this door",
+ "embeddings": "gemini-embedding-001, 768 dimensions (Google)",
+ "storage": "LanceDB (vectors), Ladybug (graph), SQLite (metadata)",
+ "not_default": "include_external_metadata with key 'date' (opt-in: puts each passage's date in the context); a fresh session_id per recall (session memory is on by default and would feed earlier questions back); telemetry off (reason not stated)"
+}

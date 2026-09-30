@@ -1,0 +1,10 @@
+{
+ "version": "aionforge-memory 0.4.0 (Docker image)",
+ "mode": "self-hosted server, MCP over Streamable HTTP, auth off on loopback",
+ "door": "search(query, viewer=\"agent:<id>\", limit=10, verbose=true) over MCP",
+ "results": "limit 10 (adapter's choice; Aionforge's default not stated), min_relevance 0 (deployment default, no floor), no cut",
+ "model": "none (consolidation derives facts and entities without a model)",
+ "embeddings": "gemini-embedding-001, 3072 dimensions, Google through its OpenAI-compatible endpoint, behind a loopback shim",
+ "storage": "a Docker volume (store engine not stated)",
+ "not_default": "forgetting enabled with its floors lowered (off by default; the benchmark must remove what it writes); embeddings gemini-embedding-001 behind a shim that adds the `index` field Google omits (the maintainer runs gemini-embedding-2 on OpenRouter)"
+}

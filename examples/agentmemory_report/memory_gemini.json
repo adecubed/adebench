@@ -1,0 +1,10 @@
+{
+ "version": "@agentmemory/agentmemory 0.9.29 (npm) with iii-engine 0.11.2",
+ "mode": "with Gemini: LLM features on (compression, graph extraction, consolidation)",
+ "door": "memory_recall(query, limit=10) through POST /agentmemory/mcp/call, the route the MCP stdio shim forwards to; the tool's own text",
+ "results": "limit 10 (its default), format full (its default), no relevance floor, no cut",
+ "model": "gemini-3-flash-preview (Google): compresses observations, extracts the knowledge graph, runs consolidation",
+ "embeddings": "gemini-embedding-001, 768 dimensions (Google, the one Gemini embedder it ships)",
+ "storage": "local scratch data directory on the iii engine (format not stated)",
+ "not_default": "GEMINI_MODEL=gemini-3-flash-preview and EMBEDDING_PROVIDER=gemini (the Gemini setup); AGENTMEMORY_AUTO_COMPRESS=true, GRAPH_EXTRACTION_ENABLED=true, CONSOLIDATION_ENABLED=true (the three flags /config/flags lists as needing an LLM); the import also runs /graph/build and /consolidate-pipeline"
+}

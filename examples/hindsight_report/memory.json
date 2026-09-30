@@ -1,0 +1,10 @@
+{
+ "version": "Hindsight MCP server 0.10.1",
+ "mode": "self-hosted server (Docker), per-bank MCP endpoint over Streamable HTTP, bank 'adebench'",
+ "door": "recall(query, budget=\"mid\", max_tokens=2000) on the bank's MCP endpoint",
+ "results": "budget mid and no min_scores (deployment defaults); max_tokens 2000 (adapter default); no score floor (ADEBENCH_HINDSIGHT_MIN_SCORE 0), no cut",
+ "model": "gemini-3.5-flash-lite (Google): extracts facts, entities and relations on every retain",
+ "embeddings": "not stated",
+ "storage": "Docker volume (hindsight-data); engine not stated",
+ "not_default": "HINDSIGHT_API_LLM_MODEL=gemini-3.5-flash-lite instead of gemini-3.5-flash, the model the docs name (it answered 503 all day of the run); prompt caching off (HINDSIGHT_API_LLM_PROMPT_CACHE_ENABLED=false, reason not stated)"
+}
