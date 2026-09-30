@@ -1,6 +1,6 @@
 # adebench — what a memory hands to the model
 
-**English** · [Italiano](#lang-it) · **Leaderboard: [adebench.dev](https://adebench.dev)**
+**Leaderboard: [adebench.dev](https://adebench.dev)**
 
 `adebench` measures the text an AI memory delivers to the model when it is asked a
 question: whether the right fact is in it, updated, dated, without a retired value next to
@@ -23,7 +23,7 @@ Public benchmarks such as LoCoMo or LongMemEval measure how an architecture perf
 long conversations with a judge reading the answer. adebench is narrower and deterministic:
 no LLM judges anything, every check is a token match on the delivered text, and a run takes
 minutes. It does not (yet) cover multi-hop reasoning, contradictions beyond a retired value,
-or memories at scale; see *What should be added*.
+or memories at scale; see *What will be added*.
 
 ## The leaderboard
 
@@ -110,7 +110,7 @@ the days it has episodes for), so those sections grow with the memory. The full 
 | `door` | 25 | The expected words are inside the text **the client actually receives** through the chosen door (see *Doors*). Not the raw hits: the text. |
 | `cards` | 15 | Every entity card exists, is dated, fits the limit, contains each mandatory item of the owner's corrections; every alias leads to the canonical card. Fully derived from the data. |
 | `updates` | 10 | Facts get **updated**, not accumulated. With the optional `write_fact`, the harness runs the same probe on every memory: "listens on port 8000", then a new write with 9000 and no id of what it replaces, and the door must serve 9000 and never 8000 again; an unrelated fact about the same entity must survive, and restating the value must not pile up a copy. Without `write_fact`, the adapter's own sandbox test (`--sandbox-test`) scores, and the report says so. The historical trace is reported, never scored. |
-| `time` | 10 | Every memory reaches the model with its age (a leading bracketed date in any language: `[since 2026-05-10]`, `[dal 2026-05-10]`), the episodic day filter returns only that day, machine-signed episodes are found by a question in the owner's language, and a memory imported with an old original date reaches the door with **that** date, not the import date (optional `import_memory`, SKIP without it). |
+| `time` | 10 | Every memory reaches the model with its age (a leading bracketed date in any language: `[since 2026-05-10]`, `[2026-05-10]`), the episodic day filter returns only that day, machine-signed episodes are found by a question in the owner's language, and a memory imported with an old original date reaches the door with **that** date, not the import date (optional `import_memory`, SKIP without it). |
 | `live_state` | 10 | A canary written to working memory is served through the door (polled until it appears: the **write-to-serve latency** is reported in ms, with a p50/p95 over a few canaries, and a memory that never serves one within the budget fails); the same key **overwritten** is served with the new value and never the old one (a stale read right after a write, or both values together, is a fail); **two writes in quick succession** settle on the second and never go back to the first (out-of-order visibility is a fail); the live state key is fresher than N minutes. |
 | `abstention` | 10 | On invented entities: no card, episodes marked as *no direct match*, no keyword hits — the memory says it does not know. |
 | `file_search` | 10 | Real function names sampled from a repository: the grep-replacement search puts the right file in the top 5. |
@@ -383,12 +383,12 @@ adapter has `import_memory`; and, only with `--write-back`, the degraded exchang
 
 ## Your own memory: the golden set, and how to validate it
 
-`cases/example/questions.json` is a minimal example (the questions are in Italian because
-the reference Brain speaks Italian). Your real golden set lives outside this repository: it
-contains facts about you. Each question looks like:
+`cases/example/questions.json` is a minimal example for an ADE Brain. Your real golden set
+lives outside this repository: it contains facts about you. Questions can be in any
+language, the one your memory is used in. Each question looks like:
 
 ```json
-{"question": "Su che porta risponde il Brain?",
+{"question": "Which port does the Brain listen on?",
  "expected": [["8766"]],
  "entity": "brain",
  "validated": false}
@@ -396,7 +396,7 @@ contains facts about you. Each question looks like:
 
 `expected` is a list of groups; every group must be present, any alternative inside a group
 counts. Alternatives match whole tokens; end one with `*` to accept a prefix
-(`"anonimizz*"` matches *anonimizza* and *anonimizzazione*). `entity` (optional) requires
+(`"anonymi*"` matches *anonymise* and *anonymisation*). `entity` (optional) requires
 that entity's card to be part of the answer. `forbidden` (optional) lists **retired values
 that must not reach the model**: a text carrying both the current port and the old one
 passes a keyword check while the model has to guess, and that is worse than a clean miss —
@@ -451,7 +451,7 @@ a pass, a failed read counted as missing data, a missing feature counted as a su
 substring counted as a match, one section counted as a full score, two runs overwriting
 each other, a delta between two different setups. They run in CI on every push.
 
-## What should be added?
+## What will be added
 
 In order, from a review of 30 Sep 2026 that this README now answers:
 
@@ -483,43 +483,3 @@ Open an issue with what you would measure that this does not.
 ## License
 
 MIT. See `LICENSE`.
-
----
-
-<a id="lang-it"></a>
-## Italiano
-
-adebench misura il testo che una memoria AI consegna al modello quando le si fa una
-domanda: se c'è il fatto giusto, aggiornato, datato, senza un valore ritirato accanto, e
-senza inventare quando non c'è niente. Nessun giudice LLM: ogni controllo è un confronto di
-parole sul testo consegnato.
-
-Due usi, tenuti separati:
-
-1. **Confronto pubblico tra memorie** su [adebench.dev](https://adebench.dev): ogni memoria
-   riceve la stessa storia sintetica attraverso la sua via di scrittura e risponde allo
-   stesso golden set. La classifica è sul **Core**, 55 punti che ogni memoria può fare
-   (porta 25, aggiornamenti 10, tempo 10, astensione 10); il **Full** è il punteggio su
-   tutto ciò che è stato misurato.
-2. **Controllo di regressione su una memoria**, con il golden set del suo proprietario,
-   dopo ogni modifica. È l'uso per cui adebench è nato (il Brain ADE dell'assistente
-   vocale Sofia), e queste corse non si confrontano tra memorie.
-
-Limiti dichiarati: una probe vale circa 1,8 punti di Core e le memorie con un modello
-dentro variano tra una build e l'altra, quindi due memorie vicine possono essere alla pari
-(più corse con l'intervallo e una regola di pari merito sono il prossimo passo); il set
-pubblico è uno solo ed è scritto dall'autore del Brain ADE, secondo in classifica (è
-previsto un set privato di controllo e un secondo set pubblico).
-
-Ogni controllo finisce in PASS, FAIL, ERROR o SKIP: un errore non fa mai punti, una
-funzione assente esce dal denominatore. Report JSON e Markdown a ogni corsa, con il delta
-solo rispetto a corse con lo stesso setup.
-
-```bash
-python -m adebench --adapter examples.synthetic:SyntheticAdapter --cases examples/synthetic_data/cases
-python -m adebench --adapter mymemory.bench:MyAdapter --cases examples/synthetic_data/cases
-python -m adebench.scout               # memorie su GitHub non ancora misurate
-```
-
-Per una memoria propria il golden set vive fuori dal repo. Regola: un caso che fallisce non
-si aggiusta allargando le attese; se la memoria non sa un fatto, glielo si insegna.
