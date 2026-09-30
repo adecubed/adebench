@@ -1,0 +1,61 @@
+{
+ "builds": 5,
+ "runs": [
+  {
+   "when": "2026-09-30T10:03:32",
+   "core": 35.5,
+   "core_weight": 55,
+   "total": 42.6,
+   "measured": 65
+  },
+  {
+   "when": "2026-09-30T12:00:38",
+   "core": 35.5,
+   "core_weight": 55,
+   "total": 42.6,
+   "measured": 65
+  },
+  {
+   "when": "2026-09-30T12:02:49",
+   "core": 35.5,
+   "core_weight": 55,
+   "total": 42.6,
+   "measured": 65
+  },
+  {
+   "when": "2026-09-30T12:04:54",
+   "core": 35.5,
+   "core_weight": 55,
+   "total": 42.6,
+   "measured": 65
+  },
+  {
+   "when": "2026-09-30T12:07:01",
+   "core": 35.5,
+   "core_weight": 55,
+   "total": 42.6,
+   "measured": 65
+  }
+ ],
+ "core": {
+  "mean": 35.5,
+  "min": 35.5,
+  "max": 35.5,
+  "weight": 55
+ },
+ "total": {
+  "mean": 42.6,
+  "min": 42.6,
+  "max": 42.6,
+  "measured": 65
+ },
+ "reference": "2026-09-30T12:02:49",
+ "reference_file": "runs_gemini/20260930-120249-34483a.json",
+ "files": [
+  "runs_gemini/20260930-100332-34483a.json",
+  "runs_gemini/20260930-120038-34483a.json",
+  "runs_gemini/20260930-120249-34483a.json",
+  "runs_gemini/20260930-120454-34483a.json",
+  "runs_gemini/20260930-120701-34483a.json"
+ ]
+}

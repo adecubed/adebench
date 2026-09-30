@@ -1,0 +1,45 @@
+{
+ "builds": 3,
+ "runs": [
+  {
+   "when": "2026-09-30T09:57:19",
+   "core": 35.2,
+   "core_weight": 55,
+   "total": 45.2,
+   "measured": 65
+  },
+  {
+   "when": "2026-09-30T11:58:44",
+   "core": 35.2,
+   "core_weight": 55,
+   "total": 45.2,
+   "measured": 65
+  },
+  {
+   "when": "2026-09-30T11:59:26",
+   "core": 35.2,
+   "core_weight": 55,
+   "total": 45.2,
+   "measured": 65
+  }
+ ],
+ "core": {
+  "mean": 35.2,
+  "min": 35.2,
+  "max": 35.2,
+  "weight": 55
+ },
+ "total": {
+  "mean": 45.2,
+  "min": 45.2,
+  "max": 45.2,
+  "measured": 65
+ },
+ "reference": "2026-09-30T11:58:44",
+ "reference_file": "runs/20260930-115844-d3dc50.json",
+ "files": [
+  "runs/20260930-095719-d3dc50.json",
+  "runs/20260930-115844-d3dc50.json",
+  "runs/20260930-115926-d3dc50.json"
+ ]
+}

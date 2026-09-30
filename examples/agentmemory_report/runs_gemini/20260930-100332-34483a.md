@@ -1,0 +1,156 @@
+# adebench — 2026-09-30T10:03:32
+
+**Score: 42.6 / 65 — coverage 65/100: 35 not measured (no evidence)**
+Cases: 17 PASS · 11 FAIL · 0 ERROR · 5 SKIP
+Adapter `adebench.agentmemory:AgentmemoryAdapter` · door `recall` · cases `0f9a4640dc` · setup `34483ae0a3` · sections door, cards, updates, time, live_state, abstention, file_search, graph
+
+| Section | Weight | Points | PASS/FAIL/ERROR/SKIP |
+|---|---|---|---|
+| door | 25 | 18.8 | 6/2/0/0 |
+| cards | 15 | not measured | 0/0/0/1 |
+| updates | 10 | 6.7 | 2/1/0/0 |
+| time | 10 | 6.7 | 4/2/0/0 |
+| live_state | 10 | 7.1 | 5/2/0/1 |
+| abstention | 10 | 3.3 | 0/4/0/0 |
+| file_search | 10 | not measured | 0/0/0/1 |
+| graph | 10 | not measured | 0/0/0/2 |
+| write_back | report-only | — | 0/0/0/1 |
+
+## door
+
+- door: `"recall"`
+- door_budget_chars: `null`
+- pressure_chars: `0`
+- questions: `8`
+- validated: `8`
+- mean_answer_position: `362`
+- mean_door_text_chars: `6338`
+- min_margin_chars: `null`
+- passes_within_300_chars_of_the_edge: `0`
+- questions_with_forbidden_values: `1`
+- stale_values_delivered: `1`
+- chars_before_answer_mean: `362`
+- duplicate_chunks_total: `3`
+
+- ⚠ 3 repeated chunks across the delivered texts: budget spent twice on the same information
+- ⚠ 1 answers delivered a retired value next to the current one: the model has to guess which is true
+
+Not passed:
+- FAIL Which version of MailBridge is installed for the mailbox? — STALE value delivered next to the current one: 1.3.0
+- FAIL What is the owner's phone number? — missing +39
+
+## cards
+
+- ⚠ section not measured: no entity cards in this memory
+
+Not passed:
+- SKIP entity cards — this memory has none
+
+## updates
+
+- memories: `17`
+- superseded_live: `0`
+- relation_updates: `0`
+- probe: `true`
+- probe_entity: `"zetmmknci"`
+- probe_replace_ms: `452`
+- probe_reads_with_both: `0`
+- probe_cleanup_ok: `true`
+
+- ⚠ no trace of updates in live memory: the dedup has not worked yet or found no pairs
+
+Not passed:
+- FAIL restating the current value does not pile up a second copy — 3 copies delivered
+
+## time
+
+- share_of_memories_with_age: `0.776`
+- facts_with_event_date: `"12/17"`
+- days_tried: `["2026-09-10", "2026-09-09", "2026-09-08"]`
+- signed_episodes: `1`
+- signed_question: `"what did pc2 do?"`
+
+Not passed:
+- FAIL semantic memories carry their age (38/49) — 78%
+- FAIL an imported memory reaches the door with its original date — served with no date
+
+## live_state
+
+- live_state_age_min: `null`
+- write_to_serve_ms: `384`
+- write_to_serve_p50_ms: `313`
+- write_to_serve_p95_ms: `384`
+- write_to_serve_samples: `3`
+- write_to_serve_budget_s: `30`
+- overwrite_to_visible_ms: `298`
+- stale_reads_after_overwrite: `0`
+- repeated_writes_settle_ms: `268`
+- out_of_order_reads: `24`
+- repeated_writes_timeline: `[{"t_ms": 0, "event": "first write"}, {"t_ms": 253, "event": "second write"}, {"t_ms": 776, "event": "poll", "first": true, "second": true}, {"t_ms": 2039, "event": "poll", "first": true, "second": true}, {"t_ms": 3266, "event": "poll", "first": true, "second": true}, {"t_ms": 4519, "event": "poll", "first": true, "second": true}, {"t_ms": 5771, "event": "poll", "first": true, "second": true}, {"t_ms": 7036, "event": "poll", "first": true, "second": true}, {"t_ms": 8319, "event": "poll", "first": true, "second": true}, {"t_ms": 9617, "event": "poll", "first": true, "second": true}, {"t_ms": 10886, "event": "poll", "first": true, "second": true}, {"t_ms": 12172, "event": "poll", "first": true, "second": true}, {"t_ms": 13439, "event": "poll", "first": true, "second": true}, {"t_ms": 14689, "event": "poll", "first": true, "second": true}, {"t_ms": 15951, "event": "poll", "first": true, "second": true}, {"t_ms": 17240, "event": "poll", "first": true, "second": true}, {"t_ms": 18479, "event": "poll", "first": true, "second": true}, {"t_ms": 19743, "event": "poll", "first": true, "second": true}, {"t_ms": 21016, "event": "poll", "first": true, "second": true}, {"t_ms": 22263, "event": "poll", "first": true, "second": true}, {"t_ms": 23512, "event": "poll", "first": true, "second": true}, {"t_ms": 24750, "event": "poll", "first": true, "second": true}, {"t_ms": 26027, "event": "poll", "first": true, "second": true}, {"t_ms": 27258, "event": "poll", "first": true, "second": true}, {"t_ms": 28523, "event": "poll", "first": true, "second": true}, {"t_ms": 29792, "event": "poll", "first": true, "second": true}, {"t_ms": 31068, "event": "poll", "first": true, "second": true}]`
+
+Not passed:
+- FAIL after overwriting the canary the door serves the new value, never the old one — overwrite-to-visible 298 ms · STALE: old and new value delivered together
+- FAIL two writes in quick succession: the door settles on the second, never back on the first — second write visible in 268 ms · 24 read(s) served the first write after the second was already visible
+- SKIP live-state key freshness — no live-state key configured (ADEBENCH_LIVE_STATE_KEY)
+
+## abstention
+
+- questions: `4`
+
+Not passed:
+- FAIL What is the Zarpetta module? — episodes presented as direct matches; 6 keyword facts for something that does not exist
+- FAIL Who is Ottavio Brambillesco? — episodes presented as direct matches; 6 keyword facts for something that does not exist
+- FAIL Which port does the Fulmicotone service use? — episodes presented as direct matches; 6 keyword facts for something that does not exist
+- FAIL What does the calendar plugin Girandola do? — episodes presented as direct matches; 6 keyword facts for something that does not exist
+
+## file_search
+
+- ⚠ section not measured: no repo configured (--repo)
+
+Not passed:
+- SKIP file search — no repo configured (--repo)
+
+## graph
+
+- nodes: `10`
+- edges: `6`
+- orphan_fact_nodes: `"0 orphans out of 10 (not scored: with no entity edges to check, one count does not measure the graph)"`
+
+- ⚠ section not measured: no case with evidence (all SKIP or no cases)
+
+Not passed:
+- SKIP entities with a card in the graph — no entity with a card
+- SKIP orphan fact nodes = 0 — 0 orphans out of 10 (not scored: with no entity edges to check, one count does not measure the graph)
+
+## write_back
+
+- degraded_answer: `"I have no record of that. You asked: {question}"`
+- questions_tested: `0`
+- poisoned: `0`
+- cleanup_ok: `null`
+- wait_s: `10`
+
+Not passed:
+- SKIP the degraded answer does not come back through the door — no write path in this adapter (ingest_exchange / forget_memory)
+
+## health
+
+- status: `"healthy"`
+- http: `200`
+- version: `"0.9.29"`
+- alerts: `[]`
+- notes: `["memory_heap_tight_92%_rss95mb"]`
+- llm_provider: `"llm"`
+- embedding_provider: `"embeddings"`
+- flags_enabled: `["GRAPH_EXTRACTION_ENABLED", "CONSOLIDATION_ENABLED", "AGENTMEMORY_AUTO_COMPRESS"]`
+- memories: `17`
+- memories_latest: `17`
+- graph: `{"nodes": 10, "edges": 6}`
+
+- ⚠ no entity cards and no file search: those sections are SKIP; the graph is extracted from episodes only: no entity card to check edges on, the orphan count is reported, not scored
+- ⚠ the transcript import compresses without a model whatever the provider: the assistant's reply is dropped, episodes keep only the user's prompt
+
+## doors
+
+- memory_recall: `{"calls": 51, "http_errors": 0, "ms_p50": 275, "ms_p95": 553, "mean_chars": 6914}`
+- memory_smart_search: `{"calls": 8, "http_errors": 0, "ms_p50": 299, "ms_p95": 518, "mean_chars": 2951}`

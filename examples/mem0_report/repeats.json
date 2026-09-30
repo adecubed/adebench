@@ -1,50 +1,61 @@
 {
- "mode": "gemini",
- "llm": "gemini/gemini-3-flash-preview (max_tokens 8192)",
- "embedding": "gemini/gemini-embedding-001 (768)",
- "vector_store": "qdrant local on disk + BM25 (fastembed) + entity links (spaCy)",
- "builds": 3,
- "mean": 45.0,
- "min": 44.8,
- "max": 45.4,
- "median": 44.8,
- "reference": "the median run (2026-09-30T10:51:03)",
+ "builds": 5,
  "runs": [
   {
    "when": "2026-09-30T10:33:40",
+   "core": 34.8,
+   "core_weight": 55,
    "total": 44.8,
-   "measured": 65,
-   "sections": {
-    "door": 18.8,
-    "updates": 6.7,
-    "time": 6.0,
-    "live_state": 10.0,
-    "abstention": 3.3
-   }
+   "measured": 65
   },
   {
    "when": "2026-09-30T10:41:33",
+   "core": 35.5,
+   "core_weight": 55,
    "total": 45.4,
-   "measured": 65,
-   "sections": {
-    "door": 18.8,
-    "updates": 6.7,
-    "time": 6.7,
-    "live_state": 10.0,
-    "abstention": 3.3
-   }
+   "measured": 65
   },
   {
    "when": "2026-09-30T10:51:03",
+   "core": 34.8,
+   "core_weight": 55,
    "total": 44.8,
-   "measured": 65,
-   "sections": {
-    "door": 18.8,
-    "updates": 6.7,
-    "time": 6.0,
-    "live_state": 10.0,
-    "abstention": 3.3
-   }
+   "measured": 65
+  },
+  {
+   "when": "2026-09-30T12:06:44",
+   "core": 35.5,
+   "core_weight": 55,
+   "total": 45.4,
+   "measured": 65
+  },
+  {
+   "when": "2026-09-30T12:14:52",
+   "core": 30.4,
+   "core_weight": 55,
+   "total": 40.4,
+   "measured": 65
   }
+ ],
+ "core": {
+  "mean": 34.2,
+  "min": 30.4,
+  "max": 35.5,
+  "weight": 55
+ },
+ "total": {
+  "mean": 44.2,
+  "min": 40.4,
+  "max": 45.4,
+  "measured": 65
+ },
+ "reference": "2026-09-30T10:51:03",
+ "reference_file": "runs/20260930-105103-0806cb.json",
+ "files": [
+  "runs/20260930-103340-0806cb.json",
+  "runs/20260930-104133-0806cb.json",
+  "runs/20260930-105103-0806cb.json",
+  "runs/20260930-120644-0806cb.json",
+  "runs/20260930-121452-0806cb.json"
  ]
 }

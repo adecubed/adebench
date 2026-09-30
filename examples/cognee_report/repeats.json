@@ -1,49 +1,61 @@
 {
- "mode": "gemini",
- "llm": "gemini/gemini-3-flash-preview",
- "embedding": "gemini/gemini-embedding-001 (768)",
- "builds": 3,
- "mean": 44.3,
- "min": 43.7,
- "max": 45.4,
- "median": 43.7,
- "reference": "the median run (2026-09-30T10:17:53)",
+ "builds": 5,
  "runs": [
   {
    "when": "2026-09-30T10:01:45",
+   "core": 35.4,
+   "core_weight": 55,
    "total": 45.4,
-   "measured": 65,
-   "sections": {
-    "door": 18.8,
-    "updates": 3.3,
-    "time": 8.3,
-    "live_state": 10.0,
-    "abstention": 5.0
-   }
+   "measured": 65
   },
   {
    "when": "2026-09-30T10:17:53",
+   "core": 33.7,
+   "core_weight": 55,
    "total": 43.7,
-   "measured": 65,
-   "sections": {
-    "door": 18.8,
-    "updates": 3.3,
-    "time": 8.3,
-    "live_state": 10.0,
-    "abstention": 3.3
-   }
+   "measured": 65
   },
   {
    "when": "2026-09-30T10:33:07",
+   "core": 33.7,
+   "core_weight": 55,
    "total": 43.7,
-   "measured": 65,
-   "sections": {
-    "door": 18.8,
-    "updates": 3.3,
-    "time": 8.3,
-    "live_state": 10.0,
-    "abstention": 3.3
-   }
+   "measured": 65
+  },
+  {
+   "when": "2026-09-30T12:21:15",
+   "core": 34.6,
+   "core_weight": 55,
+   "total": 44.6,
+   "measured": 65
+  },
+  {
+   "when": "2026-09-30T12:51:07",
+   "core": 34.6,
+   "core_weight": 55,
+   "total": 44.6,
+   "measured": 65
   }
+ ],
+ "core": {
+  "mean": 34.4,
+  "min": 33.7,
+  "max": 35.4,
+  "weight": 55
+ },
+ "total": {
+  "mean": 44.4,
+  "min": 43.7,
+  "max": 45.4,
+  "measured": 65
+ },
+ "reference": "2026-09-30T12:21:15",
+ "reference_file": "runs/20260930-122115-9c9c86.json",
+ "files": [
+  "runs/20260930-100145-9c9c86.json",
+  "runs/20260930-101753-9c9c86.json",
+  "runs/20260930-103307-9c9c86.json",
+  "runs/20260930-122115-9c9c86.json",
+  "runs/20260930-125107-9c9c86.json"
  ]
 }

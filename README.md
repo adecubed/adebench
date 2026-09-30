@@ -45,32 +45,36 @@ Full is shown next to the Core but two Fulls with different coverage are not the
 measure.
 
 The board on 30 Sep 2026, adebench 0.2.17 (the live one is on the site, with one page per
-memory, its configuration and its report):
+memory, its configuration, its runs and its report). Scores are the mean of the runs kept
+in each memory's report folder; two memories closer than the wider of their ranges, never
+less than one probe (1.8 points), share a rank, and no memory ranks above one with a higher
+mean ([`adebench/repeats.py`](adebench/repeats.py)):
 
-| Memory | Core · 55 | Full | Model on write | Builds |
-|---|---|---|---|---|
-| [Dakera](https://dakera.ai) | 51.9 | 96.9 / 100 | embeddings only (local models) | 1 |
-| [ADE Brain](https://github.com/adecubed/adebench) | 48.8 | 93.8 / 100 | yes | 1 |
-| [Aionforge](https://github.com/jscott3201/aionforge-memory) | 41.8 | 51.8 / 65 | embeddings only | 1 |
-| [gbrain](https://github.com/garrytan/gbrain) | 40.4 | 75.4 / 90 | embeddings only | 1 |
-| [supermemory](https://github.com/supermemoryai/supermemory) | 38.1 | 48.1 / 65 | yes | 3 |
-| [Hindsight](https://github.com/vectorize-io/hindsight) | 36.3 | 36.2 / 55 | yes | 1 |
-| [agentmemory](https://github.com/rohitg00/agentmemory) | 35.5 | 42.6 / 65 | no (keyless) | 1 |
-| [agentmemory (Gemini)](https://github.com/rohitg00/agentmemory) | 35.5 | 42.6 / 65 | yes | 2 |
-| [engram](https://github.com/Gentleman-Programming/engram) | 35.2 | 45.2 / 65 | no | 1 |
-| [mem0](https://github.com/mem0ai/mem0) | 34.8 | 44.8 / 65 | yes | 3 |
-| [Memoose](https://github.com/AndrewNgo-ini/memoose) | 34.6 | 68.3 / 90 | no | 1 |
-| [cognee](https://github.com/topoteretes/cognee) | 33.7 | 43.7 / 65 | yes | 3 |
-| [memU](https://github.com/NevaMind-AI/memU) | 32.2 | 42.1 / 65 | yes | 3 |
-| [Jev-Mem](https://github.com/libingzheren/Jev-Mem) | 32.1 | 42.1 / 65 | yes | 6 |
-| [Nemp](https://github.com/SukinShetty/Nemp-memory) | 32.1 | 36.4 / 65 | yes | 2 |
+| # | Memory | Core · 55 (mean) | Range | Runs | Full (mean) | Model on write |
+|---|---|---|---|---|---|---|
+| 1 | [Dakera](https://dakera.ai) | 51.9 | — | 1 | 96.9 / 100 | embeddings only (local models) |
+| 2 | [ADE Brain](https://github.com/adecubed/adebench) | 48.8 | same | 5 | 93.8 / 100 | yes |
+| 3= | [Aionforge](https://github.com/jscott3201/aionforge-memory) | 41.8 | — | 1 | 51.8 / 65 | embeddings only |
+| 3= | [supermemory](https://github.com/supermemoryai/supermemory) | 40.5 | 38.1–43.0 | 5 | 50.5 / 65 | yes |
+| 3= | [gbrain](https://github.com/garrytan/gbrain) | 40.4 | same | 3 | 75.4 / 90 | embeddings only |
+| 5 | [Hindsight](https://github.com/vectorize-io/hindsight) | 36.3 | — | 1 | 36.2 / 55 | yes |
+| 6= | [agentmemory](https://github.com/rohitg00/agentmemory) | 35.5 | same | 3 | 42.6 / 65 | no (keyless) |
+| 6= | [agentmemory (Gemini)](https://github.com/rohitg00/agentmemory) | 35.5 | same | 5 | 42.6 / 65 | yes |
+| 6= | [engram](https://github.com/Gentleman-Programming/engram) | 35.2 | same | 3 | 45.2 / 65 | no |
+| 6= | [Memoose](https://github.com/AndrewNgo-ini/memoose) | 34.6 | same | 3 | 68.3 / 90 | no |
+| 7= | [cognee](https://github.com/topoteretes/cognee) | 34.4 | 33.7–35.4 | 5 | 44.4 / 65 | yes |
+| 7= | [mem0](https://github.com/mem0ai/mem0) | 34.2 | 30.4–35.5 | 5 | 44.2 / 65 | yes |
+| 12= | [memU](https://github.com/NevaMind-AI/memU) | 32.2 | same | 5 | 42.1 / 65 | yes |
+| 12= | [Nemp](https://github.com/SukinShetty/Nemp-memory) | 32.1 | — | 1 | 36.4 / 65 | yes |
+| 12= | [Jev-Mem](https://github.com/libingzheren/Jev-Mem) | 31.9 | 28.9–33.0 | 6 | 41.9 / 65 | yes |
 
 What the numbers can and cannot tell you, stated plainly:
 
-- **One probe is about 1.8 Core points.** Several memories are one run, and memories with a
-  model inside vary between builds (supermemory: 48.1, 48.1, 52.1 on three fresh builds).
-  Two memories a few points apart may be level. Publishing N runs per memory with the range,
-  and a tie rule, is the next change.
+- **One probe is about 1.8 Core points, and some memories move by several.** Memories with
+  a model inside ran five fresh builds, deterministic ones three; supermemory spans 38.1 to
+  43.0 on the Core and mem0 30.4 to 35.5, while the ADE Brain, memU and agentmemory gave the
+  same number every time. Every raw report is in the repository. Dakera, Aionforge and
+  Hindsight are still one run each (they need a Docker host), and so is Nemp (about $7 a run).
 - **One public set, written by the author of the ADE Brain**, which is second on the board.
   Anyone can read the questions, so a memory can be tuned to them without meaning to. A
   private holdout set with the same structure, run before a memory goes on the board, and a
@@ -455,9 +459,8 @@ each other, a delta between two different setups. They run in CI on every push.
 
 In order, from a review of 30 Sep 2026 that this README now answers:
 
-- **Runs and ties on the board**: five runs for every memory with a model inside, three for
-  the deterministic ones, published with mean, range and every raw JSON; two memories
-  closer than their spread are shown level.
+- **Repeated runs for the last three**: Dakera, Aionforge and Hindsight, which need a Docker
+  host (every other memory already has three or five runs on the board).
 - **Configuration as data** on every memory's page: version, mode, top-k or limit, the
   model inside, the door's call.
 - **A private holdout set** with the same structure, run before a memory goes on the board

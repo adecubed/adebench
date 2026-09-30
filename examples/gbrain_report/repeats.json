@@ -1,0 +1,45 @@
+{
+ "builds": 3,
+ "runs": [
+  {
+   "when": "2026-09-30T12:04:11",
+   "core": 40.4,
+   "core_weight": 55,
+   "total": 75.4,
+   "measured": 90
+  },
+  {
+   "when": "2026-09-30T12:08:11",
+   "core": 40.4,
+   "core_weight": 55,
+   "total": 75.4,
+   "measured": 90
+  },
+  {
+   "when": "2026-09-30T12:12:16",
+   "core": 40.4,
+   "core_weight": 55,
+   "total": 75.4,
+   "measured": 90
+  }
+ ],
+ "core": {
+  "mean": 40.4,
+  "min": 40.4,
+  "max": 40.4,
+  "weight": 55
+ },
+ "total": {
+  "mean": 75.4,
+  "min": 75.4,
+  "max": 75.4,
+  "measured": 90
+ },
+ "reference": "2026-09-30T12:08:11",
+ "reference_file": "runs/20260930-120811-5c9ffc.json",
+ "files": [
+  "runs/20260930-120411-5c9ffc.json",
+  "runs/20260930-120811-5c9ffc.json",
+  "runs/20260930-121216-5c9ffc.json"
+ ]
+}

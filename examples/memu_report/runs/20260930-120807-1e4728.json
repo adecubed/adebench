@@ -1,0 +1,701 @@
+{
+ "when": "2026-09-30T12:08:07",
+ "total": 42.1,
+ "measured_weight": 65,
+ "not_run_weight": 0,
+ "total_weight": 100,
+ "counts": {
+  "PASS": 15,
+  "FAIL": 9,
+  "ERROR": 0,
+  "SKIP": 7
+ },
+ "config": {
+  "adapter": "adebench.memu:MemuAdapter",
+  "brain_url": "http://localhost:8766",
+  "door": "retrieve",
+  "cases_hash": "0f9a4640dc",
+  "voice_sources": [
+   "working",
+   "semantic",
+   "episodic",
+   "conversations",
+   "files"
+  ],
+  "voice_cut": 2400,
+  "events_block": true,
+  "pressure": 0,
+  "weights": {
+   "door": 25,
+   "cards": 15,
+   "updates": 10,
+   "time": 10,
+   "live_state": 10,
+   "abstention": 10,
+   "file_search": 10,
+   "graph": 10
+  },
+  "max_card": 900,
+  "cases": "examples/synthetic_data/cases",
+  "repo": null,
+  "sandbox_test": null,
+  "sandbox_enabled": false,
+  "pressure_level": null,
+  "census": null,
+  "write_back": true,
+  "updates_probe": true,
+  "sections": [
+   "door",
+   "cards",
+   "updates",
+   "time",
+   "live_state",
+   "abstention",
+   "file_search",
+   "graph"
+  ],
+  "duration_s": 268,
+  "fingerprint": "1e4728926b"
+ },
+ "sections": [
+  {
+   "name": "door",
+   "weight": 25,
+   "score": 0.75,
+   "cases": [
+    {
+     "case": "What port does the Brain listen on?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 688,
+     "margin": null,
+     "chars": 3744,
+     "ms": 344,
+     "stale": false,
+     "duplicates": 2,
+     "validated": true
+    },
+    {
+     "case": "Which model distills the Brain memory?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 1066,
+     "margin": null,
+     "chars": 3088,
+     "ms": 308,
+     "stale": false,
+     "duplicates": 3,
+     "validated": true
+    },
+    {
+     "case": "Which version of MailBridge is installed for the mailbox?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "STALE value delivered next to the current one: 1.3.0",
+     "position": 1017,
+     "margin": null,
+     "chars": 3708,
+     "ms": 284,
+     "stale": true,
+     "duplicates": 2,
+     "validated": true
+    },
+    {
+     "case": "How many tools does the mailbox connector expose?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 216,
+     "margin": null,
+     "chars": 3753,
+     "ms": 281,
+     "stale": false,
+     "duplicates": 2,
+     "validated": true
+    },
+    {
+     "case": "How often is the calendar read?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 309,
+     "margin": null,
+     "chars": 3363,
+     "ms": 276,
+     "stale": false,
+     "duplicates": 2,
+     "validated": true
+    },
+    {
+     "case": "Where does the owner live?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 1012,
+     "margin": null,
+     "chars": 2953,
+     "ms": 274,
+     "stale": false,
+     "duplicates": 3,
+     "validated": true
+    },
+    {
+     "case": "When do backups run?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": -1,
+     "margin": null,
+     "chars": 3456,
+     "ms": 297,
+     "stale": false,
+     "duplicates": 2,
+     "validated": true
+    },
+    {
+     "case": "What is the owner's phone number?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "missing +39",
+     "position": -1,
+     "margin": null,
+     "chars": 3566,
+     "ms": 277,
+     "stale": false,
+     "duplicates": 2,
+     "validated": true
+    }
+   ],
+   "counts": {
+    "PASS": 6,
+    "FAIL": 2,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "door": "retrieve",
+    "door_budget_chars": null,
+    "pressure_chars": 0,
+    "questions": 8,
+    "validated": 8,
+    "mean_answer_position": 718,
+    "mean_door_text_chars": 3454,
+    "min_margin_chars": null,
+    "passes_within_300_chars_of_the_edge": 0,
+    "questions_with_forbidden_values": 1,
+    "stale_values_delivered": 1,
+    "chars_before_answer_mean": 718,
+    "duplicate_chunks_total": 18
+   },
+   "warnings": [
+    "18 repeated chunks across the delivered texts: budget spent twice on the same information",
+    "1 answers delivered a retired value next to the current one: the model has to guess which is true"
+   ]
+  },
+  {
+   "name": "cards",
+   "weight": 15,
+   "score": null,
+   "cases": [
+    {
+     "case": "entity cards",
+     "status": "SKIP",
+     "ok": false,
+     "note": "this memory has none"
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 1
+   },
+   "measures": {},
+   "warnings": [
+    "section not measured: no entity cards in this memory"
+   ]
+  },
+  {
+   "name": "updates",
+   "weight": 10,
+   "score": 0.6667,
+   "cases": [
+    {
+     "case": "a new write with a changed value replaces the old one at the door (no id given)",
+     "status": "PASS",
+     "ok": true,
+     "note": "new value served in 305 ms"
+    },
+    {
+     "case": "an unrelated fact about the same entity survives the update",
+     "status": "PASS",
+     "ok": true,
+     "note": "still delivered"
+    },
+    {
+     "case": "restating the current value does not pile up a second copy",
+     "status": "FAIL",
+     "ok": false,
+     "note": "2 copies delivered"
+    }
+   ],
+   "counts": {
+    "PASS": 2,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "superseded_live": 0,
+    "relation_updates": 0,
+    "recall_files": 5,
+    "empty_recall_files": 0,
+    "segments": 21,
+    "probe": true,
+    "probe_entity": "zetojhheb",
+    "probe_replace_ms": 305,
+    "probe_reads_with_both": 0,
+    "probe_cleanup_ok": true
+   },
+   "warnings": [
+    "no trace of updates in live memory: the dedup has not worked yet or found no pairs"
+   ]
+  },
+  {
+   "name": "time",
+   "weight": 10,
+   "score": 0.0,
+   "cases": [
+    {
+     "case": "semantic memories carry their age (0/40)",
+     "status": "FAIL",
+     "ok": false,
+     "note": "0%"
+    },
+    {
+     "case": "episodic day filter",
+     "status": "SKIP",
+     "ok": false,
+     "note": "no episodes"
+    },
+    {
+     "case": "an imported memory reaches the door with its original date",
+     "status": "FAIL",
+     "ok": false,
+     "note": "imported memory not served within 30 s"
+    },
+    {
+     "case": "episodes signed by another machine",
+     "status": "SKIP",
+     "ok": false,
+     "note": "none in this memory"
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 2,
+    "ERROR": 0,
+    "SKIP": 2
+   },
+   "measures": {
+    "share_of_memories_with_age": 0.0,
+    "facts_with_event_date": "0/5",
+    "days_tried": [],
+    "signed_episodes": 0,
+    "signed_question": "what did pc2 do?"
+   },
+   "warnings": [
+    "only 0 facts out of 5 carry the event date: for the others the age the model hears is the derivation date, not the fact's"
+   ]
+  },
+  {
+   "name": "live_state",
+   "weight": 10,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "canary written to working memory",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "the canary just written is served through the retrieval door",
+     "status": "PASS",
+     "ok": true,
+     "note": "write-to-serve 360 ms"
+    },
+    {
+     "case": "…and reaches the text of door 'retrieve'",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "3 canaries served within the budget",
+     "status": "PASS",
+     "ok": true,
+     "note": "p50 325 ms · p95 360 ms"
+    },
+    {
+     "case": "after overwriting the canary the door serves the new value, never the old one",
+     "status": "PASS",
+     "ok": true,
+     "note": "overwrite-to-visible 311 ms"
+    },
+    {
+     "case": "two writes in quick succession: the door settles on the second, never back on the first",
+     "status": "PASS",
+     "ok": true,
+     "note": "second write visible in 298 ms",
+     "timeline": null
+    },
+    {
+     "case": "cleanup: adebench session empty at the end of the run",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "live-state key freshness",
+     "status": "SKIP",
+     "ok": false,
+     "note": "no live-state key configured (ADEBENCH_LIVE_STATE_KEY)"
+    }
+   ],
+   "counts": {
+    "PASS": 7,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 1
+   },
+   "measures": {
+    "live_state_age_min": null,
+    "write_to_serve_ms": 360,
+    "write_to_serve_p50_ms": 325,
+    "write_to_serve_p95_ms": 360,
+    "write_to_serve_samples": 3,
+    "write_to_serve_budget_s": 30,
+    "overwrite_to_visible_ms": 311,
+    "stale_reads_after_overwrite": 0,
+    "repeated_writes_settle_ms": 298,
+    "out_of_order_reads": 0,
+    "repeated_writes_timeline": [
+     {
+      "t_ms": 0,
+      "event": "first write"
+     },
+     {
+      "t_ms": 331,
+      "event": "second write"
+     },
+     {
+      "t_ms": 926,
+      "event": "poll",
+      "first": false,
+      "second": true
+     },
+     {
+      "t_ms": 2228,
+      "event": "poll",
+      "first": false,
+      "second": true
+     },
+     {
+      "t_ms": 3511,
+      "event": "poll",
+      "first": false,
+      "second": true
+     }
+    ]
+   },
+   "warnings": []
+  },
+  {
+   "name": "abstention",
+   "weight": 10,
+   "score": 0.6667,
+   "cases": [
+    {
+     "case": "What is the Zarpetta module?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "5 keyword facts for something that does not exist",
+     "fraction": 0.6666666666666666
+    },
+    {
+     "case": "Who is Ottavio Brambillesco?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "5 keyword facts for something that does not exist",
+     "fraction": 0.6666666666666666
+    },
+    {
+     "case": "Which port does the Fulmicotone service use?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "5 keyword facts for something that does not exist",
+     "fraction": 0.6666666666666666
+    },
+    {
+     "case": "What does the calendar plugin Girandola do?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "5 keyword facts for something that does not exist",
+     "fraction": 0.6666666666666666
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 4,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "questions": 4
+   },
+   "warnings": []
+  },
+  {
+   "name": "file_search",
+   "weight": 10,
+   "score": null,
+   "cases": [
+    {
+     "case": "file search",
+     "status": "SKIP",
+     "ok": false,
+     "note": "no repo configured (--repo)"
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 1
+   },
+   "measures": {},
+   "warnings": [
+    "section not measured: no repo configured (--repo)"
+   ]
+  },
+  {
+   "name": "graph",
+   "weight": 10,
+   "score": null,
+   "cases": [
+    {
+     "case": "entities with a card in the graph",
+     "status": "SKIP",
+     "ok": false,
+     "note": "no entity with a card"
+    },
+    {
+     "case": "orphan fact nodes = 0",
+     "status": "SKIP",
+     "ok": false,
+     "note": "the graph has no fact nodes: nothing to check"
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 2
+   },
+   "measures": {
+    "orphan_fact_nodes": "the graph has no fact nodes: nothing to check"
+   },
+   "warnings": [
+    "section not measured: no case with evidence (all SKIP or no cases)"
+   ]
+  },
+  {
+   "name": "write_back",
+   "weight": 0,
+   "score": null,
+   "cases": [
+    {
+     "case": "How many tools does the mailbox connector expose?",
+     "status": "PASS",
+     "ok": true,
+     "note": "the real answer still reaches the door (position 216 -> 216)",
+     "position_before": 216,
+     "position_after": 216,
+     "degraded_position": -1,
+     "starved": null
+    },
+    {
+     "case": "When do backups run?",
+     "status": "PASS",
+     "ok": true,
+     "note": "the real answer still reaches the door (position -1 -> -1)",
+     "position_before": -1,
+     "position_after": -1,
+     "degraded_position": -1,
+     "starved": null
+    }
+   ],
+   "counts": {
+    "PASS": 2,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "degraded_answer": "I have no record of that. You asked: {question}",
+    "questions_tested": 2,
+    "poisoned": 0,
+    "cleanup_ok": true,
+    "wait_s": 10
+   },
+   "warnings": []
+  },
+  {
+   "name": "health",
+   "weight": 0,
+   "score": null,
+   "cases": [],
+   "counts": {},
+   "measures": {
+    "bridge": {
+     "memu_version": "0.11.0-beta.3",
+     "store": "<MEMU_STORE>/memu.sqlite3",
+     "workspace": "<MEMU_STORE>/workspace",
+     "embedding": "openai-compatible https://generativelanguage.googleapis.com/v1beta/openai/ gemini-embedding-001",
+     "executor": "gemini-3-flash-preview via https://generativelanguage.googleapis.com/v1beta/openai/ chat/completions (function calling)",
+     "retrieve_top_k": 5,
+     "init_s": 1.36
+    },
+    "memorize_runs": [
+     {
+      "sessions": 1,
+      "jobs": 3,
+      "s": 27.9,
+      "changed": [
+       "memory/zetojhheb-connector"
+      ]
+     },
+     {
+      "sessions": 1,
+      "jobs": 3,
+      "s": 24.3,
+      "changed": [
+       "memory/zetojhheb-connector"
+      ]
+     },
+     {
+      "sessions": 1,
+      "jobs": 3,
+      "s": 23.3,
+      "changed": [
+       "memory/zetojhheb-connector"
+      ]
+     },
+     {
+      "sessions": 1,
+      "jobs": 3,
+      "s": 21.1,
+      "changed": []
+     },
+     {
+      "sessions": 1,
+      "jobs": 3,
+      "s": 29.1,
+      "changed": [
+       "memory/spare-keys-location"
+      ]
+     },
+     {
+      "sessions": 1,
+      "jobs": 3,
+      "s": 30.5,
+      "changed": []
+     },
+     {
+      "sessions": 1,
+      "jobs": 3,
+      "s": 37.8,
+      "changed": []
+     }
+    ],
+    "executor": {
+     "role": "the external agent memU's memorize hands its job files to (memU itself calls no LLM)",
+     "model": "gemini-3-flash-preview",
+     "endpoint": "Google OpenAI-compatible chat/completions, function calling, default thinking",
+     "prompt": "memU's own executor prompt (memu.cli._memorize_executor_prompt) and the job templates embedded in this memU build, unchanged; one agent session per prepared run (<=10 sessions)",
+     "system_note": "You are the external agent that carries out a prepared memU self-evolve run.\nYou have no shell. Use these tools instead of `bash`:\n  read_file(path)            instead of `cat <path>`\n  list_dir(path)             instead of `ls <path>`\n  write_file(path, content)  to create or overwrite a file\n  append_line(path, line)    instead of `echo \"<line>\" >> <path>`\n  run_command(command)       only for the memU command a job tells you to run\nPaths are relative to your working directory; the memU workspace is `workspace`.",
+     "tools_given": [
+      "read_file",
+      "list_dir",
+      "write_file",
+      "append_line",
+      "run_command (only `memu memorize verify-resources`)"
+     ],
+     "tools_not_given": [
+      "a shell",
+      "network",
+      "any path outside the workspace"
+     ],
+     "max_steps_per_run": 200
+    },
+    "usage": {
+     "llm_calls": 108,
+     "llm_prompt_tokens": 315310,
+     "llm_completion_tokens": 3665,
+     "llm_total_tokens": 336846,
+     "llm_errors": 0,
+     "embed_calls": 84,
+     "embed_texts": 92,
+     "embed_chars": 3955,
+     "memorize_runs": 7,
+     "memorize_sessions": 7,
+     "memorize_s": 193.9,
+     "noop_runs": 3,
+     "discarded_runs": 0
+    },
+    "health": {
+     "ok": true,
+     "files": 10,
+     "embed_dims": 3072,
+     "embed_ms": 272
+    }
+   },
+   "warnings": [
+    "the score is memU PLUS its external executor: memU calls no LLM, memorize hands its job files to an agent; here gemini-3-flash-preview with file tools and no shell (measures.executor)",
+    "no entity cards, no episodes, no graph, no files: those sections are SKIP; memU's retrieve is a vector search over page lines with no relevance floor: it always returns its top 5",
+    "no event dates: memorize input accepts no timestamp; memU's timestamps are write times"
+   ]
+  },
+  {
+   "name": "doors",
+   "weight": 0,
+   "score": null,
+   "cases": [],
+   "counts": {},
+   "measures": {
+    "retrieve": {
+     "calls": 70,
+     "http_errors": 0,
+     "ms_p50": 326,
+     "ms_p95": 414,
+     "mean_chars": 3840
+    },
+    "hook": {
+     "calls": 8,
+     "http_errors": 0,
+     "ms_p50": 315,
+     "ms_p95": 367,
+     "mean_chars": 2918
+    }
+   },
+   "warnings": []
+  }
+ ],
+ "delta": {
+  "total": null,
+  "sections": {}
+ }
+}
