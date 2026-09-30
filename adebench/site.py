@@ -42,7 +42,7 @@ MEMORIES = [
      "where": "local", "license": "MIT", "deterministic": "yes"},
     {"name": "Dakera", "folder": "dakera_report", "repo": "https://dakera.ai",
      "what": "REST memory with supersession edges and session-scoped recall",
-     "cfg": "adapter by its founder; fresh Docker instance, pinned config in its README section. Dakera returns records, not text: the adapter's reference reader composes the door (cards, dated facts, episodes, working memory, an unknown-terms path)",
+     "cfg": "adapter by its founder; fresh Docker instance, pinned config in its section of docs/memories.md. Dakera returns records, not text: the adapter's reference reader composes the door (cards, dated facts, episodes, working memory, an unknown-terms path)",
      "access": "REST", "model_on_write": "embeddings only (local models)", "key": "none (auth off, local models)",
      "where": "self-hosted", "license": "engine not public", "deterministic": "yes with the pinned config"},
     {"name": "Memoose", "folder": "memoose_report", "repo": "https://github.com/AndrewNgo-ini/memoose",
