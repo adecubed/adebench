@@ -557,6 +557,40 @@ nobody noticed, with 25-second reads 44 s passed as "within 30". And the write-b
 now recognises the degraded answer by its core, "no record" (`ADEBENCH_DEGRADED_MARKER`),
 because a memory that rewrites what it stores keeps the meaning and loses the sentence.
 
+### Six more, found by the scout
+
+[`adebench/scout.py`](adebench/scout.py) lists AI memory repositories on GitHub that
+adebench has not measured yet (`python -m adebench.scout`: topic and keyword searches,
+minus forks, archived, stale and curated lists; the state is kept across runs, so each run
+shows only what is new). Six of the largest were measured on 29-30 Sep 2026, each with its
+own adapter, import script and offline tests, and each adapter reviewed before publishing.
+A memory that needs a model to write ran with Gemini, the way its users run it, never with
+a smaller local model; where extraction is a model call the reference is the median of
+three fresh builds, and the spread is in the report folder (`repeats.json`).
+
+| Memory | Core · 55 | Full | Model | Report |
+|---|---|---|---|---|
+| [supermemory](https://github.com/supermemoryai/supermemory) | 38.1 | 48.1 / 65 | gemini-3.1-flash-lite (fixed by its binary) | [`supermemory_report/`](examples/supermemory_report/) |
+| [agentmemory](https://github.com/rohitg00/agentmemory), keyless and with Gemini | 35.5 | 42.6 / 65 | none / gemini-3-flash | [`agentmemory_report/`](examples/agentmemory_report/) |
+| [engram](https://github.com/Gentleman-Programming/engram) | 35.2 | 45.2 / 65 | none | [`engram_report/`](examples/engram_report/) |
+| [mem0](https://github.com/mem0ai/mem0) (open-source library) | 34.8 | 44.8 / 65 | gemini-3-flash | [`mem0_report/`](examples/mem0_report/) |
+| [cognee](https://github.com/topoteretes/cognee) | 33.7 | 43.7 / 65 | gemini-3-flash | [`cognee_report/`](examples/cognee_report/) |
+| [memU](https://github.com/NevaMind-AI/memU) | 32.2 | 42.1 / 65 | gemini-3-flash as its executor agent | [`memu_report/`](examples/memu_report/) |
+
+What they have in common: none abstains (supermemory, with a relevance threshold, comes
+closest at 7.5 / 10), and only agentmemory and supermemory retire an old value on their
+own. Each adapter's docstring says what maps, what is SKIP and every choice that is not the
+memory's default.
+
+The review of these six set four rules for every adapter from 0.2.17 on: the door is the
+text the client literally receives from the tool, not a re-rendering; a write or storage
+time never counts as a memory's age; no local paths in a published report; and the graph
+section is not scored on the orphan count alone when the memory has no entity cards (one
+structural count does not measure a graph). The harness also forgets write-back probes
+newest first and does not stop at the first failure. Adapters measured before 0.2.17
+(Aionforge re-renders its door and dates by capture time) will be brought to the same rules
+and re-run.
+
 ### The ADE Brain on the same set
 
 The Brain is the memory adebench was written against, and its numbers in this README are

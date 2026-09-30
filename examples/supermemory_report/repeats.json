@@ -1,0 +1,49 @@
+{
+ "mode": "gemini",
+ "llm": "gemini-3.1-flash-lite-preview (native provider, fixed by the binary)",
+ "embedding": "Xenova/bge-base-en-v1.5 (local, 768)",
+ "builds": 3,
+ "mean": 49.4,
+ "min": 48.1,
+ "max": 52.1,
+ "median": 48.1,
+ "reference": "the median run (2026-09-30T10:11:16)",
+ "runs": [
+  {
+   "when": "2026-09-30T10:03:50",
+   "total": 48.1,
+   "measured": 65,
+   "sections": {
+    "door": 15.6,
+    "updates": 10.0,
+    "time": 5.0,
+    "live_state": 10.0,
+    "abstention": 7.5
+   }
+  },
+  {
+   "when": "2026-09-30T10:11:16",
+   "total": 48.1,
+   "measured": 65,
+   "sections": {
+    "door": 15.6,
+    "updates": 10.0,
+    "time": 5.0,
+    "live_state": 10.0,
+    "abstention": 7.5
+   }
+  },
+  {
+   "when": "2026-09-30T10:18:00",
+   "total": 52.1,
+   "measured": 65,
+   "sections": {
+    "door": 18.8,
+    "updates": 10.0,
+    "time": 5.0,
+    "live_state": 10.0,
+    "abstention": 8.3
+   }
+  }
+ ]
+}

@@ -260,6 +260,30 @@ def test_write_back_catches_a_memory_that_serves_its_own_degraded_answer(cases, 
     assert s["counts"]["PASS"] == 1 and s["measures"]["poisoned"] == 0
 
 
+def test_write_back_cleanup_is_newest_first_and_never_stops_early(cases, monkeypatch):
+    (cases / "questions.json").write_text(json.dumps([
+        {"question": "Which port does the Brain use?", "expected": [["8766"]]},
+        {"question": "Where does the Brain listen?", "expected": [["8766"]]}]), encoding="utf-8")
+    monkeypatch.setattr(CFG, "write_back_wait_s", 0)
+    monkeypatch.setattr(CFG, "write_back_questions", 2)
+    monkeypatch.setattr(sections.time, "sleep", lambda s: None)
+
+    class Snapshots(_Writable):
+        n = 0
+        def ingest_exchange(self, q, a):
+            self.n += 1
+            self.items[f"ex{self.n}"] = a
+            return [f"ex{self.n}"]
+        def forget_memory(self, mid):
+            self.forgotten.append(mid)
+            return mid != "ex2"   # the newest one fails: the older one must still be forgotten
+
+    mem = Snapshots(poisonable=False)
+    _use(mem)
+    s = sections.write_back()
+    assert mem.forgotten == ["ex2", "ex1"] and s["measures"]["cleanup_ok"] is False
+
+
 def test_write_back_is_skip_without_a_write_path(cases):
     _write_cases(cases)
     _use(Fake(answer={"summary": "x"}))
@@ -359,6 +383,14 @@ def test_empty_graph_earns_nothing(cases):
     s = sections.graph()
     assert s["score"] is None
     assert s["counts"]["SKIP"] == 2 and s["counts"]["PASS"] == 0
+
+
+def test_orphan_check_alone_does_not_score_the_graph(cases):
+    # without entity cards no edge case runs: one structural count is not a graph score
+    _use(Fake(cards=[], edges=0, fact_nodes=(0, 21)))
+    s = sections.graph()
+    assert s["score"] is None and s["counts"]["PASS"] == 0
+    assert s["measures"]["orphan_fact_nodes"].startswith("0 orphans out of 21")
 
 
 def test_graph_with_data_is_measured(cases):

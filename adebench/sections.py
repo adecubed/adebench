@@ -892,7 +892,9 @@ def write_back() -> dict:
     finally:
         CFG.pressure = keep
         if cleanup:
-            m["cleanup_ok"] = all(_forget(ada, ids) for ids in cleanup)
+            # newest first, as the update probe does, and every one of them even
+            # after a failure: a memory that restores snapshots needs that order
+            m["cleanup_ok"] = all([_forget(ada, ids) for ids in reversed(cleanup)])
     if not m["questions_tested"]:
         cases.append(_case("the degraded answer does not come back through the door", None,
                            "no golden question passes at baseline: nothing to poison"))
@@ -1011,10 +1013,17 @@ def graph() -> dict:
         cases.append(_try(f"{ent}: edges in the graph", lambda ent=ent: (
             lambda n: _case(f"{ent}: edges in the graph", n > 0, f"{n} edges"))(ada.graph_edges(ent))))
 
+    # a memory with no entity cards runs no edge case: the orphan count alone is
+    # one structural check, not a measure of the graph, so it is shown, not scored
+    no_cards = read_cards is not None and not entities
+
     def _orphans() -> dict:
         orphans, total = ada.graph_orphans()
         if total == 0:
             return _case("orphan fact nodes = 0", None, "the graph has no fact nodes: nothing to check")
+        if no_cards:
+            return _case("orphan fact nodes = 0", None, f"{orphans} orphans out of {total} "
+                         "(not scored: with no entity edges to check, one count does not measure the graph)")
         return _case("orphan fact nodes = 0", orphans == 0, f"{orphans} orphans out of {total}")
     cases.append(_try("orphan fact nodes", _orphans))
     measures = dict(_read("reading the graph counts", lambda: ada.graph_counts(), {}, cases) or {})

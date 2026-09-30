@@ -1,0 +1,50 @@
+{
+ "mode": "gemini",
+ "llm": "gemini/gemini-3-flash-preview (max_tokens 8192)",
+ "embedding": "gemini/gemini-embedding-001 (768)",
+ "vector_store": "qdrant local on disk + BM25 (fastembed) + entity links (spaCy)",
+ "builds": 3,
+ "mean": 45.0,
+ "min": 44.8,
+ "max": 45.4,
+ "median": 44.8,
+ "reference": "the median run (2026-09-30T10:51:03)",
+ "runs": [
+  {
+   "when": "2026-09-30T10:33:40",
+   "total": 44.8,
+   "measured": 65,
+   "sections": {
+    "door": 18.8,
+    "updates": 6.7,
+    "time": 6.0,
+    "live_state": 10.0,
+    "abstention": 3.3
+   }
+  },
+  {
+   "when": "2026-09-30T10:41:33",
+   "total": 45.4,
+   "measured": 65,
+   "sections": {
+    "door": 18.8,
+    "updates": 6.7,
+    "time": 6.7,
+    "live_state": 10.0,
+    "abstention": 3.3
+   }
+  },
+  {
+   "when": "2026-09-30T10:51:03",
+   "total": 44.8,
+   "measured": 65,
+   "sections": {
+    "door": 18.8,
+    "updates": 6.7,
+    "time": 6.0,
+    "live_state": 10.0,
+    "abstention": 3.3
+   }
+  }
+ ]
+}

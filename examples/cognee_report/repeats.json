@@ -1,0 +1,49 @@
+{
+ "mode": "gemini",
+ "llm": "gemini/gemini-3-flash-preview",
+ "embedding": "gemini/gemini-embedding-001 (768)",
+ "builds": 3,
+ "mean": 44.3,
+ "min": 43.7,
+ "max": 45.4,
+ "median": 43.7,
+ "reference": "the median run (2026-09-30T10:17:53)",
+ "runs": [
+  {
+   "when": "2026-09-30T10:01:45",
+   "total": 45.4,
+   "measured": 65,
+   "sections": {
+    "door": 18.8,
+    "updates": 3.3,
+    "time": 8.3,
+    "live_state": 10.0,
+    "abstention": 5.0
+   }
+  },
+  {
+   "when": "2026-09-30T10:17:53",
+   "total": 43.7,
+   "measured": 65,
+   "sections": {
+    "door": 18.8,
+    "updates": 3.3,
+    "time": 8.3,
+    "live_state": 10.0,
+    "abstention": 3.3
+   }
+  },
+  {
+   "when": "2026-09-30T10:33:07",
+   "total": 43.7,
+   "measured": 65,
+   "sections": {
+    "door": 18.8,
+    "updates": 3.3,
+    "time": 8.3,
+    "live_state": 10.0,
+    "abstention": 3.3
+   }
+  }
+ ]
+}

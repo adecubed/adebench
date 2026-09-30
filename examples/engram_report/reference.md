@@ -1,0 +1,152 @@
+# adebench — 2026-09-30T09:57:19
+
+**Score: 45.2 / 65 — coverage 65/100: 35 not measured (no evidence)**
+Cases: 19 PASS · 9 FAIL · 0 ERROR · 5 SKIP
+Adapter `adebench.engram:EngramAdapter` · door `search` · cases `0f9a4640dc` · setup `d3dc508ab2` · sections door, cards, updates, time, live_state, abstention, file_search, graph
+
+| Section | Weight | Points | PASS/FAIL/ERROR/SKIP |
+|---|---|---|---|
+| door | 25 | 21.9 | 7/1/0/0 |
+| cards | 15 | not measured | 0/0/0/1 |
+| updates | 10 | 3.3 | 1/2/0/0 |
+| time | 10 | 6.7 | 4/2/0/0 |
+| live_state | 10 | 10.0 | 7/0/0/1 |
+| abstention | 10 | 3.3 | 0/4/0/0 |
+| file_search | 10 | not measured | 0/0/0/1 |
+| graph | 10 | not measured | 0/0/0/2 |
+| write_back | report-only | — | 0/2/0/0 |
+
+## door
+
+- door: `"search"`
+- door_budget_chars: `null`
+- pressure_chars: `0`
+- questions: `8`
+- validated: `8`
+- mean_answer_position: `752`
+- mean_door_text_chars: `4314`
+- min_margin_chars: `null`
+- passes_within_300_chars_of_the_edge: `0`
+- questions_with_forbidden_values: `1`
+- stale_values_delivered: `0`
+- chars_before_answer_mean: `752`
+- duplicate_chunks_total: `0`
+
+Not passed:
+- FAIL What is the owner's phone number? — missing +39
+
+## cards
+
+- ⚠ section not measured: no entity cards in this memory
+
+Not passed:
+- SKIP entity cards — this memory has none
+
+## updates
+
+- superseded_live: `0`
+- relations: `{"pending/pending": 12}`
+- observations_live: `21`
+- topic_upserts: `0`
+- probe: `true`
+- probe_entity: `"zetegnkfb"`
+- probe_replace_ms: `31`
+- probe_reads_with_both: `30`
+- probe_cleanup_ok: `true`
+
+- ⚠ no trace of updates in live memory: the dedup has not worked yet or found no pairs
+
+Not passed:
+- FAIL a new write with a changed value replaces the old one at the door (no id given) — new value served in 31 ms; STALE: the old value is still delivered (30 reads with both)
+- FAIL restating the current value does not pile up a second copy — 3 copies delivered
+
+## time
+
+- share_of_memories_with_age: `0.514`
+- facts_with_event_date: `"16/21"`
+- days_tried: `["2026-09-10", "2026-09-09", "2026-09-08"]`
+- signed_episodes: `1`
+- signed_question: `"what did pc2 do?"`
+
+Not passed:
+- FAIL semantic memories carry their age (37/72) — 51%
+- FAIL an imported memory reaches the door with its original date — served with no date
+
+## live_state
+
+- live_state_age_min: `null`
+- write_to_serve_ms: `38`
+- write_to_serve_p50_ms: `30`
+- write_to_serve_p95_ms: `38`
+- write_to_serve_samples: `3`
+- write_to_serve_budget_s: `30`
+- overwrite_to_visible_ms: `31`
+- stale_reads_after_overwrite: `0`
+- repeated_writes_settle_ms: `28`
+- out_of_order_reads: `0`
+- repeated_writes_timeline: `[{"t_ms": 0, "event": "first write"}, {"t_ms": 46, "event": "second write"}, {"t_ms": 118, "event": "poll", "first": false, "second": true}, {"t_ms": 1199, "event": "poll", "first": false, "second": true}, {"t_ms": 2305, "event": "poll", "first": false, "second": true}]`
+
+Not passed:
+- SKIP live-state key freshness — no live-state key configured (ADEBENCH_LIVE_STATE_KEY)
+
+## abstention
+
+- questions: `4`
+
+Not passed:
+- FAIL What is the Zarpetta module? — episodes presented as direct matches; 10 keyword facts for something that does not exist
+- FAIL Who is Ottavio Brambillesco? — episodes presented as direct matches; 10 keyword facts for something that does not exist
+- FAIL Which port does the Fulmicotone service use? — episodes presented as direct matches; 10 keyword facts for something that does not exist
+- FAIL What does the calendar plugin Girandola do? — episodes presented as direct matches; 10 keyword facts for something that does not exist
+
+## file_search
+
+- ⚠ section not measured: no repo configured (--repo)
+
+Not passed:
+- SKIP file search — no repo configured (--repo)
+
+## graph
+
+- orphan_fact_nodes: `"the graph has no fact nodes: nothing to check"`
+
+- ⚠ section not measured: no case with evidence (all SKIP or no cases)
+
+Not passed:
+- SKIP entities with a card in the graph — no entity with a card
+- SKIP orphan fact nodes = 0 — the graph has no fact nodes: nothing to check
+
+## write_back
+
+- degraded_answer: `"I have no record of that. You asked: {question}"`
+- questions_tested: `2`
+- poisoned: `2`
+- cleanup_ok: `true`
+- wait_s: `10`
+
+- ⚠ 2 of 2 degraded answers written back reached the door or pushed the real answer out: the memory learns from its own bad answers
+
+Not passed:
+- FAIL How many tools does the mailbox connector expose? — the degraded answer reached the door after 19 ms (before the real answer)
+- FAIL When do backups run? — the degraded answer reached the door after 13 ms (before the real answer)
+
+## health
+
+- tools_profile: `"agent"`
+- fresh_store_required: `"a run needs a fresh ENGRAM_DATA_DIR: deletes are soft and the probes' conflict relations stay behind"`
+- sessions: `8`
+- observations: `21`
+- soft_deleted: `9`
+- prompts: `4`
+- superseded_live: `0`
+- relations: `{"pending/pending": 29}`
+- observations_live: `21`
+- topic_upserts: `0`
+
+- ⚠ 29 conflict relation(s) pending: Engram flags them on save for the agent's model to judge (mem_judge); until then both memories are served
+- ⚠ cards, files and entity graph do not exist in Engram: those sections are SKIP
+
+## doors
+
+- mem_search any: `{"calls": 60, "http_errors": 0, "ms_p50": 21, "ms_p95": 91, "mean_chars": 4941}`
+- mem_search all: `{"calls": 8, "http_errors": 0, "ms_p50": 7, "ms_p95": 9, "mean_chars": 151}`

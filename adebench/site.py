@@ -70,6 +70,42 @@ MEMORIES = [
      "cfg": "measured inside Claude Code: every operation is one claude -p turn (sonnet), Nemp loaded with --plugin-dir",
      "access": "inside Claude Code", "model_on_write": "yes: every operation is a model turn", "key": "Claude Code",
      "where": "local file", "license": "MIT", "deterministic": "no: every operation is a model turn"},
+    {"name": "engram", "folder": "engram_report", "repo": "https://github.com/Gentleman-Programming/engram",
+     "what": "one Go binary with SQLite full-text search, memory for coding agents over MCP",
+     "cfg": "2.2.1 Windows release, MCP stdio with the agent tool profile (19 tools), door mem_search in 'any' mode (the default 'all' finds nothing for a verbatim question), fresh store",
+     "access": "MCP / CLI", "model_on_write": "no", "key": "none",
+     "where": "local", "license": "MIT", "deterministic": "yes"},
+    {"name": "agentmemory", "folder": "agentmemory_report", "repo": "https://github.com/rohitg00/agentmemory",
+     "what": "persistent memory for coding agents: BM25 plus vectors, supersession by overlap, 54 MCP tools",
+     "cfg": "npm 0.9.29 with iii 0.11.2, keyless: local all-MiniLM-L6-v2 vectors, no LLM; door = memory_recall's own text",
+     "access": "MCP / REST", "model_on_write": "no (keyless)", "key": "none",
+     "where": "local", "license": "Apache-2.0", "deterministic": "yes"},
+    {"name": "agentmemory (Gemini)", "folder": "agentmemory_report", "file": "reference_gemini",
+     "repo": "https://github.com/rohitg00/agentmemory",
+     "what": "the same memory with its LLM features on: compression, graph extraction, consolidation",
+     "cfg": "npm 0.9.29, gemini-3-flash-preview, gemini-embedding-001; same door and set as the keyless row",
+     "access": "MCP / REST", "model_on_write": "yes: compression and graph extraction (Gemini)", "key": "LLM provider",
+     "where": "local", "license": "Apache-2.0", "deterministic": "yes in two builds"},
+    {"name": "supermemory", "folder": "supermemory_report", "repo": "https://github.com/supermemoryai/supermemory",
+     "what": "memory and context engine: an LLM agent extracts and versions memory entries from documents",
+     "cfg": "self-hosted server 0.0.8, native Gemini provider (gemini-3.1-flash-lite-preview, fixed by the binary), local bge-base-en-v1.5; reference = median of three builds (48.1, 48.1, 52.1)",
+     "access": "REST", "model_on_write": "yes: an LLM agent extracts every document", "key": "LLM provider",
+     "where": "self-hosted", "license": "MIT", "deterministic": "no: extraction is a model call"},
+    {"name": "cognee", "folder": "cognee_report", "repo": "https://github.com/topoteretes/cognee",
+     "what": "knowledge graph plus vector index built from what is added (cognify)",
+     "cfg": "1.6.1, gemini-3-flash-preview and gemini-embedding-001, door = recall context (only_context), dates shown through include_external_metadata, fresh session per call; reference = median of three builds (45.4, 43.7, 43.7)",
+     "access": "Python library", "model_on_write": "yes: graph extraction (Gemini)", "key": "LLM provider",
+     "where": "local", "license": "Apache-2.0", "deterministic": "no: extraction is a model call"},
+    {"name": "mem0", "folder": "mem0_report", "repo": "https://github.com/mem0ai/mem0",
+     "what": "memory layer for agents: an LLM extracts facts from each exchange, hybrid vector and BM25 search",
+     "cfg": "open-source library 2.2.1 (not the hosted platform), gemini-3-flash-preview (max_tokens 8192: the 2000 default cut Gemini's thinking and dropped extractions), gemini-embedding-001, local Qdrant; reference = median of three builds (44.8, 45.4, 44.8)",
+     "access": "Python library", "model_on_write": "yes: an LLM extracts every write", "key": "LLM provider",
+     "where": "local", "license": "Apache-2.0", "deterministic": "no: extraction is a model call"},
+    {"name": "memU", "folder": "memu_report", "repo": "https://github.com/NevaMind-AI/memU",
+     "what": "personal memory kept as wiki pages, written by an external agent on memU's own jobs",
+     "cfg": "0.11.0b3 from source; memU runs no model itself, so Gemini 3 Flash plays the executor agent with memU's prompt and workspace-only file tools (the score is memU plus this executor); gemini-embedding-001; three identical builds",
+     "access": "CLI / Python library", "model_on_write": "yes: the executor agent (Gemini)", "key": "LLM provider",
+     "where": "local", "license": "Apache-2.0", "deterministic": "yes in three builds"},
 ]
 REFERENCE = "gbrain"
 SECTIONS = ["door", "cards", "updates", "time", "live_state", "abstention", "file_search", "graph"]
@@ -79,12 +115,12 @@ SECTIONS = ["door", "cards", "updates", "time", "live_state", "abstention", "fil
 CORE = ["door", "updates", "time", "abstention"]
 
 
-def load(folder: str) -> dict | None:
-    p = ROOT / "examples" / folder / "reference.json"
+def load(folder: str, file: str = "reference") -> dict | None:
+    p = ROOT / "examples" / folder / f"{file}.json"
     if not p.exists():
         return None
     d = json.loads(p.read_text(encoding="utf-8"))
-    d["_file"] = f"examples/{folder}/reference.md"
+    d["_file"] = f"examples/{folder}/{file}.md"
     return d
 
 
@@ -290,7 +326,7 @@ def build() -> None:
     OUT.mkdir(exist_ok=True)
     for old in OUT.glob("*_report.html"):   # the pre-0.2.16 flat pages
         old.unlink()
-    loaded = [dict(m, d=load(m["folder"])) for m in MEMORIES]
+    loaded = [dict(m, d=load(m["folder"], m.get("file", "reference"))) for m in MEMORIES]
     ref = next((m["d"] for m in loaded if m["name"] == REFERENCE and m["d"]), None)
     rows = []
     for m in loaded:
