@@ -10,8 +10,8 @@ of Dakera's /v1/memory endpoints. Everything is scoped to agent_id
 imported except CFG (pressure/door), like the gbrain adapter.
 
     DAKERA_API_KEY=... PYTHONPATH=/tmp/adebench python3 -m adebench \
-        --adapter adebench.dakera:DakeraAdapter --cases examples/synthetic_data/cases \
-        --repo examples/synthetic_data/repo --door chat --history /tmp/dakera-run --no-sandbox-test
+        --adapter adebench.dakera:DakeraAdapter --cases sets/quick/cases \
+        --repo sets/quick/repo --door chat --history /tmp/dakera-run --no-sandbox-test
 """
 from __future__ import annotations
 

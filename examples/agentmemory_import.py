@@ -4,7 +4,7 @@ so that the same golden set runs there too:
     EMBEDDING_PROVIDER=local AGENTMEMORY_DATA_DIR=/scratch/agentmemory agentmemory
     AGENTMEMORY_URL=http://127.0.0.1:3111 python examples/agentmemory_import.py
     ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.agentmemory:AgentmemoryAdapter \\
-        --cases examples/synthetic_data/cases --history /tmp/agentmemory-run --write-back
+        --cases sets/quick/cases --history /tmp/agentmemory-run --write-back
 
 Nothing is rewritten on the way in. A card is one memory dated with the
 card's date and a fact with an event date is one memory with that date, both
@@ -15,6 +15,8 @@ two-turn transcript, the request and the result at the episode's time,
 through the transcript import (/replay/import-jsonl), one session each. With
 an LLM provider configured, the graph is then built (/graph/build) and the
 consolidation run (/consolidate-pipeline). The store is a scratch one.
+
+The set is sets/quick unless --set <folder> (or ADEBENCH_SET) names another one.
 """
 from __future__ import annotations
 
@@ -23,7 +25,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from adebench.agentmemory import AgentmemoryAdapter  # noqa: E402
-from examples.synthetic import ALIASES, CARD_DATES, CARDS, EPISODES, FACTS  # noqa: E402
+from adebench import sets  # noqa: E402
+
+_C = sets.current().constants()  # --set <folder> or ADEBENCH_SET; default sets/quick
+CARDS, CARD_DATES, FACTS, ALIASES, EPISODES = _C["CARDS"], _C["CARD_DATES"], _C["FACTS"], _C["ALIASES"], _C["EPISODES"]
 
 
 def main() -> int:

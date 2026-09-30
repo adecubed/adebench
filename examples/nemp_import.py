@@ -3,7 +3,7 @@ one /nemp:save per memory, run by Claude Code as a user would:
 
     NEMP_PLUGIN=.../Nemp-memory NEMP_PROJECT=/tmp/nemp-project python examples/nemp_import.py
     python -m adebench --adapter adebench.nemp:NempAdapter \
-        --cases examples/synthetic_data/cases --history /tmp/nemp-run
+        --cases sets/quick/cases --history /tmp/nemp-run
 
 The project is emptied and made a git repository (Nemp keeps project memory
 there). Keys are what a user would type: the entity for a card, the fact's
@@ -11,6 +11,8 @@ key for a fact, alias-<name>, episode-<date>-<n>. The value is the text as
 given; Nemp's save instructions tell the model to compress it, and what it
 keeps is Nemp's business. Nemp has no event date: a memory carries the time
 it was written.
+
+The set is sets/quick unless --set <folder> (or ADEBENCH_SET) names another one.
 """
 from __future__ import annotations
 
@@ -22,7 +24,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from adebench import nemp  # noqa: E402
-from examples.synthetic import ALIASES, CARDS, EPISODES, FACTS  # noqa: E402
+from adebench import sets  # noqa: E402
+
+_C = sets.current().constants()  # --set <folder> or ADEBENCH_SET; default sets/quick
+CARDS, CARD_DATES, FACTS, ALIASES, EPISODES = _C["CARDS"], _C["CARD_DATES"], _C["FACTS"], _C["ALIASES"], _C["EPISODES"]
 
 
 def main() -> int:

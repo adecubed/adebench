@@ -17,7 +17,7 @@ mentions) read Engram's SQLite file, opened read-only. No Engram code is linked.
     set ENGRAM_BIN=C:/.../engram.exe
     set ENGRAM_DATA_DIR=C:/.../engram-data      # a FRESH scratch store, not ~/.engram
     python examples/engram_import.py
-    python -m adebench --adapter adebench.engram:EngramAdapter --cases examples/synthetic_data/cases
+    python -m adebench --adapter adebench.engram:EngramAdapter --cases sets/quick/cases
 
     ENGRAM_BIN          the engram executable (default: `engram` on PATH)
     ENGRAM_DATA_DIR     Engram's data directory (engram.db lives there); Engram's

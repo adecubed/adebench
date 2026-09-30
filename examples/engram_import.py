@@ -5,7 +5,7 @@ that the same golden set runs there too:
     set ENGRAM_DATA_DIR=C:/.../engram-data     # a fresh, scratch store
     python examples/engram_import.py
     python -m adebench --adapter adebench.engram:EngramAdapter \\
-        --cases examples/synthetic_data/cases --history /tmp/engram-run
+        --cases sets/quick/cases --history /tmp/engram-run
 
 Nothing is rewritten on the way in. Everything that has a date goes through
 Engram's own import path (`engram import`, the restore of an export), because
@@ -22,6 +22,8 @@ What has no date goes through `mem_save`, the way an agent writes, and is
 stamped with the write time: the two 'travel' facts, and the aliases, each a
 sentence saying what the alias means, titled the same way. All of it in
 project 'adebench'.
+
+The set is sets/quick unless --set <folder> (or ADEBENCH_SET) names another one.
 """
 from __future__ import annotations
 
@@ -30,7 +32,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from adebench.engram import EngramAdapter, title_of  # noqa: E402
-from examples.synthetic import ALIASES, CARD_DATES, CARDS, EPISODES, FACTS  # noqa: E402
+from adebench import sets  # noqa: E402
+
+_C = sets.current().constants()  # --set <folder> or ADEBENCH_SET; default sets/quick
+CARDS, CARD_DATES, FACTS, ALIASES, EPISODES = _C["CARDS"], _C["CARD_DATES"], _C["FACTS"], _C["ALIASES"], _C["EPISODES"]
 
 
 def main() -> int:

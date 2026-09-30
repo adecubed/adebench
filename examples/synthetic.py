@@ -2,7 +2,7 @@
 reproducible example.
 
     python -m adebench --adapter examples.synthetic:SyntheticAdapter \
-        --cases examples/synthetic_data/cases --repo examples/synthetic_data/repo \
+        --cases sets/quick/cases --repo sets/quick/repo \
         --sandbox-test examples/synthetic_data/sandbox_test.py --history /tmp/run
 
 Everything is invented and deterministic. The memory is imperfect ON
@@ -31,50 +31,12 @@ from adebench.config import CFG
 
 # ─── the data ────────────────────────────────────────────────────────────────
 
-CARDS = {
-    "brain": ("The Brain is the memory service of the assistant. It listens on port 8766, "
-              "keeps three memory levels (working, episodic and semantic), and is distilled by "
-              "the Nova model every night. Updated 2026-09-01."),
-    "mailbox": ("The mailbox is served by the MailBridge connector, version 1.4.2, installed in "
-                "its own virtual environment. It exposes 12 tools. Updated 2026-08-20."),
-    "calendar": ("The calendar comes from the owner's work account and is read every 15 minutes. "
-                 "Events are cached for one hour. Updated 2026-08-30."),
-    "owner": ("The owner is Alex, a product designer based in Turin who commutes by train and "
-              "prefers morning meetings. Updated 2026-09-05."),
-}
-CARD_DATES = {"brain": "2026-09-01", "mailbox": "2026-08-20", "calendar": "2026-08-30", "owner": "2026-09-05"}
-CORRECTIONS = [
-    {"entity": "brain", "content": "In the brain card never omit: port 8766, the Nova model, the three memory levels"},
-    # 'shared with the team' is NOT in the calendar card: a deliberate FAIL
-    {"entity": "calendar", "content": "In the calendar card never omit: read every 15 minutes, shared with the team"},
-]
-ALIASES = [
-    {"alias": "the_brain", "canonical": "brain"},
-    {"alias": "mail_bridge", "canonical": "mailbox"},
-    {"alias": "agenda", "canonical": "calendar"},
-]
-FACTS = [
-    {"key": "brain_port", "content": "The Brain listens on port 8766.", "event_date": "2026-05-10"},
-    {"key": "brain_model", "content": "Distillation uses the Nova model.", "event_date": "2026-06-01"},
-    {"key": "mailbox_version", "content": "MailBridge 1.4.2 replaced 1.3.0 on 2026-08-20.", "event_date": "2026-08-20"},
-    {"key": "mailbox_tools", "content": "MailBridge exposes 12 tools to the assistant.", "event_date": "2026-08-20"},
-    {"key": "calendar_refresh", "content": "The calendar is read every 15 minutes.", "event_date": "2026-07-02"},
-    {"key": "owner_city", "content": "Alex lives in Turin.", "event_date": "2026-04-15"},
-    {"key": "owner_meetings", "content": "Alex prefers morning meetings.", "event_date": "2026-05-20"},
-    {"key": "travel_train", "content": "The owner commutes by train.", "event_date": None},
-    {"key": "travel_bike", "content": "In summer the owner sometimes commutes by bike.", "event_date": None},
-    {"key": "backup_policy", "content": "Backups run on Sundays at 03:00.", "event_date": "2026-03-01"},
-]
-EPISODES = [
-    {"created_at": "2026-09-10T09:12:00", "repl": "chat", "input_summary": "Install MailBridge 1.4.2 in its own venv",
-     "output_summary": "Installed MailBridge 1.4.2; 12 tools registered"},
-    {"created_at": "2026-09-10T18:40:00", "repl": "chat", "input_summary": "Set backup schedule",
-     "output_summary": "Backups on Sundays at 03:00"},
-    {"created_at": "2026-09-09T11:00:00", "repl": "chat", "input_summary": "Plan the Turin trip by train",
-     "output_summary": "Train at 07:15, back at 19:30"},
-    {"created_at": "2026-09-08T08:30:00", "repl": "pc2:chat", "input_summary": "[pc2] Sync the calendar cache",
-     "output_summary": "Cache refreshed"},
-]
+from adebench import sets as _sets  # noqa: E402
+
+# the set is data (sets/quick/world.json); the memory's own behaviour, below, is not
+_C = _sets.current().constants()   # --set <folder> or ADEBENCH_SET; default sets/quick
+CARDS, CARD_DATES, CORRECTIONS = _C["CARDS"], _C["CARD_DATES"], _C["CORRECTIONS"]
+ALIASES, FACTS, EPISODES = _C["ALIASES"], _C["FACTS"], _C["EPISODES"]
 GRAPH_EDGES = {"brain": 3, "calendar": 2, "owner": 4, "mailbox": 0}  # mailbox: deliberate FAIL
 FACT_NODES = (0, 10)
 

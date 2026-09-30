@@ -1,0 +1,438 @@
+{
+ "name": "public2",
+ "as_of": "2026-09-30",
+ "cards": [
+  {
+   "id": "card:titan_node_4",
+   "entity": "titan_node_4",
+   "text": "Titan Node 4 is the primary computation unit in rack C12. It has a serial number of TN4-9901 and contains 256GB of RAM. The server is managed by the Infrastructure Team.",
+   "date": "2026-09-30"
+  },
+  {
+   "id": "card:nexus_api",
+   "entity": "nexus_api",
+   "text": "The Nexus API provides the primary interface for external services. It currently runs version 2.4.1 and listens on port 8443. The service utilizes HTTPS protocol for all communications.",
+   "date": "2026-09-30"
+  },
+  {
+   "id": "card:lyra_scheduler",
+   "entity": "lyra_scheduler",
+   "text": "Lyra Scheduler manages background task orchestration using the Rust language. It monitors specific system cues on port 9090. Version 1.3 was recently deployed to handle increased load.",
+   "date": "2026-09-30"
+  },
+  {
+   "id": "card:orion_db",
+   "entity": "orion_db",
+   "text": "Orion DB is the main data storage facility with a size of 4.2TB. It runs on the PostgreX engine and performs weekly backups. All sensitive data is encrypted using specialized algorithms.",
+   "date": "2026-09-30"
+  },
+  {
+   "id": "card:project_iota",
+   "entity": "project_iota",
+   "text": "Project Iota is a research initiative led by Dr. Aris. It operates with a budget of $500,000 and focuses on Class 4 security experiments. The project headquarters is located in the West Wing.",
+   "date": "2026-09-30"
+  },
+  {
+   "id": "card:elara_bot",
+   "entity": "elara_bot",
+   "text": "Elara Bot is an automated maintenance unit currently located in Sector G. Its battery is maintained at 92% and it performs daily inspections. The unit received its last major update in August.",
+   "date": "2026-09-30"
+  },
+  {
+   "id": "card:z_drive_10",
+   "entity": "z_drive_10",
+   "text": "Z-Drive 10 is a high-capacity storage unit with a capacity of 50TB. It is currently in an active state following recent maintenance. The firmware version installed is v3.2.",
+   "date": "2026-09-30"
+  },
+  {
+   "id": "card:vector_sync",
+   "entity": "vector_sync",
+   "text": "Vector Sync is a data synchronization tool configured with an interval of 30 seconds. It uses AES-256 encryption and allows for 5 retries on failure. Configuration files are stored locally on node 4.",
+   "date": "2026-09-30"
+  }
+ ],
+ "corrections": [
+  {
+   "entity": "titan_node_4",
+   "content": "In the titan_node_4 card never omit: serial number, rack location"
+  },
+  {
+   "entity": "nexus_api",
+   "content": "In the nexus_api card never omit: port number, version"
+  },
+  {
+   "entity": "lyra_scheduler",
+   "content": "In the lyra_scheduler card never omit: port, language"
+  }
+ ],
+ "aliases": [
+  {
+   "alias": "iron_beast",
+   "canonical": "titan_node_4"
+  },
+  {
+   "alias": "gatekeeper",
+   "canonical": "nexus_api"
+  },
+  {
+   "alias": "star_map",
+   "canonical": "lyra_scheduler"
+  },
+  {
+   "alias": "deep_vault",
+   "canonical": "orion_db"
+  },
+  {
+   "alias": "shadow_ops",
+   "canonical": "project_iota"
+  },
+  {
+   "alias": "silver_hand",
+   "canonical": "elara_bot"
+  }
+ ],
+ "facts": [
+  {
+   "id": "f1",
+   "entity": "titan_node_4",
+   "attribute": "location",
+   "text": "Titan Node 4 is mounted in rack C12",
+   "date": "2026-01-12",
+   "supersedes": null
+  },
+  {
+   "id": "f2",
+   "entity": "nexus_api",
+   "attribute": "version",
+   "text": "The Nexus API version is 2.4.1",
+   "date": "2026-09-01",
+   "supersedes": null
+  },
+  {
+   "id": "f3",
+   "entity": "lyra_scheduler",
+   "attribute": "port",
+   "text": "Lyra Scheduler uses port 9090",
+   "date": "2026-04-15",
+   "supersedes": null
+  },
+  {
+   "id": "f4",
+   "entity": "orion_db",
+   "attribute": "size",
+   "text": "Orion DB size is 4.2TB",
+   "date": "2026-08-20",
+   "supersedes": null
+  },
+  {
+   "id": "f5",
+   "entity": "nexus_api",
+   "attribute": "port",
+   "text": "The Nexus API port is 8080",
+   "date": "2026-02-10",
+   "supersedes": null
+  },
+  {
+   "id": "f6",
+   "entity": "nexus_api",
+   "attribute": "port",
+   "text": "The Nexus API listens on port 8443",
+   "date": "2026-07-22",
+   "supersedes": "f5"
+  },
+  {
+   "id": "f7",
+   "entity": "project_iota",
+   "attribute": "budget",
+   "text": "Project Iota budget is $500,000",
+   "date": "2026-01-01",
+   "supersedes": null
+  },
+  {
+   "id": "f8",
+   "entity": "elara_bot",
+   "attribute": "battery",
+   "text": "The Elara Bot battery is at 92%",
+   "date": "2026-09-29",
+   "supersedes": null
+  },
+  {
+   "id": "f9",
+   "entity": "z_drive_10",
+   "attribute": "firmware",
+   "text": "The Z-Drive 10 firmware is v3.2",
+   "date": "2026-05-18",
+   "supersedes": null
+  },
+  {
+   "id": "f10",
+   "entity": "vector_sync",
+   "attribute": "interval",
+   "text": "Vector Sync interval is 30 seconds",
+   "date": "2026-03-30",
+   "supersedes": null
+  },
+  {
+   "id": "f11",
+   "entity": "lyra_scheduler",
+   "attribute": "version",
+   "text": "The Lyra Scheduler version is 1.2",
+   "date": "2026-03-05",
+   "supersedes": null
+  },
+  {
+   "id": "f12",
+   "entity": "lyra_scheduler",
+   "attribute": "version",
+   "text": "The Lyra Scheduler version is 1.3",
+   "date": "2026-06-20",
+   "supersedes": "f11"
+  },
+  {
+   "id": "f13",
+   "entity": "titan_node_4",
+   "attribute": "temperature",
+   "text": "On 2026-09-12 the Titan Node 4 temperature was 38C",
+   "date": "2026-09-12",
+   "supersedes": null
+  },
+  {
+   "id": "f14",
+   "entity": "nexus_api",
+   "attribute": "protocol",
+   "text": "The Nexus API protocol is HTTPS",
+   "date": "2026-02-15",
+   "supersedes": null
+  },
+  {
+   "id": "f15",
+   "entity": "lyra_scheduler",
+   "attribute": "language",
+   "text": "Lyra Scheduler language is Rust",
+   "date": "2026-01-10",
+   "supersedes": null
+  },
+  {
+   "id": "f16",
+   "entity": "orion_db",
+   "attribute": "engine",
+   "text": "Orion DB engine is PostgreX",
+   "date": "2026-02-14",
+   "supersedes": null
+  },
+  {
+   "id": "f17",
+   "entity": "project_iota",
+   "attribute": "lead",
+   "text": "Project Iota lead is Dr. Aris",
+   "date": "2026-01-05",
+   "supersedes": null
+  },
+  {
+   "id": "f18",
+   "entity": "elara_bot",
+   "attribute": "location",
+   "text": "The Elara Bot location is Sector G",
+   "date": "2026-09-28",
+   "supersedes": null
+  },
+  {
+   "id": "f19",
+   "entity": "z_drive_10",
+   "attribute": "status",
+   "text": "The Z-Drive 10 status is standby",
+   "date": "2026-08-01",
+   "supersedes": null
+  },
+  {
+   "id": "f20",
+   "entity": "z_drive_10",
+   "attribute": "status",
+   "text": "The Z-Drive 10 status is active",
+   "date": "2026-09-15",
+   "supersedes": "f19"
+  },
+  {
+   "id": "f21",
+   "entity": "vector_sync",
+   "attribute": "retries",
+   "text": "Vector Sync retries is set to 5",
+   "date": "2026-03-31",
+   "supersedes": null
+  },
+  {
+   "id": "f22",
+   "entity": "titan_node_4",
+   "attribute": "owner",
+   "text": "The Titan Node 4 owner is Infrastructure Team",
+   "date": "2026-01-15",
+   "supersedes": null
+  },
+  {
+   "id": "f23",
+   "entity": "nexus_api",
+   "attribute": "documentation",
+   "text": "Nexus API documentation is available on the wiki",
+   "date": null,
+   "supersedes": null
+  },
+  {
+   "id": "f24",
+   "entity": "lyra_scheduler",
+   "attribute": "logs",
+   "text": "The Lyra Scheduler logs are stored in /var/log/lyra",
+   "date": null,
+   "supersedes": null
+  },
+  {
+   "id": "f25",
+   "entity": "orion_db",
+   "attribute": "backup",
+   "text": "Orion DB backup policy is weekly",
+   "date": null,
+   "supersedes": null
+  },
+  {
+   "id": "f26",
+   "entity": "project_iota",
+   "attribute": "security",
+   "text": "Project Iota security level is Class 4",
+   "date": null,
+   "supersedes": null
+  },
+  {
+   "id": "f27",
+   "entity": "elara_bot",
+   "attribute": "maintenance",
+   "text": "On 2026-08-15 the Elara Bot received maintenance",
+   "date": "2026-08-15",
+   "supersedes": null
+  },
+  {
+   "id": "f28",
+   "entity": "z_drive_10",
+   "attribute": "capacity",
+   "text": "Z-Drive 10 capacity is 50TB",
+   "date": "2026-04-22",
+   "supersedes": null
+  },
+  {
+   "id": "f29",
+   "entity": "vector_sync",
+   "attribute": "encryption",
+   "text": "Vector Sync encryption is AES-256",
+   "date": "2026-03-30",
+   "supersedes": null
+  },
+  {
+   "id": "f30",
+   "entity": "titan_node_4",
+   "attribute": "ram",
+   "text": "Titan Node 4 RAM is 256GB",
+   "date": "2026-01-14",
+   "supersedes": null
+  },
+  {
+   "id": "f31",
+   "entity": "nexus_api",
+   "attribute": "response_time",
+   "text": "Nexus API response time is 12ms",
+   "date": "2026-09-10",
+   "supersedes": null
+  },
+  {
+   "id": "f32",
+   "entity": "lyra_scheduler",
+   "attribute": "upgrade_event",
+   "text": "On 2026-06-20 the Lyra Scheduler was upgraded to 1.3",
+   "date": "2026-06-20",
+   "supersedes": null
+  }
+ ],
+ "episodes": [
+  {
+   "id": "ep1",
+   "created_at": "2026-09-20T10:00:00",
+   "repl": "chat",
+   "input": "Can you check the temperature of Titan Node 4?",
+   "output": "According to the logs from September 12, the Titan Node 4 temperature was 38C."
+  },
+  {
+   "id": "ep2",
+   "created_at": "2026-09-21T11:15:00",
+   "repl": "pc2:chat",
+   "input": "[pc2] What is the current version of the gatekeeper?",
+   "output": "The Nexus API, also known as gatekeeper, is currently running version 2.4.1."
+  },
+  {
+   "id": "ep3",
+   "created_at": "2026-09-21T14:30:00",
+   "repl": "chat",
+   "input": "Where are the Lyra Scheduler logs?",
+   "output": "The logs for Lyra Scheduler are stored in /var/log/lyra."
+  },
+  {
+   "id": "ep4",
+   "created_at": "2026-09-22T09:00:00",
+   "repl": "chat",
+   "input": "What is the status of Z-Drive 10?",
+   "output": "As of September 15, the Z-Drive 10 status is active."
+  },
+  {
+   "id": "ep5",
+   "created_at": "2026-09-23T16:45:00",
+   "repl": "pc2:chat",
+   "input": "[pc2] Who is leading Project Iota?",
+   "output": "Project Iota is led by Dr. Aris."
+  },
+  {
+   "id": "ep6",
+   "created_at": "2026-09-24T08:20:00",
+   "repl": "chat",
+   "input": "How much RAM does the iron_beast have?",
+   "output": "Titan Node 4, known as iron_beast, has 256GB of RAM."
+  },
+  {
+   "id": "ep7",
+   "created_at": "2026-09-25T13:10:00",
+   "repl": "chat",
+   "input": "What protocol does the gatekeeper use?",
+   "output": "The Nexus API (gatekeeper) uses the HTTPS protocol."
+  },
+  {
+   "id": "ep8",
+   "created_at": "2026-09-26T10:00:00",
+   "repl": "chat",
+   "input": "What is the engine for Orion DB?",
+   "output": "Orion DB uses the PostgreX engine."
+  },
+  {
+   "id": "ep9",
+   "created_at": "2026-09-27T15:00:00",
+   "repl": "pc2:chat",
+   "input": "[pc2] When was the scheduler last upgraded?",
+   "output": "The Lyra Scheduler was upgraded to version 1.3 on 2026-06-20."
+  },
+  {
+   "id": "ep10",
+   "created_at": "2026-09-28T11:00:00",
+   "repl": "chat",
+   "input": "What is the retry count for Vector Sync?",
+   "output": "Vector Sync is configured with 5 retries."
+  },
+  {
+   "id": "ep11",
+   "created_at": "2026-09-29T09:30:00",
+   "repl": "chat",
+   "input": "What is the budget for the shadow_ops?",
+   "output": "The budget for Project Iota (shadow_ops) is $500,000."
+  },
+  {
+   "id": "ep12",
+   "created_at": "2026-09-30T08:00:00",
+   "repl": "chat",
+   "input": "Where is the silver_hand unit located?",
+   "output": "The Elara Bot, also known as silver_hand, is located in Sector G."
+  }
+ ]
+}

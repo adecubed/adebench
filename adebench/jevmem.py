@@ -12,7 +12,7 @@ models are loaded once per run.
     git clone https://github.com/libingzheren/Jev-Mem && cd Jev-Mem
     python3.11 -m venv .venv && .venv/bin/pip install -e '.[laya]'
     JEVMEM_HOME=... JEVMEM_PYTHON=.../.venv/bin/python python examples/jevmem_import.py
-    python -m adebench --adapter adebench.jevmem:JevMemAdapter --cases examples/synthetic_data/cases
+    python -m adebench --adapter adebench.jevmem:JevMemAdapter --cases sets/quick/cases
 
     JEVMEM_HOME     the Jev-Mem checkout (its config/ and packages)
     JEVMEM_PYTHON   the Python of Jev-Mem's environment

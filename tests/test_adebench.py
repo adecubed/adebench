@@ -709,7 +709,7 @@ def test_synthetic_example_matches_reference(tmp_path, monkeypatch):
     monkeypatch.setattr(adapter, "_current", None)
     monkeypatch.chdir(root)
     assert main(["--adapter", "examples.synthetic:SyntheticAdapter",
-                 "--cases", "examples/synthetic_data/cases", "--repo", "examples/synthetic_data/repo",
+                 "--cases", "sets/quick/cases", "--repo", "sets/quick/repo",
                  "--sandbox-test", "examples/synthetic_data/sandbox_test.py",
                  "--census", "examples/synthetic_data/census.json", "--pressure-profile", "--write-back",
                  "--history", str(tmp_path)]) == 0
@@ -847,7 +847,7 @@ def test_pressure_profile_reports_passes_per_level_and_restores_pressure(cases, 
     monkeypatch.setattr(CFG, "door", "chat")
     monkeypatch.setattr(CFG, "pressure", 0)
     root = Path(__file__).resolve().parents[1]
-    monkeypatch.setattr(CFG, "cases", root / "examples" / "synthetic_data" / "cases")
+    monkeypatch.setattr(CFG, "cases", root / "sets" / "quick" / "cases")
     adapter.use(SyntheticAdapter())
     s = sections.pressure_profile(c)
     assert CFG.pressure == 0
@@ -893,7 +893,7 @@ def test_synthetic_two_step_door_is_measured(monkeypatch):
     root = Path(__file__).resolve().parents[1]
     monkeypatch.setattr(CFG, "door", "two-step")
     monkeypatch.setattr(CFG, "pressure", 0)
-    monkeypatch.setattr(CFG, "cases", root / "examples" / "synthetic_data" / "cases")
+    monkeypatch.setattr(CFG, "cases", root / "sets" / "quick" / "cases")
     adapter.use(SyntheticAdapter())
     s = sections.door()
     assert s["measures"]["door_budget_chars"] == 1500 and s["counts"]["PASS"] >= 5

@@ -47,10 +47,12 @@ reference report does not move.
 specification and writes the set. The specification fixes the mix, the same as today's set
 scaled by three:
 
-- door questions: plain facts, facts carried by an entity card, questions through an alias,
-  questions on a value that was replaced (the retired value listed in `forbidden`), dated
-  questions, questions whose answer was never stored (the expected token is absent from the
-  world on purpose);
+- door questions: 11 plain facts, 4 facts carried by an entity card, 3 questions through an
+  alias (a real other name, sharing no word with the entity's name), 3 on a value that was
+  replaced (the retired value listed in `forbidden`; the replacing fact states only the new
+  value), 3 dated questions (the date written in the text). No never-stored questions:
+  their answer is absent by construction, so every memory fails them, and not inventing is
+  what the abstention section measures (decided 2026-09-30; the `quick` set keeps its one);
 - abstention: 12 invented entities, each with a question;
 - history: cards, dated and undated facts, aliases, episodes with times, some signed by
   another machine (`[pc2]`-style prefix);
@@ -68,19 +70,22 @@ reference date `as_of`:
 
 - **Answerable questions.** The generator returns, with each question, the ids of the
   items that answer it. For each expected token group, at least one cited item must contain
-  it, be dated on or before `as_of` (or be undated), and not be superseded by a later item
-  about the same entity and attribute. Citing a superseded item fails the case.
-- **Retired values.** Every `forbidden` value must appear in the world only in items that
-  are superseded, or in the statement that retires it ("X replaced Y"), never as the
-  current value of an item valid at `as_of`.
-- **Never-stored answers.** The expected token must be absent from every item, from every
-  alias, and from the repo, after normalising case, accents and punctuation.
+  it, be dated on or before `as_of` (or be undated), not be superseded by a later item about
+  the same entity and attribute, and, if it is a fact, name its entity or one of its aliases.
+  The match is the scorer's own (`sections.present`), so a set never counts on evidence the
+  scorer would not find. A superseded item may be cited next to the current one, but never
+  counts.
+- **Retired values.** Every `forbidden` value must appear in the world only in the item it
+  was retired from: not in a card, an episode or the replacing fact (decided 2026-09-30).
+- **Specific answers.** An expected token is a specific value of at most 3 words, never a
+  placeholder such as "null" or "unknown", which any JSON door or refusal would contain.
 - **Invented entities.** Absent from every item, alias and file, under the same
   normalisation and as a whole word inside longer names; no alias of a real entity may
   normalise to one of them.
 - **Leading questions.** No question contains any of its own expected tokens.
-- **Structure.** The mix of section 2 is met exactly; ids are unique; every date parses;
-  every alias points at an entity that exists.
+- **Structure.** The mix of section 2 is met exactly and no question has a kind outside it;
+  ids are unique; every date parses; every alias points at an entity that exists and shares
+  no word with its name.
 
 The validator's report (counts per check, no content) goes into `set.json`.
 

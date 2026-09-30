@@ -27,7 +27,7 @@ gbrain init --pglite --non-interactive --path ~/.gbrain/adebench-synthetic \
     --embedding-model ollama:nomic-embed-text --embedding-dimensions 768
 python examples/gbrain_import.py            # the synthetic memory, page by page
 ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.gbrain:GbrainAdapter \
-    --cases examples/synthetic_data/cases --history /tmp/gbrain-run --write-back
+    --cases sets/quick/cases --history /tmp/gbrain-run --write-back
 ```
 
 Two reports side by side, scored on the sections both measured:
@@ -80,7 +80,7 @@ docker run -d --name dakera-eval -p 127.0.0.1:3001:3001 \
 export DAKERA_URL=http://localhost:3001 DAKERA_API_KEY=          # auth disabled above
 python examples/dakera_import.py                                # load the synthetic set
 ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.dakera:DakeraAdapter \
-    --cases examples/synthetic_data/cases --repo examples/synthetic_data/repo \
+    --cases sets/quick/cases --repo sets/quick/repo \
     --sandbox-test examples/dakera_sandbox_test.py \
     --door chat --history /tmp/dakera-run
 ```
@@ -110,7 +110,7 @@ question through Memoose's own API instead.
 ```bash
 pip install memoose fastembed        # fastembed: without it the vectors fall back to a hash
 python examples/memoose_import.py    # the synthetic memory, into dataset 'adebench'
-python -m adebench --adapter adebench.memoose:MemooseAdapter     --cases examples/synthetic_data/cases --sandbox-test examples/memoose_sandbox_test.py     --history /tmp/memoose-run
+python -m adebench --adapter adebench.memoose:MemooseAdapter     --cases sets/quick/cases --sandbox-test examples/memoose_sandbox_test.py     --history /tmp/memoose-run
 memoose -d adebench forget --all     # the dataset was a scratch one
 ```
 
@@ -155,7 +155,7 @@ enabled with the floors lowered, so the benchmark can remove what it writes.
 ```bash
 docker run -d --network host -v aionforge:/data -v ./config.toml:/config.toml:ro     -e AIONFORGE_EMBEDDER_API_KEY=... ghcr.io/jscott3201/aionforge-memory:0.4.0     --config /config.toml serve http --listen 127.0.0.1:3918
 python examples/aionforge_import.py            # the synthetic memory, capture by capture
-ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.aionforge:AionforgeAdapter     --cases examples/synthetic_data/cases --history /tmp/aionforge-run --write-back
+ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.aionforge:AionforgeAdapter     --cases sets/quick/cases --history /tmp/aionforge-run --write-back
 ```
 
 On the synthetic golden set Aionforge scores 51.8 of the 65 points it can be measured on
@@ -207,7 +207,7 @@ was still unanswered. Recall ran with the deployment defaults (`budget` mid, no
 ```bash
 docker run -d -p 127.0.0.1:8888:8888 -e HINDSIGHT_API_LLM_PROVIDER=gemini     -e HINDSIGHT_API_LLM_API_KEY=... -e HINDSIGHT_API_LLM_MODEL=gemini-3.5-flash-lite     -e HINDSIGHT_API_LLM_PROMPT_CACHE_ENABLED=false     -v hindsight-data:/home/hindsight/.pg0 ghcr.io/vectorize-io/hindsight:latest
 python examples/hindsight_import.py           # the synthetic memory, retain by retain
-python -m adebench --adapter adebench.hindsight:HindsightAdapter --cases examples/synthetic_data/cases     --history /tmp/hindsight-run --write-back --sections door cards updates time abstention file_search graph
+python -m adebench --adapter adebench.hindsight:HindsightAdapter --cases sets/quick/cases     --history /tmp/hindsight-run --write-back --sections door cards updates time abstention file_search graph
 ```
 
 On the synthetic golden set Hindsight scores 36.2 of the 55 points it can be measured on
@@ -261,7 +261,7 @@ python3.11 -m venv .venv && .venv/bin/pip install -e '.[laya]'
 export JEVMEM_HOME=$PWD JEVMEM_PYTHON=$PWD/.venv/bin/python
 python examples/jevmem_import.py      # from the adebench checkout: a fresh store
 ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.jevmem:JevMemAdapter \
-    --cases examples/synthetic_data/cases --history /tmp/jevmem-run --no-sandbox-test --write-back
+    --cases sets/quick/cases --history /tmp/jevmem-run --no-sandbox-test --write-back
 ```
 
 **The build is not deterministic.** The same 21 observations, loaded twice, give
@@ -308,7 +308,7 @@ git clone https://github.com/SukinShetty/Nemp-memory
 export NEMP_PLUGIN=$PWD/Nemp-memory NEMP_PROJECT=/tmp/nemp-project
 python examples/nemp_import.py        # 21 /nemp:save, one model turn each
 ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.nemp:NempAdapter \
-    --cases examples/synthetic_data/cases --history /tmp/nemp-run --no-sandbox-test --write-back
+    --cases sets/quick/cases --history /tmp/nemp-run --no-sandbox-test --write-back
 ```
 
 On the synthetic golden set Nemp scores **36.4 of the 65 points** it can be measured on
@@ -390,8 +390,8 @@ mailbox live-state key is not measured (one SKIP inside live state).
 
 ```bash
 BRAIN_URL=http://127.0.0.1:8766 python examples/ade_import.py
-python -c "import asyncio; from brain.memory.indexer import index_project;     asyncio.run(index_project('examples/synthetic_data/repo', force=True))"   # GOOGLE_API_KEY unset
-ADEBENCH_LIVE_STATE_KEY= python -m adebench --brain http://127.0.0.1:8766     --cases examples/synthetic_data/cases --repo examples/synthetic_data/repo     --history /tmp/brain-synthetic-run --no-sandbox-test --write-back
+python -c "import asyncio; from brain.memory.indexer import index_project;     asyncio.run(index_project('sets/quick/repo', force=True))"   # GOOGLE_API_KEY unset
+ADEBENCH_LIVE_STATE_KEY= python -m adebench --brain http://127.0.0.1:8766     --cases sets/quick/cases --repo sets/quick/repo     --history /tmp/brain-synthetic-run --no-sandbox-test --write-back
 ```
 
 On the synthetic golden set the Brain scores 93.8 / 100 (report in

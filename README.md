@@ -44,6 +44,16 @@ could be measured on; sections a memory does not have are SKIP and leave the den
 Full is shown next to the Core but two Fulls with different coverage are not the same
 measure.
 
+**Sets.** A set is a folder in [`sets/`](sets/): the history a memory is loaded with
+(`world.json`), the questions (`cases/`), a small repository (`repo/`) and its sha256
+(`set.json`); every import script takes `--set <folder>`. `quick` is the original set (8 door
+and 4 abstention questions, sha256 `680445ab…`), and every number below is on it.
+`public2` (24 and 12, sha256 `4b5363ce…`) was written by gemini-3-flash-preview from the fixed
+specification in [`adebench/genset.py`](adebench/genset.py) and accepted by the checks in
+[`adebench/validate_set.py`](adebench/validate_set.py): every answer backed by an item valid at
+the set's date, retired values only where they were retired, invented entities absent
+everywhere. The board moves to `public2` once every memory has run on it.
+
 The board on 30 Sep 2026, adebench 0.2.17 (the live one is on the site, with one page per
 memory, its configuration, its runs and its report). Scores are the mean of the runs kept
 in each memory's report folder; two memories closer than the wider of their ranges, never
@@ -277,7 +287,7 @@ MCP servers to Python libraries behind a bridge process (`jevmem.py`, `cognee.py
 models to copy.
 
 ```bash
-python -m adebench --adapter mymemory.bench:MyAdapter --cases examples/synthetic_data/cases
+python -m adebench --adapter mymemory.bench:MyAdapter --cases sets/quick/cases
 ```
 
 **What the Core needs.** For a memory to be on the board:
@@ -316,7 +326,7 @@ Anyone can run it in two seconds and get the same number:
 
 ```bash
 python -m adebench --adapter examples.synthetic:SyntheticAdapter \
-  --cases examples/synthetic_data/cases --repo examples/synthetic_data/repo \
+  --cases sets/quick/cases --repo sets/quick/repo \
   --sandbox-test examples/synthetic_data/sandbox_test.py --history /tmp/adebench-run
 ```
 
@@ -345,7 +355,7 @@ store with the memory's import script, e.g. `examples/mem0_import.py`):
 git clone https://github.com/adecubed/adebench
 cd adebench
 ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.mem0:Mem0Adapter \
-    --cases examples/synthetic_data/cases --history /tmp/run --no-sandbox-test --write-back
+    --cases sets/quick/cases --history /tmp/run --no-sandbox-test --write-back
 ```
 
 Your own memory, with your own golden set (an ADE Brain here, the default adapter):

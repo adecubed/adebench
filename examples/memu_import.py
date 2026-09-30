@@ -3,7 +3,7 @@ through memU's normal memorize path, so that the same golden set runs there too:
 
     MEMU_HOME=... MEMU_PYTHON=... python examples/memu_import.py
     ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.memu:MemuAdapter \\
-        --cases examples/synthetic_data/cases --history /tmp/memu-run --no-sandbox-test --write-back
+        --cases sets/quick/cases --history /tmp/memu-run --no-sandbox-test --write-back
 
 Nothing is rewritten on the way in. Each card, fact, alias and episode is one
 session (memU's unit of input), sent in the order of cognee's import: a card
@@ -16,6 +16,8 @@ memU prepares the jobs 10 sessions at a time, the executor (Gemini, see
 adebench/memu.py) carries them out, memU commits. What becomes a wiki page, and
 what is left out, is memU's executor's decision. The store is emptied first:
 it is a benchmark load, not someone's memory.
+
+The set is sets/quick unless --set <folder> (or ADEBENCH_SET) names another one.
 """
 from __future__ import annotations
 
@@ -27,7 +29,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from adebench import memu  # noqa: E402
-from examples.synthetic import ALIASES, CARDS, EPISODES, FACTS  # noqa: E402
+from adebench import sets  # noqa: E402
+
+_C = sets.current().constants()  # --set <folder> or ADEBENCH_SET; default sets/quick
+CARDS, CARD_DATES, FACTS, ALIASES, EPISODES = _C["CARDS"], _C["CARD_DATES"], _C["FACTS"], _C["ALIASES"], _C["EPISODES"]
 
 
 def sessions() -> list[list[dict]]:

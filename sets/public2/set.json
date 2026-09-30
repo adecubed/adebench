@@ -1,0 +1,18 @@
+{
+ "name": "public2",
+ "version": "1",
+ "written_by": "gemini-3-flash-preview via adebench.genset",
+ "prompt_sha256": "ecdacc9dc37d4c6bf9d728a044577f9850ff5cb226023804282d5a9948727e33",
+ "seed": 20260930,
+ "attempts": 1,
+ "created": "2026-09-30T14:17:53+00:00",
+ "validator": {
+  "answerable": 0,
+  "retired": 0,
+  "never_stored": 0,
+  "invented": 0,
+  "leading": 0,
+  "structure": 0
+ },
+ "sha256": "4b5363cef18f60d1e77b89f6da7bdba6ed03e96d3a9d083ba56e6f10ac05d928"
+}

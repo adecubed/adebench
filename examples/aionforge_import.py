@@ -5,7 +5,7 @@ store, capture by capture, so that the same golden set runs there too:
         --config /config.toml serve http --listen 127.0.0.1:3918
     AIONFORGE_URL=http://127.0.0.1:3918/mcp python examples/aionforge_import.py
     python -m adebench --adapter adebench.aionforge:AionforgeAdapter \\
-        --cases examples/synthetic_data/cases --history /tmp/aionforge-run
+        --cases sets/quick/cases --history /tmp/aionforge-run
 
 Nothing is rewritten on the way in. A card is one capture, dated with the
 card's date; a fact is one capture with its event date; an episode is two
@@ -14,6 +14,8 @@ sentence saying what the alias means. All of it in one session (so the time
 section can list it) and in the agent's private namespace. At the end a few
 consolidation ticks derive Aionforge's own facts and entities; the store is
 a scratch one.
+
+The set is sets/quick unless --set <folder> (or ADEBENCH_SET) names another one.
 """
 from __future__ import annotations
 
@@ -22,7 +24,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from adebench.aionforge import AionforgeAdapter  # noqa: E402
-from examples.synthetic import ALIASES, CARD_DATES, CARDS, EPISODES, FACTS  # noqa: E402
+from adebench import sets  # noqa: E402
+
+_C = sets.current().constants()  # --set <folder> or ADEBENCH_SET; default sets/quick
+CARDS, CARD_DATES, FACTS, ALIASES, EPISODES = _C["CARDS"], _C["CARD_DATES"], _C["FACTS"], _C["ALIASES"], _C["EPISODES"]
 
 
 def main() -> int:

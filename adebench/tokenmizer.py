@@ -14,7 +14,7 @@ measures it as it is, through the surface an agent has: the proxy to write,
     tokenmizer serve --config tokenmizer.yaml     # use_llm_extraction: true
     python examples/tokenmizer_import.py          # the synthetic memory, through the proxy
     python -m adebench --adapter adebench.tokenmizer:TokenmizerAdapter \\
-        --cases examples/synthetic_data/cases --sections door cards updates time abstention graph census doors
+        --cases sets/quick/cases --sections door cards updates time abstention graph census doors
 
     TOKENMIZER_URL          http://127.0.0.1:8000
     TOKENMIZER_SESSION      adebench            the session whose graph is measured

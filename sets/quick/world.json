@@ -1,0 +1,167 @@
+{
+ "name": "quick",
+ "as_of": "2026-09-11",
+ "cards": [
+  {
+   "id": "card:brain",
+   "entity": "brain",
+   "text": "The Brain is the memory service of the assistant. It listens on port 8766, keeps three memory levels (working, episodic and semantic), and is distilled by the Nova model every night. Updated 2026-09-01.",
+   "date": "2026-09-01"
+  },
+  {
+   "id": "card:mailbox",
+   "entity": "mailbox",
+   "text": "The mailbox is served by the MailBridge connector, version 1.4.2, installed in its own virtual environment. It exposes 12 tools. Updated 2026-08-20.",
+   "date": "2026-08-20"
+  },
+  {
+   "id": "card:calendar",
+   "entity": "calendar",
+   "text": "The calendar comes from the owner's work account and is read every 15 minutes. Events are cached for one hour. Updated 2026-08-30.",
+   "date": "2026-08-30"
+  },
+  {
+   "id": "card:owner",
+   "entity": "owner",
+   "text": "The owner is Alex, a product designer based in Turin who commutes by train and prefers morning meetings. Updated 2026-09-05.",
+   "date": "2026-09-05"
+  }
+ ],
+ "corrections": [
+  {
+   "entity": "brain",
+   "content": "In the brain card never omit: port 8766, the Nova model, the three memory levels"
+  },
+  {
+   "entity": "calendar",
+   "content": "In the calendar card never omit: read every 15 minutes, shared with the team"
+  }
+ ],
+ "aliases": [
+  {
+   "alias": "the_brain",
+   "canonical": "brain"
+  },
+  {
+   "alias": "mail_bridge",
+   "canonical": "mailbox"
+  },
+  {
+   "alias": "agenda",
+   "canonical": "calendar"
+  }
+ ],
+ "facts": [
+  {
+   "id": "brain_port",
+   "entity": "brain",
+   "attribute": "port",
+   "text": "The Brain listens on port 8766.",
+   "date": "2026-05-10",
+   "supersedes": null
+  },
+  {
+   "id": "brain_model",
+   "entity": "brain",
+   "attribute": "model",
+   "text": "Distillation uses the Nova model.",
+   "date": "2026-06-01",
+   "supersedes": null
+  },
+  {
+   "id": "mailbox_version",
+   "entity": "mailbox",
+   "attribute": "version",
+   "text": "MailBridge 1.4.2 replaced 1.3.0 on 2026-08-20.",
+   "date": "2026-08-20",
+   "supersedes": null
+  },
+  {
+   "id": "mailbox_tools",
+   "entity": "mailbox",
+   "attribute": "tools",
+   "text": "MailBridge exposes 12 tools to the assistant.",
+   "date": "2026-08-20",
+   "supersedes": null
+  },
+  {
+   "id": "calendar_refresh",
+   "entity": "calendar",
+   "attribute": "refresh",
+   "text": "The calendar is read every 15 minutes.",
+   "date": "2026-07-02",
+   "supersedes": null
+  },
+  {
+   "id": "owner_city",
+   "entity": "owner",
+   "attribute": "city",
+   "text": "Alex lives in Turin.",
+   "date": "2026-04-15",
+   "supersedes": null
+  },
+  {
+   "id": "owner_meetings",
+   "entity": "owner",
+   "attribute": "meetings",
+   "text": "Alex prefers morning meetings.",
+   "date": "2026-05-20",
+   "supersedes": null
+  },
+  {
+   "id": "travel_train",
+   "entity": "travel",
+   "attribute": "train",
+   "text": "The owner commutes by train.",
+   "date": null,
+   "supersedes": null
+  },
+  {
+   "id": "travel_bike",
+   "entity": "travel",
+   "attribute": "bike",
+   "text": "In summer the owner sometimes commutes by bike.",
+   "date": null,
+   "supersedes": null
+  },
+  {
+   "id": "backup_policy",
+   "entity": "backup",
+   "attribute": "policy",
+   "text": "Backups run on Sundays at 03:00.",
+   "date": "2026-03-01",
+   "supersedes": null
+  }
+ ],
+ "episodes": [
+  {
+   "id": "ep1",
+   "created_at": "2026-09-10T09:12:00",
+   "repl": "chat",
+   "input": "Install MailBridge 1.4.2 in its own venv",
+   "output": "Installed MailBridge 1.4.2; 12 tools registered"
+  },
+  {
+   "id": "ep2",
+   "created_at": "2026-09-10T18:40:00",
+   "repl": "chat",
+   "input": "Set backup schedule",
+   "output": "Backups on Sundays at 03:00"
+  },
+  {
+   "id": "ep3",
+   "created_at": "2026-09-09T11:00:00",
+   "repl": "chat",
+   "input": "Plan the Turin trip by train",
+   "output": "Train at 07:15, back at 19:30"
+  },
+  {
+   "id": "ep4",
+   "created_at": "2026-09-08T08:30:00",
+   "repl": "pc2:chat",
+   "input": "[pc2] Sync the calendar cache",
+   "output": "Cache refreshed"
+  }
+ ],
+ "canary": null
+}

@@ -2,7 +2,7 @@
 so that the Brain runs on the same golden set as the other memories:
 
     BRAIN_URL=http://127.0.0.1:8766 python examples/ade_import.py
-    python -m adebench --adapter adebench.ade:AdeAdapter --cases examples/synthetic_data/cases \\
+    python -m adebench --adapter adebench.ade:AdeAdapter --cases sets/quick/cases \\
         --history /tmp/brain-synthetic-run
 
 Nothing is rewritten on the way in. Every sentence, card text and fact
@@ -18,6 +18,8 @@ it holds, so after the load each entity's card is generated the Brain's
 way (POST /memory/scheda/write without text), with the Brain's own model.
 Run it against an instance whose memory is empty and whose BRAIN_LANG is
 the golden set's language: it is a benchmark load, not a person's memory.
+
+The set is sets/quick unless --set <folder> (or ADEBENCH_SET) names another one.
 """
 from __future__ import annotations
 
@@ -29,7 +31,10 @@ import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from examples.synthetic import ALIASES, CARD_DATES, CARDS, EPISODES, FACTS  # noqa: E402
+from adebench import sets  # noqa: E402
+
+_C = sets.current().constants()  # --set <folder> or ADEBENCH_SET; default sets/quick
+CARDS, CARD_DATES, FACTS, ALIASES, EPISODES = _C["CARDS"], _C["CARD_DATES"], _C["FACTS"], _C["ALIASES"], _C["EPISODES"]
 
 BRAIN = os.environ.get("BRAIN_URL", "http://127.0.0.1:8766").rstrip("/")
 TOKEN = os.environ.get("BRAIN_TOKEN", "")
@@ -62,9 +67,9 @@ def main() -> int:
                                             "key": f"card_text_{entity}", "entities": [entity]})
         print("card text", entity, "->", r.get("ok"))
     for f in FACTS:
-        ent = f["key"].split("_", 1)[0]
+        ent = sets.fact_entity(f, CARDS)
         r = post("/memory/semantic/learn", {"content": f["content"], "event_date": f["event_date"], "key": f["key"],
-                                            "entities": [ent] if ent in CARDS else []})
+                                            "entities": [ent] if ent else []})
         print("fact", f["key"], "->", r.get("ok"), r.get("supersedes") or "")
     for al in ALIASES:
         r = post("/memory/scheda/write", {"entita": al["alias"], "alias_di": al["canonical"]})

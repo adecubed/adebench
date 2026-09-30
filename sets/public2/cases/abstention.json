@@ -1,0 +1,50 @@
+[
+ {
+  "question": "What is the primary function of the Zoltaris module?",
+  "entity": "Zoltaris"
+ },
+ {
+  "question": "Does Vornak interface with the Nexus API?",
+  "entity": "Vornak"
+ },
+ {
+  "question": "How many Glimmox units are installed in Sector G?",
+  "entity": "Glimmox"
+ },
+ {
+  "question": "Is Brakit compatible with Lyra Scheduler?",
+  "entity": "Brakit"
+ },
+ {
+  "question": "Who designed the Krelin processor?",
+  "entity": "Krelin"
+ },
+ {
+  "question": "When was the Duxo firmware last updated?",
+  "entity": "Duxo"
+ },
+ {
+  "question": "Does Jalvor require access to Orion DB?",
+  "entity": "Jalvor"
+ },
+ {
+  "question": "What is the encryption level of Moxie?",
+  "entity": "Moxie"
+ },
+ {
+  "question": "Is the Plynth sensor calibrated?",
+  "entity": "Plynth"
+ },
+ {
+  "question": "Where is the Quarx server located?",
+  "entity": "Quarx"
+ },
+ {
+  "question": "What protocol does Riften use?",
+  "entity": "Riften"
+ },
+ {
+  "question": "Is Skalo active in the West Wing?",
+  "entity": "Skalo"
+ }
+]

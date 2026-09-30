@@ -15,7 +15,7 @@ compact list the recall skill starts from). Writes are `memory_save`'s route
     EMBEDDING_PROVIDER=local agentmemory             # keyless: provider noop, all-MiniLM-L6-v2 on this machine
     python examples/agentmemory_import.py
     ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.agentmemory:AgentmemoryAdapter \\
-        --cases examples/synthetic_data/cases --history /tmp/agentmemory-run --write-back
+        --cases sets/quick/cases --history /tmp/agentmemory-run --write-back
 
 Two modes of use, the same adapter unchanged (it reads the mode from
 /config/flags; the switch is the server's environment, not the adapter's):

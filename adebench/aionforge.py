@@ -11,7 +11,7 @@ from episodes, deterministic, no model), `session_manifest` and
     docker run --network host ghcr.io/jscott3201/aionforge-memory:0.4.0 \\
         --config /config.toml serve http --listen 127.0.0.1:3918
     python examples/aionforge_import.py
-    python -m adebench --adapter adebench.aionforge:AionforgeAdapter --cases examples/synthetic_data/cases
+    python -m adebench --adapter adebench.aionforge:AionforgeAdapter --cases sets/quick/cases
 
     AIONFORGE_URL        http://127.0.0.1:3918/mcp
     AIONFORGE_AGENT_ID   a fixed UUID: the agent whose private namespace is measured

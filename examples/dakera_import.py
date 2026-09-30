@@ -11,6 +11,8 @@ Dakera stores a real timestamp for every memory, so undated facts carry no
 date tag and the adapter shows Dakera's stored time as their age.
 
     DAKERA_API_KEY=... python3 examples/dakera_import.py
+
+The set is sets/quick unless --set <folder> (or ADEBENCH_SET) names another one.
 """
 from __future__ import annotations
 
@@ -22,10 +24,13 @@ import urllib.error
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from examples.synthetic import CARDS, CARD_DATES, FACTS, EPISODES, ALIASES  # noqa: E402
+from adebench import sets  # noqa: E402
+
+_C = sets.current().constants()  # --set <folder> or ADEBENCH_SET; default sets/quick
+CARDS, CARD_DATES, FACTS, ALIASES, EPISODES = _C["CARDS"], _C["CARD_DATES"], _C["FACTS"], _C["ALIASES"], _C["EPISODES"]
 
 BASE = os.environ.get("DAKERA_URL", "http://localhost:3000")
-KEY = os.environ["DAKERA_API_KEY"]
+KEY = os.environ.get("DAKERA_API_KEY", "")  # checked in main(): importing the module needs no key
 AID = "adebench-eval"
 # Same session the adapter recalls with. Dakera scopes a sessioned recall to the
 # session's memories AND applies its supersession demotion there, so the golden
@@ -53,6 +58,8 @@ def store(content, mtype, tags, importance=0.7):
 
 
 def main() -> int:
+    if not KEY:
+        raise SystemExit("DAKERA_API_KEY is not set")
     print("forget:", call("/v1/memory/forget", {"agent_id": AID, "tags": ["adebench-eval"]}))
     ids = {}
     n = 0
@@ -64,7 +71,7 @@ def main() -> int:
     # facts — stored verbatim; linked to an entity only when the key names one
     link_ok = link_fail = 0
     for f in FACTS:
-        ent = next((e for e in CARDS if e in f["key"]), None)
+        ent = sets.fact_entity(f, CARDS)
         d = f["event_date"] or ""
         tags = ["adebench-eval", "fact", "fact:" + f["key"]]
         if ent:
@@ -89,7 +96,7 @@ def main() -> int:
               ["adebench-eval", "alias", "alias:" + a["alias"], "canonical:" + a["canonical"]], 0.5)
         n += 1
     # repo files for the file-search section
-    repo = Path(__file__).resolve().parents[1] / "examples" / "synthetic_data" / "repo"
+    repo = sets.current().path / "repo"
     for p in sorted(repo.rglob("*.py")):
         store(p.read_text(encoding="utf-8"), "semantic",
               ["adebench-eval", "file", "file:" + p.relative_to(repo).as_posix()], 0.6)

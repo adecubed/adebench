@@ -23,7 +23,7 @@ code is imported; urllib only.
         not how the server is meant to run and is not the reference.
     python examples/supermemory_import.py
     ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.supermemory:SupermemoryAdapter \\
-        --cases examples/synthetic_data/cases --history /tmp/supermemory-run --no-sandbox-test --write-back
+        --cases sets/quick/cases --history /tmp/supermemory-run --no-sandbox-test --write-back
 
     SUPERMEMORY_URL        http://localhost:3951
     SUPERMEMORY_CONTAINER  adebench          the container tag measured (a scratch one)

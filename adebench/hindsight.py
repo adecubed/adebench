@@ -14,7 +14,7 @@ imported.
         -e HINDSIGHT_API_LLM_API_KEY=... -e HINDSIGHT_API_LLM_MODEL=gemini-3.5-flash-lite \\
         -v hindsight-data:/home/hindsight/.pg0 ghcr.io/vectorize-io/hindsight:latest
     python examples/hindsight_import.py
-    python -m adebench --adapter adebench.hindsight:HindsightAdapter --cases examples/synthetic_data/cases
+    python -m adebench --adapter adebench.hindsight:HindsightAdapter --cases sets/quick/cases
 
     HINDSIGHT_URL      http://127.0.0.1:8888
     HINDSIGHT_BANK     adebench           the bank measured (a scratch one)

@@ -4,7 +4,7 @@ item by item, so that the same golden set runs there too:
     COGNEE_HOME=... COGNEE_PYTHON=... python examples/cognee_import.py      (Gemini, GOOGLE_API_KEY)
     COGNEE_LLM=gliner_demo ... python examples/cognee_import.py            (local, no key)
     ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.cognee:CogneeAdapter \\
-        --cases examples/synthetic_data/cases --history /tmp/cognee-run --no-sandbox-test --write-back
+        --cases sets/quick/cases --history /tmp/cognee-run --no-sandbox-test --write-back
 
 Nothing is rewritten on the way in. Each card, fact, alias and episode is one
 data item through cognee.add (a DataItem whose external_metadata carries the
@@ -15,6 +15,8 @@ becomes a node or an edge is cognee's decision. An alias is a sentence saying
 what the alias means; an episode is its request and its result in one item.
 The store is emptied first (prune): it is a benchmark load, not someone's
 memory.
+
+The set is sets/quick unless --set <folder> (or ADEBENCH_SET) names another one.
 """
 from __future__ import annotations
 
@@ -25,7 +27,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from adebench import cognee  # noqa: E402
-from examples.synthetic import ALIASES, CARD_DATES, CARDS, EPISODES, FACTS  # noqa: E402
+from adebench import sets  # noqa: E402
+
+_C = sets.current().constants()  # --set <folder> or ADEBENCH_SET; default sets/quick
+CARDS, CARD_DATES, FACTS, ALIASES, EPISODES = _C["CARDS"], _C["CARD_DATES"], _C["FACTS"], _C["ALIASES"], _C["EPISODES"]
 
 
 def main() -> int:

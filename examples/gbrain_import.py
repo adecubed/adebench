@@ -4,11 +4,13 @@ page, so that the same golden set runs on both:
     gbrain init --pglite                       # once, an empty brain
     python examples/gbrain_import.py           # writes the pages via put_page
     python -m adebench --adapter adebench.gbrain:GbrainAdapter \
-        --cases examples/synthetic_data/cases --history /tmp/gbrain-run
+        --cases sets/quick/cases --history /tmp/gbrain-run
 
 Cards become entity pages (person / company / project) with frontmatter;
 facts become dated atom pages; episodes become dated note pages. Nothing
 is invented here that the synthetic memory does not already hold.
+
+The set is sets/quick unless --set <folder> (or ADEBENCH_SET) names another one.
 """
 from __future__ import annotations
 
@@ -18,7 +20,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from adebench.gbrain import GbrainAdapter  # noqa: E402
-from examples.synthetic import CARDS, CARD_DATES, EPISODES, FACTS  # noqa: E402
+from adebench import sets  # noqa: E402
+
+_C = sets.current().constants()  # --set <folder> or ADEBENCH_SET; default sets/quick
+CARDS, CARD_DATES, FACTS, ALIASES, EPISODES = _C["CARDS"], _C["CARD_DATES"], _C["FACTS"], _C["ALIASES"], _C["EPISODES"]
 
 TYPES = {"brain": "project", "mailbox": "project", "calendar": "project", "owner": "person"}
 TITLES = {"brain": "Brain", "mailbox": "Mailbox (MailBridge)", "calendar": "Calendar", "owner": "Alex"}
@@ -38,14 +43,16 @@ def main() -> int:
         print("gbrain does not answer: install it and run `gbrain init --pglite` first")
         return 2
     n = 0
-    entity_slugs = {e: f"{TYPES[e]}s/{e}" if TYPES[e] != "person" else f"people/{e}" for e in CARDS}
+    kind = {e: TYPES.get(e, "project") for e in CARDS}   # the quick set's types; any other entity is a project page
+    title = {e: TITLES.get(e, e.replace("_", " ").title()) for e in CARDS}
+    entity_slugs = {e: f"{kind[e]}s/{e}" if kind[e] != "person" else f"people/{e}" for e in CARDS}
     for ent, text in CARDS.items():
         others = [s for e, s in entity_slugs.items() if e != ent and e in text.lower()]
         g._call("put_page", {"slug": entity_slugs[ent], "content": page(
-            entity_slugs[ent], TITLES[ent], TYPES[ent], text, CARD_DATES[ent], others)})
+            entity_slugs[ent], title[ent], kind[ent], text, CARD_DATES[ent], others)})
         n += 1
     for f in FACTS:
-        ent = next((e for e in CARDS if e in f["key"]), None)
+        ent = sets.fact_entity(f, CARDS)
         links = [entity_slugs[ent]] if ent else []
         g._call("put_page", {"slug": f"atoms/{f['key']}", "content": page(
             f["key"], f["key"].replace("_", " "), "atom", f["content"], f["event_date"], links)})
@@ -57,7 +64,10 @@ def main() -> int:
         n += 1
         # the same episode as a dated timeline entry on the entity it concerns,
         # so that gbrain's chronicle (the 'time' section) sees it
-        ent = next((x for x in CARDS if x in (e["input_summary"] + e["output_summary"]).lower()), "owner")
+        ent = next((x for x in CARDS if x.replace("_", " ") in (e["input_summary"] + e["output_summary"]).lower()),
+                   "owner" if "owner" in CARDS else None)
+        if ent is None:   # an episode that names no entity has no chronicle to go on
+            continue
         g._call("add_timeline_entry", {"slug": entity_slugs[ent], "date": e["created_at"][:10],
                                        "summary": e["input_summary"], "detail": e["output_summary"],
                                        "source": e["repl"]})

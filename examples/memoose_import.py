@@ -4,7 +4,7 @@ so that the same golden set runs there too:
     pip install memoose
     python examples/memoose_import.py                 # writes into dataset 'adebench'
     python -m adebench --adapter adebench.memoose:MemooseAdapter \
-        --cases examples/synthetic_data/cases --history /tmp/memoose-run
+        --cases sets/quick/cases --history /tmp/memoose-run
 
 Nothing is rewritten on the way in. A card becomes an entity whose
 description is the card, word for word. A fact becomes a relation from the
@@ -15,6 +15,8 @@ the day it happened. An alias becomes what Memoose calls an alias: the
 alias entity merged into the canonical one.
 
 The dataset is a scratch one. `memoose -d adebench forget --all` removes it.
+
+The set is sets/quick unless --set <folder> (or ADEBENCH_SET) names another one.
 """
 from __future__ import annotations
 
@@ -25,7 +27,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from adebench.memoose import MemooseAdapter  # noqa: E402
-from examples.synthetic import ALIASES, CARD_DATES, CARDS, EPISODES, FACTS  # noqa: E402
+from adebench import sets  # noqa: E402
+
+_C = sets.current().constants()  # --set <folder> or ADEBENCH_SET; default sets/quick
+CARDS, CARD_DATES, FACTS, ALIASES, EPISODES = _C["CARDS"], _C["CARD_DATES"], _C["FACTS"], _C["ALIASES"], _C["EPISODES"]
 
 TYPES = {"brain": "System", "mailbox": "Product", "calendar": "Product", "owner": "Person"}
 
@@ -39,15 +44,16 @@ def main() -> int:
     def tool(name: str, payload: dict) -> dict:
         return m._cli(["tool", name, "--stdin"], stdin=json.dumps(payload))
 
+    kind = {e: TYPES.get(e, "Concept") for e in CARDS}   # the quick set's types; any other entity is a Concept
     for entity, text in CARDS.items():
-        tool("remember", {"entities": [{"name": entity, "type": TYPES[entity], "description": text}],
+        tool("remember", {"entities": [{"name": entity, "type": kind[entity], "description": text}],
                           "relations": [], "summary": text, "source_text": text,
                           "source": f"adebench:card:{entity}"})
 
     for f in FACTS:
-        entity = next((e for e in CARDS if e in f["key"]), "owner")
+        entity = sets.fact_entity(f, CARDS, "owner" if "owner" in CARDS else next(iter(CARDS)))
         tool("remember", {
-            "entities": [{"name": entity, "type": TYPES[entity], "description": ""},
+            "entities": [{"name": entity, "type": kind[entity], "description": ""},
                          {"name": f["key"], "type": "Concept", "description": f["content"]}],
             "relations": [{"source": entity, "name": "records", "target": f["key"],
                            "description": f["content"], "valid_from": f["event_date"],
@@ -66,7 +72,7 @@ def main() -> int:
             m._cli(["session", "turn", session, "--role", role, "--text", text])
 
     for a in ALIASES:
-        tool("remember", {"entities": [{"name": a["alias"], "type": TYPES[a["canonical"]],
+        tool("remember", {"entities": [{"name": a["alias"], "type": kind.get(a["canonical"], "Concept"),
                                         "description": ""}], "relations": []})
         tool("merge_entities", {"keep": a["canonical"], "drop": a["alias"]})
 

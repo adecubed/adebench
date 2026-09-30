@@ -3,13 +3,15 @@ observation by observation, so that the same golden set runs there too:
 
     JEVMEM_HOME=... JEVMEM_PYTHON=... python examples/jevmem_import.py
     python -m adebench --adapter adebench.jevmem:JevMemAdapter \
-        --cases examples/synthetic_data/cases --history /tmp/jevmem-run
+        --cases sets/quick/cases --history /tmp/jevmem-run
 
 Nothing is rewritten on the way in. Each card, fact, alias and episode is one
 observation through Jev-Mem's explicit write path (MemoryBuilder.build: typing,
 candidates, relation judgments by the System-One model, insertion), with its
 own date. What becomes a link is Jev-Mem's decision. The store is emptied
 first: it is a benchmark load, not someone's memory.
+
+The set is sets/quick unless --set <folder> (or ADEBENCH_SET) names another one.
 """
 from __future__ import annotations
 
@@ -20,7 +22,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from adebench import jevmem  # noqa: E402
-from examples.synthetic import ALIASES, CARD_DATES, CARDS, EPISODES, FACTS  # noqa: E402
+from adebench import sets  # noqa: E402
+
+_C = sets.current().constants()  # --set <folder> or ADEBENCH_SET; default sets/quick
+CARDS, CARD_DATES, FACTS, ALIASES, EPISODES = _C["CARDS"], _C["CARD_DATES"], _C["FACTS"], _C["ALIASES"], _C["EPISODES"]
 
 
 def main() -> int:

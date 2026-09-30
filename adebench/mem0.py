@@ -33,7 +33,7 @@ talks to it in JSON lines, the Jev-Mem and cognee pattern.
     (re-import before EACH run: mem0 keeps the session's saved messages, and
     the next m.add reads them, so a run's probes would feed the next run)
     ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.mem0:Mem0Adapter \\
-        --cases examples/synthetic_data/cases --no-sandbox-test --write-back
+        --cases sets/quick/cases --no-sandbox-test --write-back
 
     MEM0_HOME        the directory of the mem0 install (its venv)
     MEM0_PYTHON      the Python of mem0's environment

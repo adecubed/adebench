@@ -30,7 +30,7 @@ Gemini mode it also counts every litellm call and its tokens
     uv venv --python 3.11 .venv && uv pip install --python .venv/Scripts/python.exe "cognee[gliner]"
     COGNEE_HOME=... COGNEE_PYTHON=.../.venv/Scripts/python.exe python examples/cognee_import.py
     ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.cognee:CogneeAdapter \\
-        --cases examples/synthetic_data/cases --no-sandbox-test --write-back
+        --cases sets/quick/cases --no-sandbox-test --write-back
 
     COGNEE_LLM     gemini (default) | gliner_demo
     COGNEE_HOME     the directory of the cognee install (its venv)

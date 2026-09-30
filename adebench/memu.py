@@ -42,7 +42,7 @@ Models (measured configuration):
     uv venv --python 3.11 .venv && uv pip install --python .venv/Scripts/python.exe <memU checkout>
     MEMU_HOME=... MEMU_PYTHON=.../.venv/Scripts/python.exe python examples/memu_import.py
     ADEBENCH_LIVE_STATE_KEY= python -m adebench --adapter adebench.memu:MemuAdapter \\
-        --cases examples/synthetic_data/cases --no-sandbox-test --write-back
+        --cases sets/quick/cases --no-sandbox-test --write-back
 
     MEMU_HOME       the directory of the memU install (its venv)
     MEMU_PYTHON     the Python of memU's environment

@@ -14,7 +14,7 @@ only for report measures (dates, counts, live-state values).
 
     git clone https://github.com/SukinShetty/Nemp-memory
     NEMP_PLUGIN=.../Nemp-memory NEMP_PROJECT=/tmp/nemp-project python examples/nemp_import.py
-    python -m adebench --adapter adebench.nemp:NempAdapter --cases examples/synthetic_data/cases
+    python -m adebench --adapter adebench.nemp:NempAdapter --cases sets/quick/cases
 
     NEMP_PLUGIN    the Nemp checkout (loaded with --plugin-dir)
     NEMP_PROJECT   the scratch project (a git repository, so Nemp uses project storage)
