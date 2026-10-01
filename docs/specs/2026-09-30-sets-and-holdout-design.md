@@ -96,48 +96,61 @@ private set (3 and 1). The check compares the core score on the two sets, per 55
 
 Two sources of spread are counted:
 
-- **builds**: the range of the memory's own runs on each set;
-- **questions**: a different set samples different questions. For each set, 2,000
-  bootstrap resamples of the core cases (within each section, with replacement) give an
-  interval for the core score of each run.
+- **builds**: the memory's own runs on each set, picked at random in each resample;
+- **questions**: a different set samples different questions. Only the sections whose cases
+  come from the set's questions are resampled (door and abstention, with replacement within
+  each); updates and time are mostly probes the harness writes itself, the same on every
+  set, and are taken from the picked run as they are.
 
-The difference `private − public2` gets a 90 % interval from resampling runs and
-questions together. With a margin **δ = 3 core points** (about three door probes on a
-24-question set):
+The difference `private − public2` gets a 90 % interval from 2,000 such resamples.
+
+The check is **one-sided** (decided 2026-09-30). With 24 door and 12 abstention questions a
+set cannot show that two scores are *equal* within a few points: a simulation of a memory
+that behaves identically on both sets gives an interval of about ±5.8 core points for a
+typical memory and ±4.6 for a strong one, so an equivalence rule would almost always say
+"inconclusive". It can show a *drop*, which is what the private set is for: a memory tuned to
+the public questions typically loses ten points or more. With a minimum effect
+**δ = 3 core points**:
 
 | Outcome | When |
 |---|---|
-| **consistent** | the whole interval lies within ±δ |
 | **lower by X** | the whole interval lies below 0 and its midpoint is below −δ; X is the midpoint |
-| **higher by X** | the same, above +δ |
-| **inconclusive** | anything else: too few builds or too much spread to say |
+| **no drop detected (±Y)** | anything else; Y is the interval's half-width, so the reader sees how fine the check was |
 
-Only the outcome, X, δ and the set's version and hash are published, in
-`examples/<memory>_report/holdout.json`. The runs themselves stay in the private folder.
+Only the outcome, X or Y, δ, the number of builds on each side and the set's version and hash
+are published, in `examples/<memory>_report/holdout.json`. The runs themselves stay in the
+private folder.
 
 ## 5. Keeping the private set private
 
 A rule in the assistant's memory says no session opens the private set. That is not enough
 on its own, so:
 
-- **Where it lives.** `C:/Users/simon/ade/adebench_holdout/`, outside every repository,
-  and a copy on the evaluation server for memories that need Docker. Never in
-  `adebench_locale` or the orchestrator, which Brain development reads.
+- **Where it lives.** `C:/Users/simon/adebench_holdout/`, outside every repository (not
+  under `C:/Users/simon/ade`, which is itself the orchestrator's repository), and a copy on
+  the evaluation server for memories that need Docker. Never in `adebench_locale` or the
+  orchestrator, which Brain development reads. The runner refuses a folder inside a
+  repository. Private runs are kept per set version, so a `holdout-v2` never mixes with v1.
 - **Frozen before any run.** After validation the set is saved as `holdout-v1` with the
   sha256 of its canonical content. Every run checks the hash and refuses on a mismatch. A
   new private set is `holdout-v2`, never an overwrite; Gemini's seed is recorded but not
   relied on to reproduce it.
-- **An isolated runner.** `python -m adebench.holdout run --adapter ... --import ...`
-  loads the set from the private folder into a fresh store, runs the benchmark with its
-  history in the private folder, prints only aggregates, and deletes the memory's store at
-  the end. Adapters get the store path from the runner, so no store lands in a default
-  location.
-- **Logs, caches, artifacts.** Each adapter declares where its memory writes text outside
-  the store (bridge logs, caches, a server's own log); the runner points those inside the
-  private folder or deletes them after the run.
-- **A leak check.** After every private run the runner searches for the canary token in the
-  repositories, the scratch folders, the memories' default data and cache folders and the
-  session transcripts folder. A hit fails the run and names the file.
+- **An isolated runner.** `python -m adebench.holdout run --memory <name>` loads the set
+  from the private folder into a fresh store, runs the benchmark with its history in the
+  private folder, prints only aggregates, and deletes the memory's store at the end.
+  Adapters get the store path from the runner, so no store lands in a default location. The
+  run starts without the parent shell's benchmark and memory variables (`ADEBENCH_*`,
+  `BRAIN_*`...): only its registry entry sets them, and a server memory must name its URL
+  there, so a private set can never be loaded into a live memory by default.
+- **Logs, caches, artifacts.** Each registry entry declares where its memory writes text
+  outside the store (bridge logs, caches, a server's own data and log) in `cleanup`; the
+  runner deletes those after the run and scans them like the rest.
+- **A leak check.** After every private run (once per run, not per build) the runner
+  searches for the canary token in the adebench repository, `C:/Users/simon/ade` (the
+  orchestrator, the live Brain's data, every memory's install), the memories' default data
+  folders, Ollama's logs, the session transcripts and the temp folder, skipping installed
+  code (`node_modules`, `__pycache__`, `.git`), model weights and links. A hit fails the run
+  and names the file. About 30 s with a warm disk cache, several minutes cold.
 - **Who runs it.** Agents that run the holdout are told to run the command and report its
   printed aggregates, never to open the folder. The generation prompt and the model's
   answers are written straight to the private folder.

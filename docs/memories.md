@@ -342,8 +342,9 @@ because a memory that rewrites what it stores keeps the meaning and loses the se
 
 ## Six more, found by the scout
 
-[`adebench/scout.py`](../adebench/scout.py) lists AI memory repositories on GitHub that
-adebench has not measured yet (`python -m adebench.scout`: topic and keyword searches,
+[topicscout](https://github.com/adecubed/topicscout) (born here as `adebench/scout.py`, now
+its own project) lists AI memory repositories on GitHub that adebench has not measured yet
+(`topicscout run ai-memory --out scout --known-from "adebench/*.py"`: topic and keyword searches,
 minus forks, archived, stale and curated lists; the state is kept across runs, so each run
 shows only what is new). Six of the largest were measured on 29-30 Sep 2026, each with its
 own adapter, import script and offline tests, and each adapter reviewed before publishing.

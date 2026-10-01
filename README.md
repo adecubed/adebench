@@ -53,6 +53,13 @@ specification in [`adebench/genset.py`](adebench/genset.py) and accepted by the 
 [`adebench/validate_set.py`](adebench/validate_set.py): every answer backed by an item valid at
 the set's date, retired values only where they were retired, invented entities absent
 everywhere. The board moves to `public2` once every memory has run on it.
+A third set, `holdout-v1`, is private: written the same way and with the same checks, it lives
+outside this repository, which keeps only its version and sha256 (`3cd42b9f…`, in
+[`sets/holdout.json`](sets/holdout.json)). Only [`adebench/holdout.py`](adebench/holdout.py)
+reads it, and it prints nothing from it but scores. For each memory the site publishes a single
+outcome: its core score on the private set is either *lower by X* than on `public2`, or *no drop
+detected (±Y)*. After every private run the set's canary token is searched for outside the
+private folder, and a hit fails the run.
 
 The board on 30 Sep 2026, adebench 0.2.17 (the live one is on the site, with one page per
 memory, its configuration, its runs and its report). Scores are the mean of the runs kept
@@ -101,8 +108,9 @@ Every memory's adapter, import script, reference report and notes from the run a
 repository; the notes are collected in [`docs/memories.md`](docs/memories.md).
 
 To add a memory, write an adapter (below), load the synthetic set, run it, and open a pull
-request with the report. To find candidates, `python -m adebench.scout` lists AI memory
-repositories on GitHub that have no adapter yet.
+request with the report. To find candidates, [topicscout](https://github.com/adecubed/topicscout)
+lists AI memory repositories on GitHub that have no adapter yet:
+`topicscout run ai-memory --out scout --known-from "adebench/*.py"`.
 
 ## What it measures
 
