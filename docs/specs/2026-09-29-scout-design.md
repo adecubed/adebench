@@ -2,6 +2,10 @@
 
 Date: 2026-09-29. Status: approved in chat, step 1 of 4.
 
+Update 2026-09-30: step 1 moved out of adebench into its own project,
+[topicscout](https://github.com/adecubed/topicscout); the queries and filters below are its
+`ai-memory` profile, and the adapters are read with `--known-from "adebench/*.py"`.
+
 ## The whole loop (agreed)
 
 1. **Find**: weekly, a script lists new AI memory repos on GitHub. (this spec)
