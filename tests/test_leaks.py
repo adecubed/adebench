@@ -35,6 +35,19 @@ def test_dependency_trees_are_pruned(tmp_path):
     assert leaks.scan("cnryabc123", [tmp_path], exclude=[]) == []
 
 
+def test_python_environments_are_pruned(tmp_path):
+    # a virtual environment (any name, known by its pyvenv.cfg) and any site-packages
+    venv = tmp_path / "bench" / "env"
+    (venv / "Lib").mkdir(parents=True)
+    (venv / "pyvenv.cfg").write_text("home = x", encoding="utf-8")
+    (venv / "Lib" / "f.py").write_text("cnryabc123", encoding="utf-8")
+    sp = tmp_path / "py" / "site-packages"
+    sp.mkdir(parents=True)
+    (sp / "g.py").write_text("cnryabc123", encoding="utf-8")
+    (tmp_path / "bench" / "data.json").write_text("cnryabc123", encoding="utf-8")
+    assert leaks.scan("cnryabc123", [tmp_path], exclude=[]) == [tmp_path / "bench" / "data.json"]
+
+
 def test_default_roots_cover_the_ade_folder_and_ollama_logs():
     names = {str(p).replace("\\", "/") for p in leaks.DEFAULT_ROOTS}
     assert "C:/Users/simon/ade" in names and any(n.endswith(".ollama/logs") for n in names)

@@ -19,8 +19,14 @@ DEFAULT_ROOTS = [Path(__file__).resolve().parents[1], Path("C:/Users/simon/ade")
                  *(HOME / d for d in (".mem0", ".cognee", ".engram", ".agentmemory", ".memu", ".gbrain", ".memoose")),
                  HOME / ".ollama" / "logs", HOME / ".claude" / "projects", Path(tempfile.gettempdir())]
 WEIGHTS = {".safetensors", ".bin", ".onnx", ".gguf", ".pt"}
-# trees that hold installed code, never data a memory wrote about the set
-PRUNE = {".git", "node_modules", "__pycache__", ".pytest_cache"}
+# trees that hold installed code, never data a memory wrote about the set; a Python virtual
+# environment of any name (it has a pyvenv.cfg) too: they were 95% of the files under
+# C:/Users/simon/ade and made a cold scan take most of an hour
+PRUNE = {".git", "node_modules", "__pycache__", ".pytest_cache", "site-packages"}
+
+
+def _installed(path: str) -> bool:
+    return os.path.exists(os.path.join(path, "pyvenv.cfg"))
 
 
 def _reparse(path: str) -> bool:
@@ -45,7 +51,8 @@ def scan(token: str, roots: list[Path], exclude: list[Path], max_bytes: int = 20
             if any(here == s or s in here.parents for s in skip):
                 dirnames[:] = []
                 continue
-            dirnames[:] = [d for d in dirnames if d not in PRUNE and not _reparse(os.path.join(dirpath, d))]
+            dirnames[:] = [d for d in dirnames if d not in PRUNE and not _reparse(os.path.join(dirpath, d))
+                           and not _installed(os.path.join(dirpath, d))]
             for f in filenames:
                 p = Path(dirpath) / f
                 try:
