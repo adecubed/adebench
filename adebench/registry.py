@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 # variables of the parent shell that would change what is measured or where a memory writes
 # (ADEBENCH_DOOR, ADEBENCH_PRESSURE, BRAIN_URL...): every run, public or private, starts
@@ -24,9 +25,12 @@ import os
 DROP_ENV = ("ADEBENCH_", "BRAIN_", "SUPERMEMORY_", "MEM0_", "COGNEE_", "MEMU_", "ENGRAM_", "AGENTMEMORY_",
             "DAKERA_", "HINDSIGHT_", "AIONFORGE_", "GBRAIN_", "MEMOOSE_", "JEVMEM_", "NEMP_")
 
-BENCH = "C:/Users/simon/ade/bench_memories"      # where each memory is installed on the author's machine
-GBRAIN = "C:/Users/simon/.bun/bin/gbrain.exe"
-BUN_DIR = "C:/Users/simon/AppData/Roaming/npm/node_modules/bun/bin"   # gbrain.exe looks for bun.exe on PATH
+# where each memory is installed; the defaults are relative to the home folder
+BENCH = os.environ.get("ADEBENCH_BENCH_DIR") or (Path.home() / "ade" / "bench_memories").as_posix()
+GBRAIN = os.environ.get("ADEBENCH_GBRAIN_BIN") or (Path.home() / ".bun" / "bin" / "gbrain.exe").as_posix()
+# gbrain.exe looks for bun.exe on PATH
+BUN_DIR = os.environ.get("ADEBENCH_BUN_DIR") or (Path.home() / "AppData" / "Roaming" / "npm" / "node_modules"
+                                                 / "bun" / "bin").as_posix()
 AGENTMEMORY_CLI = f"{BENCH}/agentmemory/node_modules/@agentmemory/agentmemory/dist/cli.mjs"
 # the flags of the published runs: every section, the write-back probe, no sandbox test
 FULL = ["--write-back", "--no-sandbox-test"]

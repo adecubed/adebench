@@ -126,8 +126,8 @@ private folder.
 A rule in the assistant's memory says no session opens the private set. That is not enough
 on its own, so:
 
-- **Where it lives.** `C:/Users/simon/adebench_holdout/`, outside every repository (not
-  under `C:/Users/simon/ade`, which is itself the orchestrator's repository), and a copy on
+- **Where it lives.** `~/adebench_holdout/`, outside every repository (not
+  under `~/ade`, which is itself the orchestrator's repository), and a copy on
   the evaluation server for memories that need Docker. Never in `adebench_locale` or the
   orchestrator, which Brain development reads. The runner refuses a folder inside a
   repository. Private runs are kept per set version, so a `holdout-v2` never mixes with v1.
@@ -146,7 +146,7 @@ on its own, so:
   outside the store (bridge logs, caches, a server's own data and log) in `cleanup`; the
   runner deletes those after the run and scans them like the rest.
 - **A leak check.** After every private run (once per run, not per build) the runner
-  searches for the canary token in the adebench repository, `C:/Users/simon/ade` (the
+  searches for the canary token in the adebench repository, `~/ade` (the
   orchestrator, the live Brain's data, every memory's install), the memories' default data
   folders, Ollama's logs, the session transcripts and the temp folder, skipping installed
   code (`node_modules`, `__pycache__`, `.git`), model weights and links. A hit fails the run

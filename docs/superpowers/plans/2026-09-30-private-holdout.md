@@ -4,7 +4,7 @@
 
 **Goal:** Generate and freeze a private set nobody reads, run a memory on it in isolation printing only aggregates, detect any leak of it, and tell whether a memory's score drops on it.
 
-**Architecture:** `adebench/holdout.py` owns the private folder (`C:/Users/simon/adebench_holdout`, or `ADEBENCH_HOLDOUT`): `make` generates a set there with `genset` (canary on) and writes a public manifest `sets/holdout.json` (version and sha256 only); `run` loads a memory from a registry entry into a fresh store, runs `python -m adebench` in a subprocess with all its output captured into the private folder, deletes the store, scans for the canary, and prints only core scores. `adebench/leaks.py` scans folders for the canary. `adebench/holdout_compare.py` turns public and private runs into an outcome (lower by X / no drop detected ±Y) with a bootstrap over runs and the set's own cases, and writes `examples/<memory>_report/holdout.json`. Wiring the 14 real memories into the registry belongs to plan 3; here the registry has the in-process synthetic memory, which every test uses.
+**Architecture:** `adebench/holdout.py` owns the private folder (`~/adebench_holdout`, or `ADEBENCH_HOLDOUT`): `make` generates a set there with `genset` (canary on) and writes a public manifest `sets/holdout.json` (version and sha256 only); `run` loads a memory from a registry entry into a fresh store, runs `python -m adebench` in a subprocess with all its output captured into the private folder, deletes the store, scans for the canary, and prints only core scores. `adebench/leaks.py` scans folders for the canary. `adebench/holdout_compare.py` turns public and private runs into an outcome (lower by X / no drop detected ±Y) with a bootstrap over runs and the set's own cases, and writes `examples/<memory>_report/holdout.json`. Wiring the 14 real memories into the registry belongs to plan 3; here the registry has the in-process synthetic memory, which every test uses.
 
 **Tech Stack:** Python 3.11, standard library only, pytest.
 
@@ -39,7 +39,7 @@
 
 **Interfaces:**
 - Consumes: `genset.generate(out, name, seed, ask, mix, attempts, say, model, canary)`, `genset.gemini(model)`, `sets.sha256(path)`, `validate_set.MIX_PUBLIC`.
-- Produces: `holdout.home() -> Path` (env `ADEBENCH_HOLDOUT` or `C:/Users/simon/adebench_holdout`); `holdout.MANIFEST = ROOT / "sets" / "holdout.json"`; `holdout.make(version: str, ask, say=print, h: Path | None = None) -> dict` (writes `<home>/holdout-<version>/` and the manifest `{"version": "holdout-<version>", "sha256": ..., "created": ..., "mix": "MIX_PUBLIC"}`); `holdout.frozen(h: Path | None = None) -> Path` (the set folder named by the manifest, after checking its sha256; raises `SystemExit` naming both versions or both hashes on a mismatch).
+- Produces: `holdout.home() -> Path` (env `ADEBENCH_HOLDOUT` or `~/adebench_holdout`); `holdout.MANIFEST = ROOT / "sets" / "holdout.json"`; `holdout.make(version: str, ask, say=print, h: Path | None = None) -> dict` (writes `<home>/holdout-<version>/` and the manifest `{"version": "holdout-<version>", "sha256": ..., "created": ..., "mix": "MIX_PUBLIC"}`); `holdout.frozen(h: Path | None = None) -> Path` (the set folder named by the manifest, after checking its sha256; raises `SystemExit` naming both versions or both hashes on a mismatch).
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -121,7 +121,7 @@ Expected: collection error, `holdout` not found.
     python -m adebench.holdout compare --memory synthetic
 
 The set lives outside every repository (ADEBENCH_HOLDOUT, default
-C:/Users/simon/adebench_holdout); the repository keeps only its version
+~/adebench_holdout); the repository keeps only its version
 and sha256 (sets/holdout.json). Nothing here prints a question, an answer,
 a world item or a report line: only counts, core scores and outcomes.
 """
@@ -138,7 +138,7 @@ from adebench import genset, sets, validate_set
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "sets" / "holdout.json"
 MIX = validate_set.MIX_PUBLIC
-DEFAULT_HOME = Path("C:/Users/simon/adebench_holdout")
+DEFAULT_HOME = Path.home() / "adebench_holdout"
 
 
 def home() -> Path:
@@ -332,7 +332,7 @@ Expected: 7 passed.
 - Create: `tests/test_leaks.py`
 
 **Interfaces:**
-- Produces: `leaks.DEFAULT_ROOTS: list[Path]` (the adebench repo, the orchestrator repo `C:/Users/simon/OneDrive/Documenti/GitHub/ade_desktop_orchestrator` if it exists, `C:/Users/simon/ade/bench_memories`, the memories' default homes `~/.mem0`, `~/.cognee`, `~/.engram`, `~/.agentmemory`, `~/.memu`, `~/.gbrain`, `~/.memoose`, the session transcripts `~/.claude/projects`, and the system temp folder); `leaks.scan(token: str, roots: list[Path], exclude: list[Path], max_bytes: int = 20_000_000) -> list[Path]` (files containing the token, as bytes, skipping excluded trees, files over `max_bytes`, and model weights `.safetensors .bin .onnx .gguf .pt`).
+- Produces: `leaks.DEFAULT_ROOTS: list[Path]` (the adebench repo, the orchestrator repo `~/ade (the orchestrator)` if it exists, `~/ade/bench_memories`, the memories' default homes `~/.mem0`, `~/.cognee`, `~/.engram`, `~/.agentmemory`, `~/.memu`, `~/.gbrain`, `~/.memoose`, the session transcripts `~/.claude/projects`, and the system temp folder); `leaks.scan(token: str, roots: list[Path], exclude: list[Path], max_bytes: int = 20_000_000) -> list[Path]` (files containing the token, as bytes, skipping excluded trees, files over `max_bytes`, and model weights `.safetensors .bin .onnx .gguf .pt`).
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -386,8 +386,8 @@ from pathlib import Path
 
 HOME = Path.home()
 DEFAULT_ROOTS = [Path(__file__).resolve().parents[1],
-                 Path("C:/Users/simon/OneDrive/Documenti/GitHub/ade_desktop_orchestrator"),
-                 Path("C:/Users/simon/ade/bench_memories"),
+                 HOME / "ade",
+                 HOME / "ade" / "bench_memories",
                  *(HOME / d for d in (".mem0", ".cognee", ".engram", ".agentmemory", ".memu", ".gbrain", ".memoose")),
                  HOME / ".claude" / "projects", Path(tempfile.gettempdir())]
 WEIGHTS = {".safetensors", ".bin", ".onnx", ".gguf", ".pt"}
@@ -669,10 +669,10 @@ Expected: all pass.
 ### Task 6: Make and freeze `holdout-v1`, and the rule
 
 **Files:**
-- Create (outside the repo): `C:/Users/simon/adebench_holdout/holdout-v1/`
+- Create (outside the repo): `~/adebench_holdout/holdout-v1/`
 - Create: `sets/holdout.json`
 - Modify: `README.md` (one sentence under **Sets**: the private set's version and sha256, where it lives, what is published)
-- Create (assistant memory, outside the repo): a memory file stating that no session opens `C:/Users/simon/adebench_holdout`, with an index line in `MEMORY.md`
+- Create (assistant memory, outside the repo): a memory file stating that no session opens `~/adebench_holdout`, with an index line in `MEMORY.md`
 
 **Interfaces:**
 - Consumes: `holdout.make` (Task 1), CLI (Task 4).
@@ -689,7 +689,7 @@ Run: `python -m adebench.holdout run --memory synthetic --builds 1` → one line
 
 - [ ] **Step 3: Save the rule in the assistant's memory**
 
-Write the memory file (type feedback): never open, read, list the contents of, or print anything from `C:/Users/simon/adebench_holdout`, in any session, including Brain work; only `python -m adebench.holdout` may touch it; **Why:** the private set is what makes the ADE Brain's rank credible; **How to apply:** agents running the holdout get the command and report only its printed lines.
+Write the memory file (type feedback): never open, read, list the contents of, or print anything from `~/adebench_holdout`, in any session, including Brain work; only `python -m adebench.holdout` may touch it; **Why:** the private set is what makes the ADE Brain's rank credible; **How to apply:** agents running the holdout get the command and report only its printed lines.
 
 - [ ] **Step 4: Run all tests; show files and message; commit after the user's ok**
 

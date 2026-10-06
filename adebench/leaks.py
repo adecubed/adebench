@@ -12,16 +12,16 @@ import tempfile
 from pathlib import Path
 
 HOME = Path.home()
-# the adebench repo; C:/Users/simon/ade (the orchestrator repo, the live Brain's data and
+# the adebench repo; ~/ade or ADEBENCH_ADE_DIR (the orchestrator repo, the live Brain's data and
 # bench_memories with every memory's install); the memories' default homes; Ollama's logs;
 # the session transcripts; the temp folder
-DEFAULT_ROOTS = [Path(__file__).resolve().parents[1], Path("C:/Users/simon/ade"),
+DEFAULT_ROOTS = [Path(__file__).resolve().parents[1], Path(os.environ.get("ADEBENCH_ADE_DIR") or Path.home() / "ade"),
                  *(HOME / d for d in (".mem0", ".cognee", ".engram", ".agentmemory", ".memu", ".gbrain", ".memoose")),
                  HOME / ".ollama" / "logs", HOME / ".claude" / "projects", Path(tempfile.gettempdir())]
 WEIGHTS = {".safetensors", ".bin", ".onnx", ".gguf", ".pt"}
 # trees that hold installed code, never data a memory wrote about the set; a Python virtual
 # environment of any name (it has a pyvenv.cfg) too: they were 95% of the files under
-# C:/Users/simon/ade and made a cold scan take most of an hour
+# ~/ade and made a cold scan take most of an hour
 PRUNE = {".git", "node_modules", "__pycache__", ".pytest_cache", "site-packages"}
 
 

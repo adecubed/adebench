@@ -1,6 +1,9 @@
 """The canary scan: found anywhere but the private folder is a leak."""
 from __future__ import annotations
 
+import os
+from pathlib import Path
+
 from adebench import leaks
 
 
@@ -50,4 +53,5 @@ def test_python_environments_are_pruned(tmp_path):
 
 def test_default_roots_cover_the_ade_folder_and_ollama_logs():
     names = {str(p).replace("\\", "/") for p in leaks.DEFAULT_ROOTS}
-    assert "C:/Users/simon/ade" in names and any(n.endswith(".ollama/logs") for n in names)
+    ade = str(Path(os.environ.get("ADEBENCH_ADE_DIR") or Path.home() / "ade")).replace("\\", "/")
+    assert ade in names and any(n.endswith(".ollama/logs") for n in names)

@@ -454,7 +454,7 @@ def test_mandatory_item_tolerates_inflection():
     ("gira sulla porta 87660", "8766", False),
     ("versione 0.2.4 installata", "0.2.4", True),
     ("versione 10.2.4 installata", "0.2.4", False),
-    ("salvato in C:\\Users\\simon\\ade\\report.docx", "C:\\Users\\simon\\ade", True),
+    ("salvato in C:\\Users\\someone\\ade\\report.docx", "C:\\Users\\someone\\ade", True),
     ("Model Context Protocol (MCP)", "MCP", True),
     ("usa la MCPHost", "MCP", False),
     ("il masker anonimizza i dati", "anonimizz*", True),

@@ -5,7 +5,7 @@
     python -m adebench.holdout compare --memory synthetic
 
 The set lives outside every repository (ADEBENCH_HOLDOUT, default
-C:/Users/simon/adebench_holdout); the repository keeps only its version
+~/adebench_holdout, or ADEBENCH_HOLDOUT); the repository keeps only its version
 and sha256 (sets/holdout.json). Nothing here prints a question, an answer,
 a world item or a report line: only counts, core scores and outcomes.
 """
@@ -23,8 +23,8 @@ from adebench import builds as build_runner, genset, holdout_compare, leaks, reg
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "sets" / "holdout.json"
 MIX = validate_set.MIX_PUBLIC
-# outside every repository: C:/Users/simon/ade is itself the orchestrator's repository
-DEFAULT_HOME = Path("C:/Users/simon/adebench_holdout")
+# outside every repository: ~/ade is itself the orchestrator's repository
+DEFAULT_HOME = Path.home() / "adebench_holdout"
 
 
 def home() -> Path:
