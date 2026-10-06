@@ -5,7 +5,7 @@ import json
 
 import pytest
 
-from adebench import holdout
+from adebench import holdout, registry
 from tests.test_genset import SMALL_MIX, answer
 
 
@@ -101,7 +101,7 @@ def test_run_refuses_a_set_that_changed(home, tmp_path):
 
 def test_a_failing_import_still_cleans_up(home, tmp_path, monkeypatch):
     _tiny_holdout(home)
-    monkeypatch.setitem(holdout.REGISTRY, "broken", {"adapter": "examples.synthetic:SyntheticAdapter",
+    monkeypatch.setitem(registry.REGISTRY, "broken", {"adapter": "examples.synthetic:SyntheticAdapter",
                                                       "import": "examples/does_not_exist.py",
                                                       "store_env": None, "env": {}, "flags": []})
     with pytest.raises(SystemExit, match="import failed"):
@@ -158,7 +158,7 @@ def test_parent_benchmark_settings_do_not_reach_the_run(home, tmp_path, monkeypa
                      encoding="utf-8")
     monkeypatch.setenv("ADEBENCH_DOOR", "raw")
     monkeypatch.setenv("BRAIN_URL", "http://127.0.0.1:8766")
-    monkeypatch.setitem(holdout.REGISTRY, "probe", {"adapter": "examples.synthetic:SyntheticAdapter",
+    monkeypatch.setitem(registry.REGISTRY, "probe", {"adapter": "examples.synthetic:SyntheticAdapter",
                                                      "import": str(probe), "store_env": None, "env": {},
                                                      "flags": ["--sections", "door", "--no-sandbox-test"]})
     holdout.run("probe", builds=1, say=lambda m: None, roots=[])
@@ -167,7 +167,7 @@ def test_parent_benchmark_settings_do_not_reach_the_run(home, tmp_path, monkeypa
 def test_extra_store_paths_are_cleaned_and_scanned(home, tmp_path, monkeypatch):
     _tiny_holdout(home)
     extra = tmp_path / "server_data"
-    monkeypatch.setitem(holdout.REGISTRY, "server", {"adapter": "examples.synthetic:SyntheticAdapter", "import": None,
+    monkeypatch.setitem(registry.REGISTRY, "server", {"adapter": "examples.synthetic:SyntheticAdapter", "import": None,
                                                       "store_env": None, "env": {}, "cleanup": [str(extra)],
                                                       "flags": ["--sections", "door", "--no-sandbox-test"]})
     extra.mkdir()

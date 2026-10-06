@@ -15,23 +15,16 @@ import json
 import os
 import secrets
 import shutil
-import subprocess
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from adebench import genset, holdout_compare, leaks, sets, validate_set
+from adebench import builds as build_runner, genset, holdout_compare, leaks, registry, sets, validate_set
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "sets" / "holdout.json"
 MIX = validate_set.MIX_PUBLIC
 # outside every repository: C:/Users/simon/ade is itself the orchestrator's repository
 DEFAULT_HOME = Path("C:/Users/simon/adebench_holdout")
-# variables of the parent shell that would change what is measured or where a memory writes
-# (ADEBENCH_DOOR, ADEBENCH_PRESSURE, BRAIN_URL...): a private run starts without them and
-# gets only what its registry entry sets
-DROP_ENV = ("ADEBENCH_", "BRAIN_", "SUPERMEMORY_", "MEM0_", "COGNEE_", "MEMU_", "ENGRAM_", "AGENTMEMORY_",
-            "DAKERA_", "HINDSIGHT_", "AIONFORGE_", "GBRAIN_", "MEMOOSE_", "JEVMEM_", "NEMP_")
 
 
 def home() -> Path:
@@ -72,20 +65,7 @@ def frozen(h: Path | None = None) -> Path:
 
 
 # ─── the isolated runner ─────────────────────────────────────────────────────
-
-# how to load and run each memory on the private set; plan 3 adds the real memories.
-# store_env: the variable through which the memory takes its data folder (the runner
-# points it at a fresh folder under <home>/stores and deletes it afterwards).
-# cleanup: other folders the memory writes the set into (a server's data folder, its log),
-# deleted after the run and scanned like the rest. A server memory must name its URL in env.
-REGISTRY: dict[str, dict] = {
-    "synthetic": {"adapter": "examples.synthetic:SyntheticAdapter", "import": None, "store_env": None,
-                  "env": {}, "flags": ["--sections", "door", "updates", "time", "abstention", "--no-sandbox-test"]},
-}
-
-
-def _python(args: list[str], env: dict, log) -> int:
-    return subprocess.call([sys.executable, *args], cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT)
+# how each memory runs is in adebench/registry.py, shared with the public runs
 
 
 def run(memory: str, builds: int = 1, say=print, roots: list[Path] | None = None) -> list[float]:
@@ -93,14 +73,12 @@ def run(memory: str, builds: int = 1, say=print, roots: list[Path] | None = None
     Everything the memory and the benchmark print goes to the private folder; this
     prints one line per build with its core score. After every build the store is
     deleted and the canary is searched for outside the private folder."""
-    entry = REGISTRY.get(memory)
-    if entry is None:
-        raise SystemExit(f"no registry entry for {memory!r}")
+    entry = registry.entry(memory)
     folder = frozen()
     h = home()
     canary = json.loads((folder / "world.json").read_text(encoding="utf-8"))["canary"]
     runs_dir, logs, stores = h / "runs" / folder.name / memory, h / "logs", h / "stores"
-    base_env = {k: v for k, v in os.environ.items() if not k.startswith(DROP_ENV)}
+    base_env = registry.clean_env()
     for d in (runs_dir, logs, stores):
         d.mkdir(parents=True, exist_ok=True)
     scores = []
@@ -108,24 +86,15 @@ def run(memory: str, builds: int = 1, say=print, roots: list[Path] | None = None
         store = stores / f"{memory}-{b}"
         shutil.rmtree(store, ignore_errors=True)
         store.mkdir()
-        env = {**base_env, **entry["env"], "ADEBENCH_SET": str(folder), "ADEBENCH_LIVE_STATE_KEY": "",
-               "PYTHONIOENCODING": "utf-8"}
-        if entry["store_env"]:
-            env[entry["store_env"]] = str(store)
-        before = set(runs_dir.glob("*.json"))
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         try:
             with open(logs / f"{memory}-{stamp}-{b}.log", "w", encoding="utf-8") as log:
-                if entry["import"] and _python([entry["import"]], env, log) != 0:
-                    raise SystemExit(f"{memory} build {b}: import failed (log in the private folder)")
-                code = _python(["-m", "adebench", "--adapter", entry["adapter"], "--cases", str(folder / "cases"),
-                                "--repo", str(folder / "repo"), "--history", str(runs_dir), *entry["flags"]], env, log)
-            new = sorted(set(runs_dir.glob("*.json")) - before)
-            if code != 0 or not new:
-                raise SystemExit(f"{memory} build {b}: benchmark failed (log in the private folder)")
-            report = json.loads(new[-1].read_text(encoding="utf-8"))
+                new = build_runner.build_once(entry, folder, store, runs_dir, log, base_env)
+            report = json.loads(new.read_text(encoding="utf-8"))
             scores.append(round(holdout_compare.core55(holdout_compare.core_cases(report)), 1))
             say(f"{memory} build {b}: core {scores[-1]} / 55")
+        except build_runner.BuildFailed as e:
+            raise SystemExit(f"{memory} build {b}: {e} failed (log in the private folder)")
         finally:
             shutil.rmtree(store, ignore_errors=True)
             for extra in entry.get("cleanup", []):

@@ -375,6 +375,41 @@ newest first and does not stop at the first failure. Adapters measured before 0.
 (Aionforge re-renders its door and dates by capture time) will be brought to the same rules
 and re-run.
 
+## TokenMizer, after the extraction fix
+
+[`adebench/tokenmizer.py`](../adebench/tokenmizer.py) is the adapter for
+[TokenMizer](https://github.com/Shweta-Mishra-ai/tokenmizer), an OpenAI-compatible proxy
+that turns the conversation going through it into a graph of goals, tasks, decisions,
+files and errors, and replays it as a resume block when the context runs out. It learns
+only one way, so the set is said to it as a conversation, one turn per memory
+([`examples/tokenmizer_import.py`](../examples/tokenmizer_import.py)). The door is what an
+agent gets: the `resume_context` of `/api/resume` (read from the live graph), then the text
+of the MCP tool `why_decision` for the question, both literal.
+
+It was measured on main at 3c1a19f. The 0.5.4 on PyPI (13 Aug) predates the fix that lets
+the LLM extraction reach the graph: with it, every model-extracted fact was dropped and only
+the heuristic pass landed. The chat model is `gemini-3-flash-preview`; extraction is pinned to
+`gemini-3.5-flash-lite` with TokenMizer's own `extraction_model` setting, because the
+extraction call is capped at 800 output tokens in the code and Gemini 3 Flash spends 640 to
+770 of them thinking: its JSON comes out cut and the LLM pass fails every time (3 of 3 in a
+direct test; flash-lite 3 of 3 complete). Every choice is in
+[`tokenmizer_report/memory.json`](../examples/tokenmizer_report/memory.json).
+
+On the synthetic golden set TokenMizer scores **25.6 of the 45 points** it can be measured
+on, the same in five fresh builds; 57% on the core, over 45 points instead of 55 because it
+has no episodes and no fact dates. What the runs say:
+
+- **door 15.6 / 25.** Five of eight. Besides the two deliberate defects, "What port does the
+  Brain listen on?" misses 8766: a configuration fact has no node type to become, the graph
+  is made of goals, tasks, decisions and dependencies.
+- **updates 0 / 10.** "Port 8000" written through the proxy never reaches the door within
+  30 s, for the same reason.
+- **time: not measured.** Nodes carry `first_seen`, the time they were stored, not the time
+  of the fact.
+- **abstention 10 / 10, with a caveat.** `why_decision` finds no decision for an invented
+  entity. The resume block, the same for every question, is still delivered.
+- **1,271 characters per answer**, the resume block capped by `max_resume_tokens` 400.
+
 ## The ADE Brain on the same set
 
 The Brain is the memory adebench was written against, and its numbers in this README are

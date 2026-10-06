@@ -107,6 +107,11 @@ MEMORIES = [
      "cfg": "0.11.0b3 from source; memU runs no model itself, so Gemini 3 Flash plays the executor agent with memU's prompt and workspace-only file tools (the score is memU plus this executor); gemini-embedding-001",
      "access": "CLI / Python library", "model_on_write": "yes: the executor agent (Gemini)", "key": "LLM provider",
      "where": "local", "license": "Apache-2.0", "deterministic": "yes in five builds"},
+    {"name": "TokenMizer", "folder": "tokenmizer_report", "repo": "https://github.com/Shweta-Mishra-ai/tokenmizer",
+     "what": "an OpenAI-compatible proxy that turns the conversation into a graph of tasks, decisions, files and errors, replayed as a resume block",
+     "cfg": "main at 3c1a19f (the 0.5.4 on PyPI predates the extraction fix); chat gemini-3-flash-preview, extraction pinned to gemini-3.5-flash-lite (the extraction call has 800 output tokens and Gemini 3 Flash spends them thinking); door = resume block + the MCP tool why_decision; no live state",
+     "access": "HTTP proxy / MCP", "model_on_write": "yes: the chat model answers, an LLM extracts the graph", "key": "LLM provider",
+     "where": "local", "license": "MIT", "deterministic": "yes in five builds"},
 ]
 REFERENCE = "gbrain"
 SECTIONS = ["door", "cards", "updates", "time", "live_state", "abstention", "file_search", "graph"]

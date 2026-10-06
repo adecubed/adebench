@@ -37,7 +37,8 @@ def main() -> int:
     for entity, text in CARDS.items():
         turns.append(f"About {entity.replace('_', ' ')} (as of {CARD_DATES[entity]}): {text}")
     for f in FACTS:
-        turns.append(f"On {f['event_date']}: {f['content']}")
+        # an undated fact is said without a date, not "On None:"
+        turns.append(f"On {f['event_date']}: {f['content']}" if f.get("event_date") else f["content"])
     for a in ALIASES:
         turns.append(f"When I say '{a['alias'].replace('_', ' ')}' I mean {a['canonical']}.")
     for e in EPISODES:

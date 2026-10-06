@@ -1,0 +1,10 @@
+{
+ "version": "TokenMizer main at 3c1a19f (6 Oct 2026); it reports itself as 0.5.4, and the 0.5.4 on PyPI (13 Aug) predates the fix that lets LLM extraction reach the graph",
+ "mode": "OpenAI-compatible proxy: the set is said to it as a conversation, one turn per memory; read through its HTTP API and its MCP server (tokenmizer-mcp over stdio)",
+ "door": "resume: the resume_context of GET /api/resume/{session}?level=full (live graph), then the text of the MCP tool why_decision for the question; nothing re-rendered",
+ "results": "the resume block is capped by max_resume_tokens 400 (the default); why_decision answers only decisions; no cut",
+ "model": "chat through the proxy: gemini-3-flash-preview (Google); extraction: gemini-3.5-flash-lite (graph_checkpoint.extraction_model)",
+ "embeddings": "none configured (semantic_retrieval auto)",
+ "storage": "SQLite checkpoints in the build's storage_dir, state_backend memory (the default)",
+ "not_default": "use_llm_extraction true (the shipped config has it off). extraction_model pinned to gemini-3.5-flash-lite: the extraction call is capped at 800 output tokens in the code, and gemini-3-flash-preview spends 640-770 of them thinking, so its JSON is cut off and the LLM pass fails every time (3 of 3 in a direct test; flash-lite: 3 of 3 complete). Provider gemini with the gemini extra (google-genai), other providers' keys removed from the server's environment. live_state not run: TokenMizer has none"
+}

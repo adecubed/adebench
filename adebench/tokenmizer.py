@@ -20,14 +20,18 @@ measures it as it is, through the surface an agent has: the proxy to write,
     TOKENMIZER_SESSION      adebench            the session whose graph is measured
     TOKENMIZER_MODEL        (the proxy's default_model) the upstream model the proxy calls on a write
     TOKENMIZER_API_KEY      (empty)             the proxy's own Bearer, when it has one
+    TOKENMIZER_MCP          (tokenmizer-mcp on PATH) the MCP server whose why_decision text is read
 
-Doors:
-  resume  `GET /api/resume/{session}?level=full` after a manual checkpoint, plus
-          the `why` chain for the question: what a client gets when it asks the
-          memory to pick up where it left off. The resume block does not change
-          with the question; `why` does. No cut (ADEBENCH_TOKENMIZER_CUT=N)
-  why     `GET /api/graph/{session}/why?q=...` alone: the only query TokenMizer
-          answers, the supersession chain of a decision
+Doors (both are text a client literally receives; nothing is re-rendered):
+  resume  the `resume_context` of `GET /api/resume/{session}?level=full` (read
+          from the live graph), then the text of the MCP tool `why_decision`
+          for the question: what an agent gets when it picks the session up and
+          asks about one thing. The resume block does not change with the
+          question; `why` does. No cut (ADEBENCH_TOKENMIZER_CUT=N)
+  why     the text of `why_decision` alone (tokenmizer-mcp over stdio): the
+          only query TokenMizer answers, the supersession chain of a decision.
+          Nodes carry `first_seen`, the time they were stored: it is never shown
+          as an age
 
 What maps and what does not (SKIP is honest, not a zero):
   cards          none. Corrections, aliases: none
@@ -176,33 +180,62 @@ class TokenmizerAdapter:
             r = self._http("GET", f"/api/resume/{self.session}", query={"level": "full"})
         return str(r.get("resume_context") or "")
 
+    def _mcp(self, requests: list[dict], want_id: int, timeout: float = 120) -> dict | None:
+        """One short tokenmizer-mcp session over stdio: initialize, then the
+        given requests; returns the result of the one with id want_id."""
+        exe = os.environ.get("TOKENMIZER_MCP") or shutil.which("tokenmizer-mcp")
+        if not exe:
+            return None
+        req = [{"jsonrpc": "2.0", "id": 1, "method": "initialize",
+                "params": {"protocolVersion": "2025-06-18", "capabilities": {},
+                           "clientInfo": {"name": "adebench", "version": "0"}}},
+               {"jsonrpc": "2.0", "method": "notifications/initialized"}] + requests
+        try:
+            p = subprocess.run([exe], capture_output=True, text=True, timeout=timeout, encoding="utf-8",
+                               errors="replace", input="\n".join(json.dumps(m) for m in req) + "\n",
+                               env={**os.environ, "TOKENMIZER_URL": self.url})
+        except (OSError, subprocess.TimeoutExpired):
+            return None
+        for line in (p.stdout or "").splitlines():
+            line = line.strip()
+            if line.startswith("{"):
+                try:
+                    msg = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if msg.get("id") == want_id and isinstance(msg.get("result"), dict):
+                    return msg["result"]
+        return None
+
+    def _why_text(self, query: str) -> str:
+        """The literal text an agent gets from the MCP tool why_decision."""
+        r = self._mcp([{"jsonrpc": "2.0", "id": 3, "method": "tools/call",
+                        "params": {"name": "why_decision",
+                                   "arguments": {"session_id": self.session, "query": query}}}], 3)
+        if r is None:
+            raise TokenmizerError("tokenmizer-mcp not found or not answering: set TOKENMIZER_MCP")
+        return "\n".join(c.get("text", "") for c in (r.get("content") or []) if isinstance(c, dict)).strip()
+
     def _answer(self, query: str, door: str) -> dict:
+        # the door delivers literal text; the JSON of the same query only tells
+        # the harness which decisions were matched (for abstention). first_seen
+        # is the time a node was stored, never shown as an age
         why = self._why(query)
         semantic = []
         for m in (why.get("matches") or []) + (why.get("chain") or []):
             if not isinstance(m, dict):
                 continue
-            text = str(m.get("label") or m.get("to") or m.get("decision") or m.get("text") or "").strip()
-            if not text:
-                continue
-            reason = str(m.get("reason") or m.get("trigger") or "")
-            date = str(m.get("first_seen") or m.get("at") or m.get("timestamp") or "")[:10]
-            line = text + (f" ({reason})" if reason else "")
-            semantic.append({"source": "tokenmizer:why", "key": m.get("id"),
-                             "content": f"[since {date}] {line}" if re.match(r"\d{4}-\d{2}-\d{2}", date) else line})
-        cur = why.get("current")
-        if isinstance(cur, dict) and cur.get("label"):
-            semantic.insert(0, {"source": "tokenmizer:current", "key": cur.get("id"),
-                                "content": str(cur["label"])})
+            text = str(m.get("label") or m.get("to_label") or m.get("to") or m.get("text") or "").strip()
+            if text:
+                semantic.append({"source": "tokenmizer:why", "key": m.get("id"), "content": text})
         parts = []
         if door == "resume":
             resume = self._resume()
             if resume:
                 parts.append(resume)
-        if semantic:
-            parts.append("WHY:\n" + "\n".join("  " + s["content"] for s in semantic))
-        return {"summary": "\n\n".join(parts), "semantic": semantic, "cards": [], "episodic": [],
-                "working": [], "unknown_terms": [], "_raw": why}
+        parts.append(self._why_text(query))
+        return {"summary": "\n\n".join(p for p in parts if p), "semantic": semantic, "cards": [],
+                "episodic": [], "working": [], "unknown_terms": [], "_raw": why}
 
     def door_text(self, query: str, door: str) -> tuple[str, dict]:
         r = self._answer(query, door)
@@ -237,9 +270,9 @@ class TokenmizerAdapter:
                 "archive_by_reason": by_status}
 
     def event_date_share(self) -> tuple[int, int]:
-        nodes = self._nodes()
-        dated = sum(1 for n in nodes if re.match(r"\d{4}-\d{2}-\d{2}", str(n.get("first_seen") or "")))
-        return (dated, len(nodes))
+        # first_seen is when a node was stored, not when the fact happened:
+        # no node carries the date of its fact
+        return (0, len(self._nodes()))
 
     # ── episodes and time: none ───────────────────────────────────────────
     def recent_days(self, n: int) -> list[str]:
@@ -357,7 +390,7 @@ class TokenmizerAdapter:
 
     def declared_bytes(self) -> int | None:
         """What tokenmizer-mcp puts in an agent's context: its tools/list."""
-        exe = shutil.which("tokenmizer-mcp")
+        exe = os.environ.get("TOKENMIZER_MCP") or shutil.which("tokenmizer-mcp")
         if not exe:
             return None
         req = [{"jsonrpc": "2.0", "id": 1, "method": "initialize",
