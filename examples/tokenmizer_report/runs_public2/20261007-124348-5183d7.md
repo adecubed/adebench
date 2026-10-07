@@ -1,0 +1,137 @@
+# adebench — 2026-10-07T12:43:48
+
+**Score: 26.7 / 55 (+4.2) — coverage 55/100: 10 not run (sections not selected), 35 not measured (no evidence)**
+Cases: 28 PASS · 18 FAIL · 0 ERROR · 7 SKIP
+Adapter `adebench.tokenmizer:TokenmizerAdapter` · door `resume` · cases `a57efdf692` · setup `c5931c09b5` · sections door, cards, updates, time, abstention, file_search, graph
+Delta against the comparable run of 2026-10-07T12:35:50.
+
+| Section | Weight | Points | PASS/FAIL/ERROR/SKIP |
+|---|---|---|---|
+| door | 25 | 16.7 (+4.2) | 16/8/0/0 |
+| cards | 15 | not measured | 0/0/0/1 |
+| updates | 10 | 0.0 (+0.0) | 0/1/0/0 |
+| time | 10 | not measured | 0/0/0/4 |
+| abstention | 10 | 10.0 (+0.0) | 12/0/0/0 |
+| file_search | 10 | 0.0 (+0.0) | 0/9/0/0 |
+| graph | 10 | not measured | 0/0/0/2 |
+| write_back | report-only | — | 0/0/0/1 |
+
+## door
+
+- door: `"resume"`
+- door_budget_chars: `null`
+- pressure_chars: `0`
+- questions: `24`
+- validated: `24`
+- mean_answer_position: `897`
+- mean_door_text_chars: `2525`
+- min_margin_chars: `null`
+- passes_within_300_chars_of_the_edge: `0`
+- questions_with_forbidden_values: `3`
+- stale_values_delivered: `2`
+- chars_before_answer_mean: `897`
+- duplicate_chunks_total: `0`
+
+- ⚠ 2 answers delivered a retired value next to the current one: the model has to guess which is true
+
+Not passed:
+- FAIL In which rack is Titan Node 4 mounted? — missing C12
+- FAIL What is the sync interval for Vector Sync? — missing 30 seconds
+- FAIL What is the response time for Nexus API? — missing 12ms
+- FAIL What is the lead researcher's name for Project Iota? — missing Dr. Aris
+- FAIL What port does the Nexus API listen on? — STALE value delivered next to the current one: 8080
+- FAIL What is the current version of the Lyra Scheduler? — STALE value delivered next to the current one: 1.2
+- FAIL When was Elara Bot last maintained? — missing 2026-08-15
+- FAIL When was the temperature of Titan Node 4 recorded as 38C? — missing 2026-09-12
+
+## cards
+
+- ⚠ section not measured: no entity cards in this memory
+
+Not passed:
+- SKIP entity cards — this memory has none
+
+## updates
+
+- superseded_live: `9`
+- relation_updates: `9`
+- archive_by_reason: `{"in_progress": 49, "completed": 96, "superseded": 9, "pending": 1}`
+- probe: `true`
+- probe_entity: `"zetdoahbn"`
+- probe_cleanup_ok: `false`
+
+- ⚠ forget_memory did not confirm the removal of the update probe's facts
+
+Not passed:
+- FAIL the memory serves a fact it was just told — port 8000 not served within 30 s
+
+## time
+
+- share_of_memories_with_age: `null`
+- facts_with_event_date: `"0/160"`
+- days_tried: `[]`
+- signed_episodes: `0`
+- signed_question: `"what did pc2 do?"`
+
+- ⚠ only 0 facts out of 160 carry the event date: for the others the age the model hears is the derivation date, not the fact's
+- ⚠ section not measured: no case with evidence (all SKIP or no cases)
+
+Not passed:
+- SKIP semantic memories carry their age (0/0) — no semantic memory seen
+- SKIP episodic day filter — no episodes
+- SKIP an imported memory reaches the door with its original date — no import path in this adapter (import_memory / forget_memory)
+- SKIP episodes signed by another machine — none in this memory
+
+## abstention
+
+- questions: `12`
+- leaked_entities: `0`
+
+## file_search
+
+- indexable_functions: `9`
+- tried: `9`
+
+Not passed:
+- FAIL check_protocol → nexus_utils.py — top5: []
+- FAIL schedule_backup → db_monitor.py — top5: []
+- FAIL verify_engine → db_monitor.py — top5: []
+- FAIL set_orchestration_port → scheduler_core.py — top5: []
+- FAIL check_drive_status → db_monitor.py — top5: []
+- FAIL get_api_version → nexus_utils.py — top5: []
+- FAIL run_rust_task → scheduler_core.py — top5: []
+- FAIL log_response → nexus_utils.py — top5: []
+- FAIL get_current_v → scheduler_core.py — top5: []
+
+## graph
+
+- nodes: `160`
+- edges: `2355`
+- orphan_fact_nodes: `"23 orphans out of 160 (not scored: with no entity edges to check, one count does not measure the graph)"`
+
+- ⚠ section not measured: no case with evidence (all SKIP or no cases)
+
+Not passed:
+- SKIP entities with a card in the graph — no entity with a card
+- SKIP orphan fact nodes = 0 — 23 orphans out of 160 (not scored: with no entity edges to check, one count does not measure the graph)
+
+## write_back
+
+- degraded_answer: `"I have no record of that. You asked: {question}"`
+- questions_tested: `0`
+- poisoned: `0`
+- cleanup_ok: `null`
+- wait_s: `10`
+
+Not passed:
+- SKIP the degraded answer does not come back through the door — no write path in this adapter (ingest_exchange / forget_memory)
+
+## health
+
+- nodes_by_type: `{"goal": 47, "decision": 40, "task": 47, "schema": 3, "file": 2, "dependency": 7, "environment": 14}`
+
+- ⚠ node types are those of a software session (task, decision, file, error, goal): a fact about a person has no node to become
+
+## doors
+
+- resume: `{"calls": 53, "http_errors": 0, "ms_p50": 24, "ms_p95": 46, "mean_chars": 2527}`

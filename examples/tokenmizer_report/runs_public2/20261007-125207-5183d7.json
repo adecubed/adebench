@@ -1,0 +1,805 @@
+{
+ "when": "2026-10-07T12:52:07",
+ "total": 26.9,
+ "measured_weight": 55,
+ "not_run_weight": 10,
+ "total_weight": 100,
+ "counts": {
+  "PASS": 26,
+  "FAIL": 22,
+  "ERROR": 0,
+  "SKIP": 7
+ },
+ "config": {
+  "adapter": "adebench.tokenmizer:TokenmizerAdapter",
+  "brain_url": "http://localhost:8766",
+  "door": "resume",
+  "cases_hash": "a57efdf692",
+  "voice_sources": [
+   "working",
+   "semantic",
+   "episodic",
+   "conversations",
+   "files"
+  ],
+  "voice_cut": 2400,
+  "events_block": true,
+  "pressure": 0,
+  "weights": {
+   "door": 25,
+   "cards": 15,
+   "updates": 10,
+   "time": 10,
+   "live_state": 10,
+   "abstention": 10,
+   "file_search": 10,
+   "graph": 10
+  },
+  "max_card": 900,
+  "cases": "sets/public2/cases",
+  "repo": "sets/public2/repo",
+  "sandbox_test": null,
+  "sandbox_enabled": false,
+  "pressure_level": null,
+  "census": null,
+  "write_back": true,
+  "updates_probe": true,
+  "sections": [
+   "door",
+   "cards",
+   "updates",
+   "time",
+   "abstention",
+   "file_search",
+   "graph"
+  ],
+  "duration_s": 159,
+  "fingerprint": "c5931c09b5"
+ },
+ "sections": [
+  {
+   "name": "door",
+   "weight": 25,
+   "score": 0.5417,
+   "cases": [
+    {
+     "case": "In which rack is Titan Node 4 mounted?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "missing C12",
+     "position": -1,
+     "margin": null,
+     "chars": 2272,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the current version of the Nexus API?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 1294,
+     "margin": null,
+     "chars": 2279,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Which engine does Orion DB run on?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 444,
+     "margin": null,
+     "chars": 2268,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the retry limit for Vector Sync?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 272,
+     "margin": null,
+     "chars": 2274,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Who is the owner of Titan Node 4?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 1042,
+     "margin": null,
+     "chars": 2267,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the sync interval for Vector Sync?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 830,
+     "margin": null,
+     "chars": 2276,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the capacity of Z-Drive 10?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "missing 50TB",
+     "position": -1,
+     "margin": null,
+     "chars": 2269,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Where is the documentation for Nexus API kept?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "missing the wiki",
+     "position": -1,
+     "margin": null,
+     "chars": 2280,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Where are the Lyra Scheduler logs located?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 1212,
+     "margin": null,
+     "chars": 2276,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the security level for Project Iota?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "missing Class 4",
+     "position": -1,
+     "margin": null,
+     "chars": 2278,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the response time for Nexus API?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "missing 12ms",
+     "position": -1,
+     "margin": null,
+     "chars": 2274,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the serial number of Titan Node 4?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 1608,
+     "margin": null,
+     "chars": 2276,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What language does Lyra Scheduler use?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 565,
+     "margin": null,
+     "chars": 2272,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the lead researcher's name for Project Iota?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "missing Dr. Aris",
+     "position": -1,
+     "margin": null,
+     "chars": 2286,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the backup policy for Orion DB?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 797,
+     "margin": null,
+     "chars": 2273,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the RAM capacity of iron_beast?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 1492,
+     "margin": null,
+     "chars": 2273,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Where is the silver_hand unit located?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 205,
+     "margin": null,
+     "chars": 2272,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the budget for shadow_ops?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 271,
+     "margin": null,
+     "chars": 2268,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What port does the Nexus API listen on?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "STALE value delivered next to the current one: 8080",
+     "position": 1161,
+     "margin": null,
+     "chars": 2273,
+     "ms": 0,
+     "stale": true,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the current version of the Lyra Scheduler?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "STALE value delivered next to the current one: 1.2",
+     "position": 395,
+     "margin": null,
+     "chars": 2284,
+     "ms": 0,
+     "stale": true,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the current status of Z-Drive 10?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "missing active",
+     "position": -1,
+     "margin": null,
+     "chars": 2275,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "When was Elara Bot last maintained?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "missing 2026-08-15",
+     "position": -1,
+     "margin": null,
+     "chars": 2269,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "On what date was the Lyra Scheduler upgraded to 1.3?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 402,
+     "margin": null,
+     "chars": 2286,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "When was the temperature of Titan Node 4 recorded as 38C?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "missing 2026-09-12",
+     "position": -1,
+     "margin": null,
+     "chars": 2291,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    }
+   ],
+   "counts": {
+    "PASS": 13,
+    "FAIL": 11,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "door": "resume",
+    "door_budget_chars": null,
+    "pressure_chars": 0,
+    "questions": 24,
+    "validated": 24,
+    "mean_answer_position": 799,
+    "mean_door_text_chars": 2275,
+    "min_margin_chars": null,
+    "passes_within_300_chars_of_the_edge": 0,
+    "questions_with_forbidden_values": 3,
+    "stale_values_delivered": 2,
+    "chars_before_answer_mean": 799,
+    "duplicate_chunks_total": 0
+   },
+   "warnings": [
+    "2 answers delivered a retired value next to the current one: the model has to guess which is true"
+   ]
+  },
+  {
+   "name": "cards",
+   "weight": 15,
+   "score": null,
+   "cases": [
+    {
+     "case": "entity cards",
+     "status": "SKIP",
+     "ok": false,
+     "note": "this memory has none"
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 1
+   },
+   "measures": {},
+   "warnings": [
+    "section not measured: no entity cards in this memory"
+   ]
+  },
+  {
+   "name": "updates",
+   "weight": 10,
+   "score": 0.3333,
+   "cases": [
+    {
+     "case": "a new write with a changed value replaces the old one at the door (no id given)",
+     "status": "FAIL",
+     "ok": false,
+     "note": "new value not served within 30 s; STALE: the old value is still delivered (0 reads with both)"
+    },
+    {
+     "case": "an unrelated fact about the same entity survives the update",
+     "status": "PASS",
+     "ok": true,
+     "note": "still delivered"
+    },
+    {
+     "case": "restating the current value does not pile up a second copy",
+     "status": "FAIL",
+     "ok": false,
+     "note": "0 copies delivered"
+    }
+   ],
+   "counts": {
+    "PASS": 1,
+    "FAIL": 2,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "superseded_live": 2,
+    "relation_updates": 2,
+    "archive_by_reason": {
+     "in_progress": 48,
+     "completed": 97,
+     "superseded": 2
+    },
+    "probe": true,
+    "probe_entity": "zetnjmplb",
+    "probe_replace_ms": null,
+    "probe_reads_with_both": 0,
+    "probe_cleanup_ok": false
+   },
+   "warnings": [
+    "forget_memory did not confirm the removal of the update probe's facts"
+   ]
+  },
+  {
+   "name": "time",
+   "weight": 10,
+   "score": null,
+   "cases": [
+    {
+     "case": "semantic memories carry their age (0/0)",
+     "status": "SKIP",
+     "ok": false,
+     "note": "no semantic memory seen"
+    },
+    {
+     "case": "episodic day filter",
+     "status": "SKIP",
+     "ok": false,
+     "note": "no episodes"
+    },
+    {
+     "case": "an imported memory reaches the door with its original date",
+     "status": "SKIP",
+     "ok": false,
+     "note": "no import path in this adapter (import_memory / forget_memory)"
+    },
+    {
+     "case": "episodes signed by another machine",
+     "status": "SKIP",
+     "ok": false,
+     "note": "none in this memory"
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 4
+   },
+   "measures": {
+    "share_of_memories_with_age": null,
+    "facts_with_event_date": "0/152",
+    "days_tried": [],
+    "signed_episodes": 0,
+    "signed_question": "what did pc2 do?"
+   },
+   "warnings": [
+    "only 0 facts out of 152 carry the event date: for the others the age the model hears is the derivation date, not the fact's",
+    "section not measured: no case with evidence (all SKIP or no cases)"
+   ]
+  },
+  {
+   "name": "abstention",
+   "weight": 10,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "What is the primary function of the Zoltaris module?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "fraction": 1.0
+    },
+    {
+     "case": "Does Vornak interface with the Nexus API?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "fraction": 1.0
+    },
+    {
+     "case": "How many Glimmox units are installed in Sector G?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "fraction": 1.0
+    },
+    {
+     "case": "Is Brakit compatible with Lyra Scheduler?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "fraction": 1.0
+    },
+    {
+     "case": "Who designed the Krelin processor?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "fraction": 1.0
+    },
+    {
+     "case": "When was the Duxo firmware last updated?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "fraction": 1.0
+    },
+    {
+     "case": "Does Jalvor require access to Orion DB?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "fraction": 1.0
+    },
+    {
+     "case": "What is the encryption level of Moxie?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "fraction": 1.0
+    },
+    {
+     "case": "Is the Plynth sensor calibrated?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "fraction": 1.0
+    },
+    {
+     "case": "Where is the Quarx server located?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "fraction": 1.0
+    },
+    {
+     "case": "What protocol does Riften use?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "fraction": 1.0
+    },
+    {
+     "case": "Is Skalo active in the West Wing?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "fraction": 1.0
+    }
+   ],
+   "counts": {
+    "PASS": 12,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "questions": 12,
+    "leaked_entities": 0
+   },
+   "warnings": []
+  },
+  {
+   "name": "file_search",
+   "weight": 10,
+   "score": 0.0,
+   "cases": [
+    {
+     "case": "check_protocol → nexus_utils.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "schedule_backup → db_monitor.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "verify_engine → db_monitor.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "set_orchestration_port → scheduler_core.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "check_drive_status → db_monitor.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "get_api_version → nexus_utils.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "run_rust_task → scheduler_core.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "log_response → nexus_utils.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "get_current_v → scheduler_core.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 9,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "indexable_functions": 9,
+    "tried": 9
+   },
+   "warnings": []
+  },
+  {
+   "name": "graph",
+   "weight": 10,
+   "score": null,
+   "cases": [
+    {
+     "case": "entities with a card in the graph",
+     "status": "SKIP",
+     "ok": false,
+     "note": "no entity with a card"
+    },
+    {
+     "case": "orphan fact nodes = 0",
+     "status": "SKIP",
+     "ok": false,
+     "note": "15 orphans out of 152 (not scored: with no entity edges to check, one count does not measure the graph)"
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 2
+   },
+   "measures": {
+    "nodes": 152,
+    "edges": 2478,
+    "orphan_fact_nodes": "15 orphans out of 152 (not scored: with no entity edges to check, one count does not measure the graph)"
+   },
+   "warnings": [
+    "section not measured: no case with evidence (all SKIP or no cases)"
+   ]
+  },
+  {
+   "name": "write_back",
+   "weight": 0,
+   "score": null,
+   "cases": [
+    {
+     "case": "the degraded answer does not come back through the door",
+     "status": "SKIP",
+     "ok": false,
+     "note": "no write path in this adapter (ingest_exchange / forget_memory)"
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 1
+   },
+   "measures": {
+    "degraded_answer": "I have no record of that. You asked: {question}",
+    "questions_tested": 0,
+    "poisoned": 0,
+    "cleanup_ok": null,
+    "wait_s": 10
+   },
+   "warnings": []
+  },
+  {
+   "name": "health",
+   "weight": 0,
+   "score": null,
+   "cases": [],
+   "counts": {},
+   "measures": {
+    "nodes_by_type": {
+     "goal": 47,
+     "decision": 36,
+     "task": 50,
+     "schema": 2,
+     "file": 2,
+     "dependency": 6,
+     "environment": 9
+    }
+   },
+   "warnings": [
+    "node types are those of a software session (task, decision, file, error, goal): a fact about a person has no node to become"
+   ]
+  },
+  {
+   "name": "doors",
+   "weight": 0,
+   "score": null,
+   "cases": [],
+   "counts": {},
+   "measures": {
+    "resume": {
+     "calls": 60,
+     "http_errors": 0,
+     "ms_p50": 23,
+     "ms_p95": 45,
+     "mean_chars": 2239
+    }
+   },
+   "warnings": []
+  }
+ ],
+ "delta": {
+  "total": 0.2,
+  "sections": {
+   "door": -3.1,
+   "updates": 3.3,
+   "abstention": 0.0,
+   "file_search": 0.0
+  },
+  "against": "2026-10-07T12:43:48"
+ }
+}

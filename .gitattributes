@@ -1,0 +1,2 @@
+# a set's files are hashed byte for byte (set.json sha256, a report's cases_hash): never convert line endings
+sets/** -text

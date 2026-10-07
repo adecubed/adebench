@@ -36,8 +36,16 @@ def _python(args: list[str], env: dict, log: IO) -> int:
     return subprocess.call([sys.executable, *args], cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT)
 
 
+def _value(v: str, store: Path, env: dict) -> str:
+    """{store} is the build's store folder; a whole value {env:NAME} is NAME from the environment
+    the run starts with (a key a memory reads under its own name, never put on a command line)."""
+    if v.startswith("{env:") and v.endswith("}"):
+        return env.get(v[5:-1], "")
+    return v.replace("{store}", str(store))
+
+
 def _env(entry: dict, store: Path, set_folder: Path, base_env: dict) -> dict:
-    env = {**base_env, **{k: v.replace("{store}", str(store)) for k, v in entry.get("env", {}).items()},
+    env = {**base_env, **{k: _value(v, store, base_env) for k, v in entry.get("env", {}).items()},
            "ADEBENCH_SET": str(set_folder), "ADEBENCH_LIVE_STATE_KEY": "", "PYTHONIOENCODING": "utf-8"}
     if entry.get("store_env"):
         env[entry["store_env"]] = str(store)
@@ -74,12 +82,21 @@ def _start(server: dict, store: Path, env: dict, log: IO):
     """Start the memory's server on the fresh store, wait until its health URL answers."""
     sub = lambda s: s.replace("{store}", str(store))  # noqa: E731
     proc = subprocess.Popen([sub(c) for c in server["cmd"]], cwd=sub(server.get("cwd") or "") or None,
-                            env={**env, **{k: sub(v) for k, v in server.get("env", {}).items()}},
+                            env={**env, **{k: _value(v, store, env) for k, v in server.get("env", {}).items()}},
                             stdout=log, stderr=subprocess.STDOUT, start_new_session=os.name != "nt")
     if not _up(server["health"], server.get("wait_s", 60), proc):
         _stop(proc)
         raise BuildFailed("server")
     return proc
+
+
+def _shown(set_folder: Path) -> str:
+    """The set's folder as the report will name it: relative to the repository (the benchmark runs
+    there) for a public set, so no local path is published; as it is for the private set."""
+    try:
+        return Path(set_folder).resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return Path(set_folder).as_posix()
 
 
 def build_once(entry: dict, set_folder: Path, store: Path, runs_dir: Path, log: IO, base_env: dict) -> Path:
@@ -95,8 +112,9 @@ def build_once(entry: dict, set_folder: Path, store: Path, runs_dir: Path, log: 
     try:
         if entry.get("import") and _python([entry["import"]], env, log) != 0:
             raise BuildFailed("import")
-        code = _python(["-m", "adebench", "--adapter", entry["adapter"], "--cases", str(set_folder / "cases"),
-                        "--repo", str(set_folder / "repo"), "--history", str(runs_dir), *entry["flags"]], env, log)
+        where = _shown(set_folder)
+        code = _python(["-m", "adebench", "--adapter", entry["adapter"], "--cases", f"{where}/cases",
+                        "--repo", f"{where}/repo", "--history", str(runs_dir), *entry["flags"]], env, log)
     finally:
         if proc:
             _stop(proc)

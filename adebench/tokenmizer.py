@@ -67,6 +67,7 @@ from adebench.config import CFG
 URL = os.environ.get("TOKENMIZER_URL", "http://127.0.0.1:8000").rstrip("/")
 SESSION = os.environ.get("TOKENMIZER_SESSION", "adebench")
 DOORS = ("resume", "why")
+RETRIES = 5   # a 429 from TokenMizer's rate limiter is retried after the wait it names
 STOP = {"the", "what", "which", "who", "how", "does", "do", "is", "are", "for", "and", "with", "about",
         "when", "where", "of", "on", "in", "a", "an", "to", "was", "were", "did", "has", "have", "it", "its"}
 
@@ -99,15 +100,22 @@ class TokenmizerAdapter:
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
         if self.key:
             headers["Authorization"] = f"Bearer {self.key}"
-        req = urllib.request.Request(url, data=data, headers=headers, method=method)
-        t0 = time.perf_counter()
-        try:
-            with urllib.request.urlopen(req, timeout=timeout) as r:
-                raw, http = r.read().decode("utf-8", "replace"), r.status
-        except urllib.error.HTTPError as e:
-            raw, http = e.read().decode("utf-8", "replace"), e.code
-        except OSError as e:
-            raise TokenmizerError(f"{method} {path}: {type(e).__name__}: {e}") from e
+        # TokenMizer's own rate limiter answers 429 "Retry after Xs": wait and ask again, as a
+        # client would (at most RETRIES times); the time spent waiting is not the door's latency
+        for attempt in range(RETRIES + 1):
+            req = urllib.request.Request(url, data=data, headers=headers, method=method)
+            t0 = time.perf_counter()
+            try:
+                with urllib.request.urlopen(req, timeout=timeout) as r:
+                    raw, http = r.read().decode("utf-8", "replace"), r.status
+            except urllib.error.HTTPError as e:
+                raw, http = e.read().decode("utf-8", "replace"), e.code
+            except OSError as e:
+                raise TokenmizerError(f"{method} {path}: {type(e).__name__}: {e}") from e
+            if http != 429 or attempt == RETRIES:
+                break
+            wait = re.search(r"[Rr]etry after ([0-9.]+)", raw)
+            time.sleep(min(max(float(wait.group(1)) if wait else 1.0, 0.1), 10.0))
         self._traces.append({"door": path.split("/")[2] if path.count("/") > 1 else path,
                              "ms": (time.perf_counter() - t0) * 1000, "chars": len(raw), "http": http})
         if http == 404:

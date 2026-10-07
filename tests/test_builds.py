@@ -131,3 +131,15 @@ def test_a_failing_prepare_names_its_stage(tmp_path):
     entry = dict(registry.entry("synthetic"), prepare=[[sys.executable, "-c", "raise SystemExit(3)"]])
     with pytest.raises(builds.BuildFailed, match="prepare"):
         _run(entry, tmp_path)
+
+
+def test_a_value_can_come_from_the_environment_never_a_command_line(tmp_path):
+    probe = tmp_path / "probe.py"
+    probe.write_text("import os, sys\nsys.exit(0 if os.environ['MEMORY_KEY'] == 'k-123' else 1)\n", encoding="utf-8")
+    entry = dict(registry.entry("synthetic"), **{"import": str(probe), "env": {"MEMORY_KEY": "{env:PARENT_KEY}"}})
+    _run(entry, tmp_path, env={**os.environ, "PARENT_KEY": "k-123"})
+
+
+def test_a_public_report_names_the_set_relative_to_the_repository(tmp_path):
+    report = json.loads(_run(registry.entry("synthetic"), tmp_path).read_text(encoding="utf-8"))
+    assert report["config"]["cases"] == "sets/quick/cases" and report["config"]["repo"] == "sets/quick/repo"

@@ -1,0 +1,40 @@
+# TokenMizer as adebench runs it (python -m adebench.builds --memory tokenmizer): the shipped
+# config with the provider set to Gemini and LLM extraction on. Extraction keeps TokenMizer's
+# own defaults since 0.6.0 (the chat model, extraction_max_tokens 2048). The key is read from
+# TOKENMIZER_GEMINI_API_KEY, never written here.
+provider: gemini
+default_model: gemini-3-flash-preview
+state_backend: memory
+graph_checkpoint:
+  enabled: true
+  trigger_at_percent: 0.85
+  storage_dir: ./checkpoints
+  max_resume_tokens: 400
+  use_llm_extraction: true
+  semantic_retrieval: auto
+compression:
+  enabled: true
+  engine: heuristic
+  ratio: 0.5
+  min_tokens_to_compress: 300
+cache:
+  enabled: true
+  similarity_threshold: 0.92
+  ttl_seconds: 3600
+  max_size: 10000
+  share_scope: session
+terse_output:
+  enabled: true
+  level: full
+  style: terse
+domain: coding
+preferences:
+  enabled: false
+  max_items: 4
+  max_chars: 400
+memory:
+  enabled: true
+  max_tokens_before_summary: 4000
+  recent_turns_verbatim: 10
+proxy_host: 127.0.0.1
+proxy_port: 8020

@@ -17,13 +17,16 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
 
 # variables of the parent shell that would change what is measured or where a memory writes
 # (ADEBENCH_DOOR, ADEBENCH_PRESSURE, BRAIN_URL...): every run, public or private, starts
 # without them and gets only what its entry sets
 DROP_ENV = ("ADEBENCH_", "BRAIN_", "SUPERMEMORY_", "MEM0_", "COGNEE_", "MEMU_", "ENGRAM_", "AGENTMEMORY_",
-            "DAKERA_", "HINDSIGHT_", "AIONFORGE_", "GBRAIN_", "MEMOOSE_", "JEVMEM_", "NEMP_")
+            "DAKERA_", "HINDSIGHT_", "AIONFORGE_", "GBRAIN_", "MEMOOSE_", "JEVMEM_", "NEMP_", "TOKENMIZER_")
 
 # where each memory is installed; the defaults are relative to the home folder
 BENCH = os.environ.get("ADEBENCH_BENCH_DIR") or (Path.home() / "ade" / "bench_memories").as_posix()
@@ -97,6 +100,22 @@ REGISTRY: dict[str, dict] = {
     "memu": {"adapter": "adebench.memu:MemuAdapter", "import": "examples/memu_import.py", "store_env": "MEMU_STORE",
              "env": {"MEMU_HOME": f"{BENCH}/memu", "MEMU_PYTHON": f"{BENCH}/memu/.venv/Scripts/python.exe"},
              "flags": FULL, "folder": "memu_report", "file": "reference", "model": True},
+    # TokenMizer is a proxy: its server runs on the build's store with examples/tokenmizer.yaml; it
+    # reads its Gemini key only as TOKENMIZER_GEMINI_API_KEY, taken from the environment
+    "tokenmizer": {"adapter": "adebench.tokenmizer:TokenmizerAdapter", "import": "examples/tokenmizer_import.py",
+                   "store_env": None,
+                   "env": {"TOKENMIZER_URL": "http://127.0.0.1:8020",
+                           "TOKENMIZER_MCP": f"{BENCH}/tokenmizer/.venv/Scripts/tokenmizer-mcp.exe",
+                           "TOKENMIZER_STORAGE_DIR": "{store}/checkpoints"},
+                   "prepare": [[sys.executable, "-c", "import shutil, sys; shutil.copy(sys.argv[1], 'tokenmizer.yaml')",
+                                str(ROOT / "examples" / "tokenmizer.yaml")]],
+                   "server": {"cmd": [f"{BENCH}/tokenmizer/.venv/Scripts/tokenmizer.exe", "serve",
+                                      "--config", "{store}/tokenmizer.yaml", "--port", "8020"],
+                              "cwd": "{store}", "env": {"TOKENMIZER_GEMINI_API_KEY": "{env:GEMINI_API_KEY}"},
+                              "health": "http://127.0.0.1:8020/health", "wait_s": 120},
+                   "flags": ["--sections", "door", "cards", "updates", "time", "abstention", "file_search", "graph",
+                             "--write-back", "--no-sandbox-test"],
+                   "folder": "tokenmizer_report", "file": "reference", "model": True},
 }
 
 

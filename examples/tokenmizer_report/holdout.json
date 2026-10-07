@@ -1,0 +1,10 @@
+{
+ "set": "holdout-v1",
+ "sha256": "3cd42b9f55ffc9dce7fa870cc54206675b1c76c876628eeaa4c772f340f4514f",
+ "delta": 3.0,
+ "outcome": "no_drop",
+ "x": null,
+ "y": 10.4,
+ "public_builds": 5,
+ "private_builds": 3
+}
