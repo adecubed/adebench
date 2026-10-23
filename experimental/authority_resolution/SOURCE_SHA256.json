@@ -1,0 +1,9 @@
+{
+  "README.md": "9db79f9da2668a144982acb21e1c9f1097c44c05517e2de2ba6f14f45188f4db",
+  "examples/public_seed_20261022/cases.json": "f6c2515f64ed6ddc2226cfef19c0e9db0426092893ee8d211195cbd119f1e0a5",
+  "examples/public_seed_20261022/expected_outcomes.json": "b8f64ef4f018958db56a4ed0a828dab006a56cfc09c26093e91cb4410232c192",
+  "examples/public_seed_20261022/metadata.json": "e169842f562b59cd3bad28e0ac8c710338f29df2712ee797cd761c9a02895908",
+  "examples/public_seed_20261022/sha256_manifest.json": "361ac71f6d0ccfb8cb5431b3290d0860a77dbbd5deab236874b5b8921c411a5b",
+  "generate_authority_cases.py": "a2321ffed53aaa7a9c42fb47293c8f4875581effe76bf9760b83e676fbfe4d58",
+  "tests/test_generator.py": "f9d4570b94002eac7ee51ccf4cf25994554b35ae9d207a73727a2d2e79e77dbc"
+}
