@@ -1,0 +1,1292 @@
+{
+ "when": "2026-11-03T11:55:19",
+ "total": 45.7,
+ "measured_weight": 75,
+ "not_run_weight": 0,
+ "total_weight": 100,
+ "counts": {
+  "PASS": 32,
+  "FAIL": 29,
+  "ERROR": 0,
+  "SKIP": 4
+ },
+ "config": {
+  "adapter": "adebench.agentmemory:AgentmemoryAdapter",
+  "brain_url": "http://localhost:8766",
+  "door": "recall",
+  "cases_hash": "a57efdf692",
+  "voice_sources": [
+   "working",
+   "semantic",
+   "episodic",
+   "conversations",
+   "files"
+  ],
+  "voice_cut": 2400,
+  "events_block": true,
+  "pressure": 0,
+  "weights": {
+   "door": 25,
+   "cards": 15,
+   "updates": 10,
+   "time": 10,
+   "live_state": 10,
+   "abstention": 10,
+   "file_search": 10,
+   "graph": 10
+  },
+  "max_card": 900,
+  "cases": "sets/public2/cases",
+  "repo": "sets/public2/repo",
+  "sandbox_test": null,
+  "sandbox_enabled": false,
+  "pressure_level": null,
+  "census": null,
+  "write_back": true,
+  "updates_probe": true,
+  "sections": [
+   "door",
+   "cards",
+   "updates",
+   "time",
+   "live_state",
+   "abstention",
+   "file_search",
+   "graph"
+  ],
+  "duration_s": 36,
+  "fingerprint": "fbd1bad51d"
+ },
+ "sections": [
+  {
+   "name": "door",
+   "weight": 25,
+   "score": 0.875,
+   "cases": [
+    {
+     "case": "In which rack is Titan Node 4 mounted?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 152,
+     "margin": null,
+     "chars": 6374,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 1,
+     "validated": true
+    },
+    {
+     "case": "What is the current version of the Nexus API?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 145,
+     "margin": null,
+     "chars": 6551,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Which engine does Orion DB run on?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 778,
+     "margin": null,
+     "chars": 6134,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the retry limit for Vector Sync?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 224,
+     "margin": null,
+     "chars": 6522,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Who is the owner of Titan Node 4?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 146,
+     "margin": null,
+     "chars": 6256,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the sync interval for Vector Sync?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 144,
+     "margin": null,
+     "chars": 6500,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the capacity of Z-Drive 10?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 182,
+     "margin": null,
+     "chars": 6460,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Where is the documentation for Nexus API kept?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 160,
+     "margin": null,
+     "chars": 6528,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Where are the Lyra Scheduler logs located?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 158,
+     "margin": null,
+     "chars": 5994,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 1,
+     "validated": true
+    },
+    {
+     "case": "What is the security level for Project Iota?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 151,
+     "margin": null,
+     "chars": 6523,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the response time for Nexus API?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 147,
+     "margin": null,
+     "chars": 6126,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the serial number of Titan Node 4?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 204,
+     "margin": null,
+     "chars": 6486,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What language does Lyra Scheduler use?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 147,
+     "margin": null,
+     "chars": 6120,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the lead researcher's name for Project Iota?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 141,
+     "margin": null,
+     "chars": 6497,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the backup policy for Orion DB?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 146,
+     "margin": null,
+     "chars": 6460,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the RAM capacity of iron_beast?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 1613,
+     "margin": null,
+     "chars": 6763,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 1,
+     "validated": true
+    },
+    {
+     "case": "Where is the silver_hand unit located?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 779,
+     "margin": null,
+     "chars": 7024,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 2,
+     "validated": true
+    },
+    {
+     "case": "What is the budget for shadow_ops?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 776,
+     "margin": null,
+     "chars": 6527,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What port does the Nexus API listen on?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "STALE value delivered next to the current one: 8080",
+     "position": 150,
+     "margin": null,
+     "chars": 6490,
+     "ms": 0,
+     "stale": true,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the current version of the Lyra Scheduler?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "STALE value delivered next to the current one: 1.2",
+     "position": 150,
+     "margin": null,
+     "chars": 6510,
+     "ms": 0,
+     "stale": true,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the current status of Z-Drive 10?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "STALE value delivered next to the current one: standby",
+     "position": 849,
+     "margin": null,
+     "chars": 6470,
+     "ms": 0,
+     "stale": true,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "When was Elara Bot last maintained?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 1005,
+     "margin": null,
+     "chars": 6172,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "On what date was the Lyra Scheduler upgraded to 1.3?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 123,
+     "margin": null,
+     "chars": 6203,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 1,
+     "validated": true
+    },
+    {
+     "case": "When was the temperature of Titan Node 4 recorded as 38C?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 123,
+     "margin": null,
+     "chars": 6495,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    }
+   ],
+   "counts": {
+    "PASS": 21,
+    "FAIL": 3,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "door": "recall",
+    "door_budget_chars": null,
+    "pressure_chars": 0,
+    "questions": 24,
+    "validated": 24,
+    "mean_answer_position": 358,
+    "mean_door_text_chars": 6424,
+    "min_margin_chars": null,
+    "passes_within_300_chars_of_the_edge": 0,
+    "questions_with_forbidden_values": 3,
+    "stale_values_delivered": 3,
+    "chars_before_answer_mean": 358,
+    "duplicate_chunks_total": 6
+   },
+   "warnings": [
+    "6 repeated chunks across the delivered texts: budget spent twice on the same information",
+    "3 answers delivered a retired value next to the current one: the model has to guess which is true"
+   ]
+  },
+  {
+   "name": "cards",
+   "weight": 15,
+   "score": null,
+   "cases": [
+    {
+     "case": "entity cards",
+     "status": "SKIP",
+     "ok": false,
+     "note": "this memory has none"
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 1
+   },
+   "measures": {},
+   "warnings": [
+    "section not measured: no entity cards in this memory"
+   ]
+  },
+  {
+   "name": "updates",
+   "weight": 10,
+   "score": 0.6667,
+   "cases": [
+    {
+     "case": "a new write with a changed value replaces the old one at the door (no id given)",
+     "status": "PASS",
+     "ok": true,
+     "note": "new value served in 27 ms"
+    },
+    {
+     "case": "an unrelated fact about the same entity survives the update",
+     "status": "PASS",
+     "ok": true,
+     "note": "still delivered"
+    },
+    {
+     "case": "restating the current value does not pile up a second copy",
+     "status": "FAIL",
+     "ok": false,
+     "note": "3 copies delivered"
+    }
+   ],
+   "counts": {
+    "PASS": 2,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "memories": 46,
+    "superseded_live": 0,
+    "relation_updates": 0,
+    "probe": true,
+    "probe_entity": "zetmbgapp",
+    "probe_replace_ms": 27,
+    "probe_reads_with_both": 0,
+    "probe_cleanup_ok": true
+   },
+   "warnings": [
+    "no trace of updates in live memory: the dedup has not worked yet or found no pairs"
+   ]
+  },
+  {
+   "name": "time",
+   "weight": 10,
+   "score": 0.6667,
+   "cases": [
+    {
+     "case": "semantic memories carry their age (77/88)",
+     "status": "FAIL",
+     "ok": false,
+     "note": "88%"
+    },
+    {
+     "case": "day filter 2026-09-30 returns only that day's episodes",
+     "status": "PASS",
+     "ok": true,
+     "note": "2 episodes"
+    },
+    {
+     "case": "day filter 2026-09-29 returns only that day's episodes",
+     "status": "PASS",
+     "ok": true,
+     "note": "2 episodes"
+    },
+    {
+     "case": "day filter 2026-09-28 returns only that day's episodes",
+     "status": "PASS",
+     "ok": true,
+     "note": "2 episodes"
+    },
+    {
+     "case": "an imported memory reaches the door with its original date",
+     "status": "FAIL",
+     "ok": false,
+     "note": "served with no date"
+    },
+    {
+     "case": "«what did pc2 do?» finds the episodes signed [pc2]",
+     "status": "PASS",
+     "ok": true,
+     "note": "7 episodes in the answer"
+    }
+   ],
+   "counts": {
+    "PASS": 4,
+    "FAIL": 2,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "share_of_memories_with_age": 0.875,
+    "facts_with_event_date": "36/46",
+    "days_tried": [
+     "2026-09-30",
+     "2026-09-29",
+     "2026-09-28"
+    ],
+    "signed_episodes": 3,
+    "signed_question": "what did pc2 do?"
+   },
+   "warnings": []
+  },
+  {
+   "name": "live_state",
+   "weight": 10,
+   "score": 0.7143,
+   "cases": [
+    {
+     "case": "canary written to working memory",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "the canary just written is served through the retrieval door",
+     "status": "PASS",
+     "ok": true,
+     "note": "write-to-serve 27 ms"
+    },
+    {
+     "case": "…and reaches the text of door 'recall'",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "3 canaries served within the budget",
+     "status": "PASS",
+     "ok": true,
+     "note": "p50 27 ms · p95 34 ms"
+    },
+    {
+     "case": "after overwriting the canary the door serves the new value, never the old one",
+     "status": "FAIL",
+     "ok": false,
+     "note": "overwrite-to-visible 11 ms · STALE: old and new value delivered together"
+    },
+    {
+     "case": "two writes in quick succession: the door settles on the second, never back on the first",
+     "status": "FAIL",
+     "ok": false,
+     "note": "second write visible in 28 ms · 29 read(s) served the first write after the second was already visible",
+     "timeline": [
+      {
+       "t_ms": 0,
+       "event": "first write"
+      },
+      {
+       "t_ms": 7,
+       "event": "second write"
+      },
+      {
+       "t_ms": 58,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 1106,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 2146,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 3190,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 4265,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 5305,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 6354,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 7395,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 8420,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 9506,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 10558,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 11584,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 12630,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 13659,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 14698,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 15740,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 16788,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 17828,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 18848,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 19886,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 20926,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 21954,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 22995,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 24029,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 25059,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 26095,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 27152,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 28184,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 29212,
+       "event": "poll",
+       "first": true,
+       "second": true
+      },
+      {
+       "t_ms": 30238,
+       "event": "poll",
+       "first": true,
+       "second": true
+      }
+     ]
+    },
+    {
+     "case": "cleanup: adebench session empty at the end of the run",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "live-state key freshness",
+     "status": "SKIP",
+     "ok": false,
+     "note": "no live-state key configured (ADEBENCH_LIVE_STATE_KEY)"
+    }
+   ],
+   "counts": {
+    "PASS": 5,
+    "FAIL": 2,
+    "ERROR": 0,
+    "SKIP": 1
+   },
+   "measures": {
+    "live_state_age_min": null,
+    "write_to_serve_ms": 27,
+    "write_to_serve_p50_ms": 27,
+    "write_to_serve_p95_ms": 34,
+    "write_to_serve_samples": 3,
+    "write_to_serve_budget_s": 30,
+    "overwrite_to_visible_ms": 11,
+    "stale_reads_after_overwrite": 0,
+    "repeated_writes_settle_ms": 28,
+    "out_of_order_reads": 29,
+    "repeated_writes_timeline": [
+     {
+      "t_ms": 0,
+      "event": "first write"
+     },
+     {
+      "t_ms": 7,
+      "event": "second write"
+     },
+     {
+      "t_ms": 58,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 1106,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 2146,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 3190,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 4265,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 5305,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 6354,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 7395,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 8420,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 9506,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 10558,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 11584,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 12630,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 13659,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 14698,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 15740,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 16788,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 17828,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 18848,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 19886,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 20926,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 21954,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 22995,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 24029,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 25059,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 26095,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 27152,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 28184,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 29212,
+      "event": "poll",
+      "first": true,
+      "second": true
+     },
+     {
+      "t_ms": 30238,
+      "event": "poll",
+      "first": true,
+      "second": true
+     }
+    ]
+   },
+   "warnings": []
+  },
+  {
+   "name": "abstention",
+   "weight": 10,
+   "score": 0.3333,
+   "cases": [
+    {
+     "case": "What is the primary function of the Zoltaris module?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "episodes presented as direct matches; 3 keyword facts for something that does not exist",
+     "fraction": 0.3333333333333333
+    },
+    {
+     "case": "Does Vornak interface with the Nexus API?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "episodes presented as direct matches; 5 keyword facts for something that does not exist",
+     "fraction": 0.3333333333333333
+    },
+    {
+     "case": "How many Glimmox units are installed in Sector G?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "episodes presented as direct matches; 6 keyword facts for something that does not exist",
+     "fraction": 0.3333333333333333
+    },
+    {
+     "case": "Is Brakit compatible with Lyra Scheduler?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "episodes presented as direct matches; 7 keyword facts for something that does not exist",
+     "fraction": 0.3333333333333333
+    },
+    {
+     "case": "Who designed the Krelin processor?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "episodes presented as direct matches; 4 keyword facts for something that does not exist",
+     "fraction": 0.3333333333333333
+    },
+    {
+     "case": "When was the Duxo firmware last updated?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "episodes presented as direct matches; 5 keyword facts for something that does not exist",
+     "fraction": 0.3333333333333333
+    },
+    {
+     "case": "Does Jalvor require access to Orion DB?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "episodes presented as direct matches; 6 keyword facts for something that does not exist",
+     "fraction": 0.3333333333333333
+    },
+    {
+     "case": "What is the encryption level of Moxie?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "episodes presented as direct matches; 3 keyword facts for something that does not exist",
+     "fraction": 0.3333333333333333
+    },
+    {
+     "case": "Is the Plynth sensor calibrated?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "episodes presented as direct matches; 3 keyword facts for something that does not exist",
+     "fraction": 0.3333333333333333
+    },
+    {
+     "case": "Where is the Quarx server located?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "episodes presented as direct matches; 3 keyword facts for something that does not exist",
+     "fraction": 0.3333333333333333
+    },
+    {
+     "case": "What protocol does Riften use?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "episodes presented as direct matches; 3 keyword facts for something that does not exist",
+     "fraction": 0.3333333333333333
+    },
+    {
+     "case": "Is Skalo active in the West Wing?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "episodes presented as direct matches; 3 keyword facts for something that does not exist",
+     "fraction": 0.3333333333333333
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 12,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "questions": 12,
+    "leaked_entities": 0
+   },
+   "warnings": []
+  },
+  {
+   "name": "file_search",
+   "weight": 10,
+   "score": 0.0,
+   "cases": [
+    {
+     "case": "check_protocol → nexus_utils.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "schedule_backup → db_monitor.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "verify_engine → db_monitor.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "set_orchestration_port → scheduler_core.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "check_drive_status → db_monitor.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "get_api_version → nexus_utils.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "run_rust_task → scheduler_core.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "log_response → nexus_utils.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "get_current_v → scheduler_core.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 9,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "indexable_functions": 9,
+    "tried": 9
+   },
+   "warnings": []
+  },
+  {
+   "name": "graph",
+   "weight": 10,
+   "score": null,
+   "cases": [
+    {
+     "case": "entities with a card in the graph",
+     "status": "SKIP",
+     "ok": false,
+     "note": "no entity with a card"
+    },
+    {
+     "case": "orphan fact nodes = 0",
+     "status": "SKIP",
+     "ok": false,
+     "note": "the graph has no fact nodes: nothing to check"
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 2
+   },
+   "measures": {
+    "nodes": 0,
+    "edges": 0,
+    "orphan_fact_nodes": "the graph has no fact nodes: nothing to check"
+   },
+   "warnings": [
+    "section not measured: no case with evidence (all SKIP or no cases)"
+   ]
+  },
+  {
+   "name": "write_back",
+   "weight": 0,
+   "score": null,
+   "cases": [
+    {
+     "case": "the degraded answer does not come back through the door",
+     "status": "SKIP",
+     "ok": false,
+     "note": "no write path in this adapter (ingest_exchange / forget_memory)"
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 1
+   },
+   "measures": {
+    "degraded_answer": "I have no record of that. You asked: {question}",
+    "questions_tested": 0,
+    "poisoned": 0,
+    "cleanup_ok": null,
+    "wait_s": 10
+   },
+   "warnings": []
+  },
+  {
+   "name": "health",
+   "weight": 0,
+   "score": null,
+   "cases": [],
+   "counts": {},
+   "measures": {
+    "status": "critical",
+    "http": 503,
+    "version": "0.9.29",
+    "alerts": [
+     "cpu_critical_330%"
+    ],
+    "notes": [
+     "memory_heap_tight_95%_rss188mb"
+    ],
+    "llm_provider": "llm",
+    "embedding_provider": "embeddings",
+    "flags_enabled": [
+     "CONSOLIDATION_ENABLED"
+    ],
+    "memories": 46,
+    "memories_latest": 46,
+    "graph": {
+     "nodes": 0,
+     "edges": 0
+    }
+   },
+   "warnings": [
+    "/health answered HTTP 503 status critical: ['cpu_critical_330%'] (its monitor averages CPU over 30 s)",
+    "no entity cards and no file search: those sections are SKIP; the graph is extracted from episodes only: no entity card to check edges on, the orphan count is reported, not scored",
+    "the transcript import compresses without a model whatever the provider: the assistant's reply is dropped, episodes keep only the user's prompt"
+   ]
+  },
+  {
+   "name": "doors",
+   "weight": 0,
+   "score": null,
+   "cases": [],
+   "counts": {},
+   "measures": {
+    "memory_recall": {
+     "calls": 80,
+     "http_errors": 0,
+     "ms_p50": 27,
+     "ms_p95": 51,
+     "mean_chars": 7013
+    },
+    "memory_smart_search": {
+     "calls": 10,
+     "http_errors": 0,
+     "ms_p50": 13,
+     "ms_p95": 37,
+     "mean_chars": 2890
+    }
+   },
+   "warnings": []
+  }
+ ],
+ "delta": {
+  "total": 0.0,
+  "sections": {
+   "door": 0.0,
+   "updates": 0.0,
+   "time": 0.0,
+   "live_state": 0.0,
+   "abstention": 0.0,
+   "file_search": 0.0
+  },
+  "against": "2026-11-03T11:54:40"
+ }
+}

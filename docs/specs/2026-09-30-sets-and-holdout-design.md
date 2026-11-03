@@ -102,7 +102,22 @@ Two sources of spread are counted:
   each); updates and time are mostly probes the harness writes itself, the same on every
   set, and are taken from the picked run as they are.
 
-The difference `private − public2` gets a 90 % interval from 2,000 such resamples.
+The difference `private − public2`, minus the set's shift (below), gets a 90 % interval from
+2,000 such resamples.
+
+**The set's shift** (decided 2026-11-03). Two sets from the same generator still differ in
+difficulty: the questions of a set all come from one invented world, so they are not
+independent draws, and resampling them does not cover the difference between two worlds. So
+each memory's difference is taken against the shift, the median point gap of the *other*
+memories measured on both sets, and an outcome is written only once at least four other
+memories have both. A drop every memory shares is the set; a memory that drops beyond it does
+worse on questions it has not seen. On `holdout-v1` the shift is about −2 core points (five
+memories, 3 Nov 2026).
+
+**What "lower" says.** It says a memory scores lower on unseen questions than the set explains,
+not why. gbrain, which nobody could have tuned to `public2`, is lower by 6 points: its drop is
+about the private world, not about the public questions. The site states the outcome without
+words like "tuned" or "overfit".
 
 The check is **one-sided** (decided 2026-09-30). With 24 door and 12 abstention questions a
 set cannot show that two scores are *equal* within a few points: a simulation of a memory
@@ -114,11 +129,12 @@ the public questions typically loses ten points or more. With a minimum effect
 
 | Outcome | When |
 |---|---|
-| **lower by X** | the whole interval lies below 0 and its midpoint is below −δ; X is the midpoint |
+| **lower by X** | the whole interval (after the shift) lies below 0 and its midpoint is below −δ; X is the midpoint |
 | **no drop detected (±Y)** | anything else; Y is the interval's half-width, so the reader sees how fine the check was |
 
-Only the outcome, X or Y, δ, the number of builds on each side and the set's version and hash
-are published, in `examples/<memory>_report/holdout.json`. The runs themselves stay in the
+Only the outcome, X or Y, δ, the shift and how many memories it came from, the number of
+builds on each side and the set's version and hash are published, in
+`examples/<memory>_report/holdout.json` (`holdout_gemini.json` for a Gemini row). The runs themselves stay in the
 private folder.
 
 ## 5. Keeping the private set private

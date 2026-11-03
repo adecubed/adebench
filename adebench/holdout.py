@@ -107,26 +107,57 @@ def run(memory: str, builds: int = 1, say=print, roots: list[Path] | None = None
     return scores
 
 
-def write_outcome(memory: str, public: Path | None, out: Path | None = None) -> dict:
-    """Compare the memory's public2 runs with its private runs and write the one
-    thing published about the private set: examples/<memory>_report/holdout.json."""
+def _runs(folder: Path) -> list[dict]:
+    return [json.loads(p.read_text(encoding="utf-8")) for p in sorted(Path(folder).glob("*.json"))]
+
+
+def _public_runs_dir(memory: str) -> Path:
+    """examples/<folder>/runs_public2 (runs_gemini_public2 for a Gemini row), from the registry."""
+    e = registry.REGISTRY.get(memory)
+    if e and e.get("folder"):
+        return ROOT / "examples" / e["folder"] / build_runner.runs_dir_name(e, "public2")
     from adebench import site
-    entry = next((m for m in site.MEMORIES if m["name"].lower() == memory.lower()), None)
-    folder = ROOT / "examples" / (entry["folder"] if entry else f"{memory}_report")
-    public = Path(public) if public else folder / "runs_public2"
-    pub = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(public.glob("*.json"))]
+    row = next((m for m in site.MEMORIES if m["name"].lower() == memory.lower()), None)
+    return ROOT / "examples" / (row["folder"] if row else f"{memory}_report") / "runs_public2"
+
+
+def other_gaps(memory: str, version: str) -> list[float]:
+    """The point gap (private minus public2, per 55) of every other memory run on both sets."""
+    gaps = []
+    for name in registry.REGISTRY:
+        if name in (memory, "synthetic"):
+            continue
+        priv, pub = _runs(home() / "runs" / version / name), _runs(_public_runs_dir(name))
+        if priv and pub:
+            gaps.append(holdout_compare.gap(pub, priv))
+    return gaps
+
+
+def write_outcome(memory: str, public: Path | None, out: Path | None = None,
+                  others: list[float] | None = None) -> dict:
+    """Compare the memory's public2 runs with its private runs, against the set's shift (the
+    median gap of the other memories), and write the one thing published about the private
+    set: examples/<folder>/holdout.json."""
+    public = Path(public) if public else _public_runs_dir(memory)
+    pub = _runs(public)
     if not pub:
         raise SystemExit(f"no public2 runs for {memory} in {public}")
     version = frozen().name
-    priv = [json.loads(p.read_text(encoding="utf-8"))
-            for p in sorted((home() / "runs" / version / memory).glob("*.json"))]
+    priv = _runs(home() / "runs" / version / memory)
     if not priv:
         raise SystemExit(f"no private runs for {memory}: run `python -m adebench.holdout run --memory {memory}`")
+    others = other_gaps(memory, version) if others is None else others
+    try:
+        shift = holdout_compare.set_shift(others)
+    except ValueError as e:
+        raise SystemExit(f"{memory}: not yet: {e}")
     m = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    c = holdout_compare.compare(pub, priv)
-    result = {"set": m["version"], "sha256": m["sha256"], "delta": c["delta"], "outcome": c["outcome"], "x": c["x"],
-              "y": c["y"], "public_builds": c["public_builds"], "private_builds": c["private_builds"]}
-    out = out or folder / "holdout.json"
+    c = holdout_compare.compare(pub, priv, shift=shift)
+    result = {"set": m["version"], "sha256": m["sha256"], "delta": c["delta"], "shift": c["shift"],
+              "others": len(others), "outcome": c["outcome"], "x": c["x"], "y": c["y"],
+              "public_builds": c["public_builds"], "private_builds": c["private_builds"]}
+    suffix = registry.REGISTRY.get(memory, {}).get("file", "reference")[len("reference"):]
+    out = out or public.parent / f"holdout{suffix}.json"
     out.write_text(json.dumps(result, indent=1) + "\n", encoding="utf-8")
     return result
 
@@ -151,8 +182,8 @@ def main(argv: list[str] | None = None) -> int:
         run(a.memory, a.builds)
     else:
         r = write_outcome(a.memory, Path(a.public) if a.public else None)
-        print(f"{a.memory}: lower by {r['x']}" if r["outcome"] == "lower" else
-              f"{a.memory}: no drop detected (±{r['y']})")
+        print(f"{a.memory}: lower by {abs(r['x'])} beyond the set's shift ({r['shift']})" if r["outcome"] == "lower"
+              else f"{a.memory}: no drop beyond the set's shift ({r['shift']}), ±{r['y']}")
     return 0
 
 

@@ -1,0 +1,45 @@
+{
+ "builds": 3,
+ "runs": [
+  {
+   "when": "2026-11-03T11:36:26",
+   "core": 30.7,
+   "core_weight": 55,
+   "total": 65.7,
+   "measured": 100
+  },
+  {
+   "when": "2026-11-03T11:42:33",
+   "core": 30.7,
+   "core_weight": 55,
+   "total": 65.7,
+   "measured": 100
+  },
+  {
+   "when": "2026-11-03T11:48:17",
+   "core": 30.7,
+   "core_weight": 55,
+   "total": 65.7,
+   "measured": 100
+  }
+ ],
+ "core": {
+  "mean": 30.7,
+  "min": 30.7,
+  "max": 30.7,
+  "weight": 55
+ },
+ "total": {
+  "mean": 65.7,
+  "min": 65.7,
+  "max": 65.7,
+  "measured": 100
+ },
+ "reference": "2026-11-03T11:42:33",
+ "reference_file": "runs_public2/20261103-114233-54d07d.json",
+ "files": [
+  "runs_public2/20261103-113626-54d07d.json",
+  "runs_public2/20261103-114233-54d07d.json",
+  "runs_public2/20261103-114817-54d07d.json"
+ ]
+}

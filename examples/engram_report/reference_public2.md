@@ -1,0 +1,187 @@
+# adebench — 2026-11-03T11:27:42
+
+**Score: 34.4 / 75 (+0.0) — coverage 75/100: 25 not measured (no evidence)**
+Cases: 21 PASS · 40 FAIL · 0 ERROR · 4 SKIP
+Adapter `adebench.engram:EngramAdapter` · door `search` · cases `a57efdf692` · setup `a1e60309c9` · sections door, cards, updates, time, live_state, abstention, file_search, graph
+Delta against the comparable run of 2026-11-03T11:26:55.
+
+| Section | Weight | Points | PASS/FAIL/ERROR/SKIP |
+|---|---|---|---|
+| door | 25 | 9.4 (+0.0) | 9/15/0/0 |
+| cards | 15 | not measured | 0/0/0/1 |
+| updates | 10 | 3.3 (+0.0) | 1/2/0/0 |
+| time | 10 | 6.7 (+0.0) | 4/2/0/0 |
+| live_state | 10 | 10.0 (+0.0) | 7/0/0/1 |
+| abstention | 10 | 5.0 (+0.0) | 0/12/0/0 |
+| file_search | 10 | 0.0 (+0.0) | 0/9/0/0 |
+| graph | 10 | not measured | 0/0/0/2 |
+| write_back | report-only | — | 0/2/0/0 |
+
+## door
+
+- door: `"search"`
+- door_budget_chars: `null`
+- pressure_chars: `0`
+- questions: `24`
+- validated: `24`
+- mean_answer_position: `1861`
+- mean_door_text_chars: `6014`
+- min_margin_chars: `null`
+- passes_within_300_chars_of_the_edge: `0`
+- questions_with_forbidden_values: `3`
+- stale_values_delivered: `1`
+- chars_before_answer_mean: `1861`
+- duplicate_chunks_total: `0`
+
+- ⚠ 1 answers delivered a retired value next to the current one: the model has to guess which is true
+
+Not passed:
+- FAIL In which rack is Titan Node 4 mounted? — missing C12
+- FAIL What is the current version of the Nexus API? — missing 2.4.1
+- FAIL Who is the owner of Titan Node 4? — missing Infrastructure Team
+- FAIL What is the sync interval for Vector Sync? — missing 30 seconds
+- FAIL What is the capacity of Z-Drive 10? — missing 50TB
+- FAIL What is the response time for Nexus API? — missing 12ms
+- FAIL What is the serial number of Titan Node 4? — missing TN4-9901
+- FAIL What is the lead researcher's name for Project Iota? — missing Dr. Aris
+- FAIL What is the RAM capacity of iron_beast? — missing 256GB
+- FAIL Where is the silver_hand unit located? — missing Sector G
+- FAIL What is the budget for shadow_ops? — missing $500,000
+- FAIL What port does the Nexus API listen on? — STALE value delivered next to the current one: 8080
+- FAIL What is the current version of the Lyra Scheduler? — missing 1.3
+- FAIL On what date was the Lyra Scheduler upgraded to 1.3? — missing 2026-06-20
+- FAIL When was the temperature of Titan Node 4 recorded as 38C? — missing 2026-09-12
+
+## cards
+
+- ⚠ section not measured: no entity cards in this memory
+
+Not passed:
+- SKIP entity cards — this memory has none
+
+## updates
+
+- superseded_live: `0`
+- relations: `{"pending/pending": 30}`
+- observations_live: `58`
+- topic_upserts: `0`
+- probe: `true`
+- probe_entity: `"zetmicnjh"`
+- probe_replace_ms: `35`
+- probe_reads_with_both: `31`
+- probe_cleanup_ok: `true`
+
+- ⚠ no trace of updates in live memory: the dedup has not worked yet or found no pairs
+
+Not passed:
+- FAIL a new write with a changed value replaces the old one at the door (no id given) — new value served in 35 ms; STALE: the old value is still delivered (31 reads with both)
+- FAIL restating the current value does not pile up a second copy — 3 copies delivered
+
+## time
+
+- share_of_memories_with_age: `0.179`
+- facts_with_event_date: `"48/58"`
+- days_tried: `["2026-09-30", "2026-09-29", "2026-09-28"]`
+- signed_episodes: `3`
+- signed_question: `"what did pc2 do?"`
+
+Not passed:
+- FAIL semantic memories carry their age (43/240) — 18%
+- FAIL an imported memory reaches the door with its original date — served with no date
+
+## live_state
+
+- live_state_age_min: `null`
+- write_to_serve_ms: `45`
+- write_to_serve_p50_ms: `45`
+- write_to_serve_p95_ms: `47`
+- write_to_serve_samples: `3`
+- write_to_serve_budget_s: `30`
+- overwrite_to_visible_ms: `29`
+- stale_reads_after_overwrite: `0`
+- repeated_writes_settle_ms: `37`
+- out_of_order_reads: `0`
+- repeated_writes_timeline: `[{"t_ms": 0, "event": "first write"}, {"t_ms": 50, "event": "second write"}, {"t_ms": 137, "event": "poll", "first": false, "second": true}, {"t_ms": 1165, "event": "poll", "first": false, "second": true}, {"t_ms": 2205, "event": "poll", "first": false, "second": true}]`
+
+Not passed:
+- SKIP live-state key freshness — no live-state key configured (ADEBENCH_LIVE_STATE_KEY)
+
+## abstention
+
+- questions: `12`
+- leaked_entities: `0`
+
+Not passed:
+- FAIL What is the primary function of the Zoltaris module? — 10 keyword facts for something that does not exist
+- FAIL Does Vornak interface with the Nexus API? — episodes presented as direct matches; 10 keyword facts for something that does not exist
+- FAIL How many Glimmox units are installed in Sector G? — episodes presented as direct matches; 10 keyword facts for something that does not exist
+- FAIL Is Brakit compatible with Lyra Scheduler? — 10 keyword facts for something that does not exist
+- FAIL Who designed the Krelin processor? — episodes presented as direct matches; 10 keyword facts for something that does not exist
+- FAIL When was the Duxo firmware last updated? — episodes presented as direct matches; 10 keyword facts for something that does not exist
+- FAIL Does Jalvor require access to Orion DB? — episodes presented as direct matches; 10 keyword facts for something that does not exist
+- FAIL What is the encryption level of Moxie? — 10 keyword facts for something that does not exist
+- FAIL Is the Plynth sensor calibrated? — 10 keyword facts for something that does not exist
+- FAIL Where is the Quarx server located? — 10 keyword facts for something that does not exist
+- FAIL What protocol does Riften use? — episodes presented as direct matches; 9 keyword facts for something that does not exist
+- FAIL Is Skalo active in the West Wing? — 10 keyword facts for something that does not exist
+
+## file_search
+
+- indexable_functions: `9`
+- tried: `9`
+
+Not passed:
+- FAIL check_protocol → nexus_utils.py — top5: []
+- FAIL schedule_backup → db_monitor.py — top5: []
+- FAIL verify_engine → db_monitor.py — top5: []
+- FAIL set_orchestration_port → scheduler_core.py — top5: []
+- FAIL check_drive_status → db_monitor.py — top5: []
+- FAIL get_api_version → nexus_utils.py — top5: []
+- FAIL run_rust_task → scheduler_core.py — top5: []
+- FAIL log_response → nexus_utils.py — top5: []
+- FAIL get_current_v → scheduler_core.py — top5: []
+
+## graph
+
+- orphan_fact_nodes: `"the graph has no fact nodes: nothing to check"`
+
+- ⚠ section not measured: no case with evidence (all SKIP or no cases)
+
+Not passed:
+- SKIP entities with a card in the graph — no entity with a card
+- SKIP orphan fact nodes = 0 — the graph has no fact nodes: nothing to check
+
+## write_back
+
+- degraded_answer: `"I have no record of that. You asked: {question}"`
+- questions_tested: `2`
+- poisoned: `2`
+- cleanup_ok: `true`
+- wait_s: `10`
+
+- ⚠ 2 of 2 degraded answers written back reached the door or pushed the real answer out: the memory learns from its own bad answers
+
+Not passed:
+- FAIL Which engine does Orion DB run on? — the degraded answer reached the door after 30 ms (before the real answer)
+- FAIL What is the retry limit for Vector Sync? — the degraded answer reached the door after 41 ms (before the real answer)
+
+## health
+
+- tools_profile: `"agent"`
+- fresh_store_required: `"a run needs a fresh ENGRAM_DATA_DIR: deletes are soft and the probes' conflict relations stay behind"`
+- sessions: `16`
+- observations: `58`
+- soft_deleted: `9`
+- prompts: `12`
+- superseded_live: `0`
+- relations: `{"pending/pending": 47}`
+- observations_live: `58`
+- topic_upserts: `0`
+
+- ⚠ 47 conflict relation(s) pending: Engram flags them on save for the agent's model to judge (mem_judge); until then both memories are served
+- ⚠ cards, files and entity graph do not exist in Engram: those sections are SKIP
+
+## doors
+
+- mem_search any: `{"calls": 87, "http_errors": 0, "ms_p50": 27, "ms_p95": 41, "mean_chars": 5449}`
+- mem_search all: `{"calls": 10, "http_errors": 0, "ms_p50": 7, "ms_p95": 9, "mean_chars": 155}`

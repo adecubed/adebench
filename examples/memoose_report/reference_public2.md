@@ -1,0 +1,156 @@
+# adebench — 2026-11-03T11:42:33
+
+**Score: 65.7 / 100 (+0.0)**
+Cases: 145 PASS · 34 FAIL · 0 ERROR · 3 SKIP
+Adapter `adebench.memoose:MemooseAdapter` · door `recall` · cases `a57efdf692` · setup `54d07db9bb` · sections door, cards, updates, time, live_state, abstention, file_search, graph
+Delta against the comparable run of 2026-11-03T11:36:26.
+
+| Section | Weight | Points | PASS/FAIL/ERROR/SKIP |
+|---|---|---|---|
+| door | 25 | 14.6 (+0.0) | 14/10/0/0 |
+| cards | 15 | 15.0 (+0.0) | 80/0/0/0 |
+| updates | 10 | 5.0 (+0.0) | 2/2/0/0 |
+| time | 10 | 5.0 (+0.0) | 1/1/0/2 |
+| live_state | 10 | 10.0 (+0.0) | 7/0/0/1 |
+| abstention | 10 | 6.1 (+0.0) | 0/12/0/0 |
+| file_search | 10 | 0.0 (+0.0) | 0/9/0/0 |
+| graph | 10 | 10.0 (+0.0) | 41/0/0/0 |
+
+## door
+
+- door: `"recall"`
+- door_budget_chars: `null`
+- pressure_chars: `0`
+- questions: `24`
+- validated: `24`
+- mean_answer_position: `186`
+- mean_door_text_chars: `1596`
+- min_margin_chars: `null`
+- passes_within_300_chars_of_the_edge: `0`
+- questions_with_forbidden_values: `3`
+- stale_values_delivered: `3`
+- chars_before_answer_mean: `186`
+- duplicate_chunks_total: `0`
+
+- ⚠ 3 answers delivered a retired value next to the current one: the model has to guess which is true
+
+Not passed:
+- FAIL What is the capacity of Z-Drive 10? — card z_drive_10 absent
+- FAIL What is the response time for Nexus API? — card nexus_api absent
+- FAIL What is the RAM capacity of iron_beast? — card titan_node_4 absent
+- FAIL Where is the silver_hand unit located? — card elara_bot absent
+- FAIL What is the budget for shadow_ops? — card project_iota absent
+- FAIL What port does the Nexus API listen on? — STALE value delivered next to the current one: 8080
+- FAIL What is the current version of the Lyra Scheduler? — STALE value delivered next to the current one: 1.2
+- FAIL What is the current status of Z-Drive 10? — STALE value delivered next to the current one: standby card z_drive_10 absent
+- FAIL When was Elara Bot last maintained? — card elara_bot absent
+- FAIL When was the temperature of Titan Node 4 recorded as 38C? — card titan_node_4 absent
+
+## cards
+
+- cards: `40`
+- corrections: `0`
+- aliases: `0`
+- aliases_tried: `0`
+
+## updates
+
+- superseded_live: `0`
+- relations_live: `32`
+- archive_by_reason: `{"assert": 32, "create": 46, "merge": 32, "merge_entities": 6}`
+- functional_relations: `[]`
+- open_contradictions: `0`
+- sandbox_test: `"2/4"`
+
+- ⚠ updates scored from the adapter's own sandbox test: the harness probe, the same for every memory, needs the optional write_fact
+- ⚠ no trace of updates in live memory: the dedup has not worked yet or found no pairs
+
+Not passed:
+- FAIL sandbox: a new value retires the old one on its own
+- FAIL sandbox: the retired values never reach the door again
+
+## time
+
+- share_of_memories_with_age: `0.438`
+- facts_with_event_date: `"28/32"`
+- days_tried: `["2026-11-03"]`
+- signed_episodes: `0`
+- signed_question: `"what did pc2 do?"`
+
+Not passed:
+- FAIL semantic memories carry their age (210/480) — 44%
+- SKIP an imported memory reaches the door with its original date — no import path in this adapter (import_memory / forget_memory)
+- SKIP episodes signed by another machine — none in this memory
+
+## live_state
+
+- live_state_age_min: `null`
+- write_to_serve_ms: `2829`
+- write_to_serve_p50_ms: `2829`
+- write_to_serve_p95_ms: `4047`
+- write_to_serve_samples: `3`
+- write_to_serve_budget_s: `30`
+- overwrite_to_visible_ms: `3369`
+- stale_reads_after_overwrite: `0`
+- repeated_writes_settle_ms: `3408`
+- out_of_order_reads: `0`
+- repeated_writes_timeline: `[{"t_ms": 0, "event": "first write"}, {"t_ms": 1363, "event": "second write"}, {"t_ms": 5682, "event": "poll", "first": false, "second": true}, {"t_ms": 9765, "event": "poll", "first": false, "second": true}, {"t_ms": 14174, "event": "poll", "first": false, "second": true}]`
+
+Not passed:
+- SKIP live-state key freshness — no live-state key configured (ADEBENCH_LIVE_STATE_KEY)
+
+## abstention
+
+- questions: `12`
+- leaked_entities: `0`
+
+Not passed:
+- FAIL What is the primary function of the Zoltaris module? — 20 keyword facts for something that does not exist
+- FAIL Does Vornak interface with the Nexus API? — produced an entity card; 20 keyword facts for something that does not exist
+- FAIL How many Glimmox units are installed in Sector G? — 20 keyword facts for something that does not exist
+- FAIL Is Brakit compatible with Lyra Scheduler? — 20 keyword facts for something that does not exist
+- FAIL Who designed the Krelin processor? — 20 keyword facts for something that does not exist
+- FAIL When was the Duxo firmware last updated? — 20 keyword facts for something that does not exist
+- FAIL Does Jalvor require access to Orion DB? — produced an entity card; 20 keyword facts for something that does not exist
+- FAIL What is the encryption level of Moxie? — 20 keyword facts for something that does not exist
+- FAIL Is the Plynth sensor calibrated? — 20 keyword facts for something that does not exist
+- FAIL Where is the Quarx server located? — 20 keyword facts for something that does not exist
+- FAIL What protocol does Riften use? — 20 keyword facts for something that does not exist
+- FAIL Is Skalo active in the West Wing? — 20 keyword facts for something that does not exist
+
+## file_search
+
+- indexable_functions: `9`
+- tried: `9`
+
+Not passed:
+- FAIL check_protocol → nexus_utils.py — top5: []
+- FAIL schedule_backup → db_monitor.py — top5: []
+- FAIL verify_engine → db_monitor.py — top5: []
+- FAIL set_orchestration_port → scheduler_core.py — top5: []
+- FAIL check_drive_status → db_monitor.py — top5: []
+- FAIL get_api_version → nexus_utils.py — top5: []
+- FAIL run_rust_task → scheduler_core.py — top5: []
+- FAIL log_response → nexus_utils.py — top5: []
+- FAIL get_current_v → scheduler_core.py — top5: []
+
+## graph
+
+- nodes: `40`
+- edges: `32`
+- orphan_fact_nodes: `"0 orphans out of 32"`
+
+## health
+
+- nodes: `40`
+- edges: `32`
+- chunks: `40`
+- superseded_relations: `0`
+- functional_relations: `0`
+
+- ⚠ no functional relation declared: a second value for the same relation is kept next to the first until something calls supersede
+- ⚠ chunks are not deletable: what the benchmark writes goes away with the dataset
+
+## doors
+
+- recall: `{"calls": 46, "http_errors": 0, "ms_p50": 3142, "ms_p95": 4046, "mean_chars": 9810}`

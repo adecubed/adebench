@@ -117,9 +117,10 @@ def test_write_outcome_publishes_only_the_outcome(home, tmp_path):
     for f in (home / "runs" / "holdout-v1" / "synthetic").glob("*.json"):
         (pub / f.name).write_text(f.read_text(encoding="utf-8"), encoding="utf-8")
     out = tmp_path / "holdout.json"
-    r = holdout.write_outcome("synthetic", pub, out=out)
+    r = holdout.write_outcome("synthetic", pub, out=out, others=[0.0] * 4)
     saved = json.loads(out.read_text(encoding="utf-8"))
-    assert saved == r and set(saved) == {"set", "sha256", "delta", "outcome", "x", "y", "public_builds", "private_builds"}
+    assert saved == r and set(saved) == {"set", "sha256", "delta", "shift", "others", "outcome", "x", "y",
+                                          "public_builds", "private_builds"}
     assert saved["outcome"] == "no_drop"
 
 
@@ -127,7 +128,7 @@ def test_write_outcome_needs_public_runs(home, tmp_path):
     _tiny_holdout(home)
     (tmp_path / "empty").mkdir()
     with pytest.raises(SystemExit, match="no public2 runs"):
-        holdout.write_outcome("synthetic", tmp_path / "empty", out=tmp_path / "h.json")
+        holdout.write_outcome("synthetic", tmp_path / "empty", out=tmp_path / "h.json", others=[0.0] * 4)
     assert not (tmp_path / "h.json").exists()
 
 
@@ -148,7 +149,7 @@ def test_private_runs_are_kept_per_set_version(home, tmp_path):
     pub.mkdir()
     for f in (home / "runs" / "holdout-v1" / "synthetic").glob("*.json"):
         (pub / f.name).write_text(f.read_text(encoding="utf-8"), encoding="utf-8")
-    assert holdout.write_outcome("synthetic", pub, out=tmp_path / "h.json")["private_builds"] == 1
+    assert holdout.write_outcome("synthetic", pub, out=tmp_path / "h.json", others=[0.0] * 4)["private_builds"] == 1
 
 
 def test_parent_benchmark_settings_do_not_reach_the_run(home, tmp_path, monkeypatch):
@@ -174,3 +175,17 @@ def test_extra_store_paths_are_cleaned_and_scanned(home, tmp_path, monkeypatch):
     (extra / "db").write_text("x", encoding="utf-8")
     holdout.run("server", builds=1, say=lambda m: None, roots=[])
     assert not extra.exists()
+
+
+def test_an_outcome_waits_for_enough_other_memories(home, tmp_path):
+    _tiny_holdout(home)
+    holdout.run("synthetic", builds=1, say=lambda m: None, roots=[])
+    pub = tmp_path / "pub"
+    pub.mkdir()
+    for f in (home / "runs" / "holdout-v1" / "synthetic").glob("*.json"):
+        (pub / f.name).write_text(f.read_text(encoding="utf-8"), encoding="utf-8")
+    with pytest.raises(SystemExit, match="other memories"):
+        holdout.write_outcome("synthetic", pub, out=tmp_path / "h.json", others=[-8.0, -2.0])
+    assert not (tmp_path / "h.json").exists()
+    r = holdout.write_outcome("synthetic", pub, out=tmp_path / "h.json", others=[-8.0, -6.0, -5.0, -2.0])
+    assert r["shift"] == -5.5 and r["others"] == 4

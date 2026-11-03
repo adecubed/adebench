@@ -48,7 +48,7 @@ def test_harness_probes_are_not_resampled():
 
 def test_the_result_carries_counts_not_cases():
     r = hc.compare([run([1] * 24)] * 3, [run([1] * 24)])
-    assert set(r) == {"outcome", "x", "y", "delta", "public_builds", "private_builds"}
+    assert set(r) == {"outcome", "x", "y", "delta", "shift", "public_builds", "private_builds"}
     assert r["public_builds"] == 3 and r["private_builds"] == 1
 
 
@@ -65,3 +65,42 @@ def test_both_sides_are_scored_on_the_sections_they_share():
     pub = [run([1] * 24, skip_time=True)] * 3
     priv = [run([1] * 24, time_=(0, 0, 0, 0, 0, 0))] * 3
     assert hc.compare(pub, priv)["outcome"] == "no_drop"
+
+
+def test_gap_is_private_minus_public_on_55():
+    assert hc.gap([run([1] * 24)] * 3, [run([1] * 12 + [0] * 12)]) == -12.5
+
+
+def test_a_drop_every_memory_shares_is_the_set_not_the_memory():
+    # the private set is harder for everyone by about 8 points: a memory that drops by
+    # that much has not been tuned to the public questions
+    pub = [run([1] * 22 + [0] * 2)] * 3
+    priv = [run([1] * 14 + [0] * 10)]
+    shift = hc.gap(pub, priv)
+    assert hc.compare(pub, priv)["outcome"] == "lower"
+    r = hc.compare(pub, priv, shift=shift)
+    assert r["outcome"] == "no_drop" and r["shift"] == round(shift, 1)
+
+
+def test_a_drop_beyond_the_shared_one_is_still_lower():
+    pub = [run([1] * 22 + [0] * 2)] * 3
+    priv = [run([1] * 4 + [0] * 20, abstention=(0, 0, 0, 1))]
+    r = hc.compare(pub, priv, shift=-8.0)
+    assert r["outcome"] == "lower" and r["x"] < -3
+
+
+def test_the_shift_is_the_median_of_the_other_memories():
+    assert hc.set_shift([-8.0, -2.0, -5.0, -6.0]) == -5.5
+    import pytest
+    with pytest.raises(ValueError, match="memories"):
+        hc.set_shift([-8.0, -2.0])
+
+
+def test_partial_credit_counts_as_on_the_board():
+    # abstention gives each question partial credit (fraction): a FAIL worth half a question
+    # must count half, the way the board scores the section
+    pub = run([1] * 24)
+    for c in pub["sections"][2]["cases"]:
+        if c["status"] != "SKIP":
+            c.update(status="FAIL", fraction=0.5)
+    assert hc.core_cases(pub)["abstention"] == [0.5] * 4

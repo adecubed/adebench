@@ -1,0 +1,1597 @@
+{
+ "when": "2026-11-03T11:42:33",
+ "total": 65.7,
+ "measured_weight": 100,
+ "not_run_weight": 0,
+ "total_weight": 100,
+ "counts": {
+  "PASS": 145,
+  "FAIL": 34,
+  "ERROR": 0,
+  "SKIP": 3
+ },
+ "config": {
+  "adapter": "adebench.memoose:MemooseAdapter",
+  "brain_url": "http://localhost:8766",
+  "door": "recall",
+  "cases_hash": "a57efdf692",
+  "voice_sources": [
+   "working",
+   "semantic",
+   "episodic",
+   "conversations",
+   "files"
+  ],
+  "voice_cut": 2400,
+  "events_block": true,
+  "pressure": 0,
+  "weights": {
+   "door": 25,
+   "cards": 15,
+   "updates": 10,
+   "time": 10,
+   "live_state": 10,
+   "abstention": 10,
+   "file_search": 10,
+   "graph": 10
+  },
+  "max_card": 900,
+  "cases": "sets/public2/cases",
+  "repo": "sets/public2/repo",
+  "sandbox_test": "examples/memoose_sandbox_test.py",
+  "sandbox_enabled": true,
+  "pressure_level": null,
+  "census": null,
+  "write_back": false,
+  "updates_probe": null,
+  "sections": [
+   "door",
+   "cards",
+   "updates",
+   "time",
+   "live_state",
+   "abstention",
+   "file_search",
+   "graph"
+  ],
+  "duration_s": 178,
+  "fingerprint": "54d07db9bb"
+ },
+ "sections": [
+  {
+   "name": "door",
+   "weight": 25,
+   "score": 0.5833,
+   "cases": [
+    {
+     "case": "In which rack is Titan Node 4 mounted?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 69,
+     "margin": null,
+     "chars": 1797,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the current version of the Nexus API?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 107,
+     "margin": null,
+     "chars": 1641,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Which engine does Orion DB run on?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 92,
+     "margin": null,
+     "chars": 1712,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the retry limit for Vector Sync?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 114,
+     "margin": null,
+     "chars": 1475,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Who is the owner of Titan Node 4?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 165,
+     "margin": null,
+     "chars": 1642,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the sync interval for Vector Sync?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 89,
+     "margin": null,
+     "chars": 1679,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the capacity of Z-Drive 10?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "card z_drive_10 absent",
+     "position": 66,
+     "margin": null,
+     "chars": 1457,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Where is the documentation for Nexus API kept?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 288,
+     "margin": null,
+     "chars": 1482,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Where are the Lyra Scheduler logs located?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 293,
+     "margin": null,
+     "chars": 1866,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the security level for Project Iota?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 124,
+     "margin": null,
+     "chars": 1770,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the response time for Nexus API?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "card nexus_api absent",
+     "position": 69,
+     "margin": null,
+     "chars": 1221,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the serial number of Titan Node 4?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 100,
+     "margin": null,
+     "chars": 1617,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What language does Lyra Scheduler use?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 81,
+     "margin": null,
+     "chars": 1841,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the lead researcher's name for Project Iota?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 61,
+     "margin": null,
+     "chars": 1818,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the backup policy for Orion DB?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 121,
+     "margin": null,
+     "chars": 1427,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the RAM capacity of iron_beast?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "card titan_node_4 absent",
+     "position": 65,
+     "margin": null,
+     "chars": 1499,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "Where is the silver_hand unit located?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "card elara_bot absent",
+     "position": 68,
+     "margin": null,
+     "chars": 1733,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the budget for shadow_ops?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "card project_iota absent",
+     "position": 67,
+     "margin": null,
+     "chars": 1365,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What port does the Nexus API listen on?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "STALE value delivered next to the current one: 8080",
+     "position": 133,
+     "margin": null,
+     "chars": 1606,
+     "ms": 0,
+     "stale": true,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the current version of the Lyra Scheduler?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "STALE value delivered next to the current one: 1.2",
+     "position": 151,
+     "margin": null,
+     "chars": 1815,
+     "ms": 0,
+     "stale": true,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "What is the current status of Z-Drive 10?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "STALE value delivered next to the current one: standby card z_drive_10 absent",
+     "position": 144,
+     "margin": null,
+     "chars": 1541,
+     "ms": 0,
+     "stale": true,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "When was Elara Bot last maintained?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "card elara_bot absent",
+     "position": 990,
+     "margin": null,
+     "chars": 1318,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "On what date was the Lyra Scheduler upgraded to 1.3?",
+     "status": "PASS",
+     "ok": true,
+     "note": "",
+     "position": 234,
+     "margin": null,
+     "chars": 1550,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    },
+    {
+     "case": "When was the temperature of Titan Node 4 recorded as 38C?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "card titan_node_4 absent",
+     "position": 767,
+     "margin": null,
+     "chars": 1422,
+     "ms": 0,
+     "stale": false,
+     "duplicates": 0,
+     "validated": true
+    }
+   ],
+   "counts": {
+    "PASS": 14,
+    "FAIL": 10,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "door": "recall",
+    "door_budget_chars": null,
+    "pressure_chars": 0,
+    "questions": 24,
+    "validated": 24,
+    "mean_answer_position": 186,
+    "mean_door_text_chars": 1596,
+    "min_margin_chars": null,
+    "passes_within_300_chars_of_the_edge": 0,
+    "questions_with_forbidden_values": 3,
+    "stale_values_delivered": 3,
+    "chars_before_answer_mean": 186,
+    "duplicate_chunks_total": 0
+   },
+   "warnings": [
+    "3 answers delivered a retired value next to the current one: the model has to guess which is true"
+   ]
+  },
+  {
+   "name": "cards",
+   "weight": 15,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "card elara_bot exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card elara_bot within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "219 characters"
+    },
+    {
+     "case": "card f1 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f1 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "35 characters"
+    },
+    {
+     "case": "card f10 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f10 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "34 characters"
+    },
+    {
+     "case": "card f11 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f11 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "33 characters"
+    },
+    {
+     "case": "card f12 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f12 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "33 characters"
+    },
+    {
+     "case": "card f13 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f13 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "50 characters"
+    },
+    {
+     "case": "card f14 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f14 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "31 characters"
+    },
+    {
+     "case": "card f15 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f15 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "31 characters"
+    },
+    {
+     "case": "card f16 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f16 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "27 characters"
+    },
+    {
+     "case": "card f17 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f17 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "29 characters"
+    },
+    {
+     "case": "card f18 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f18 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "34 characters"
+    },
+    {
+     "case": "card f19 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f19 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "32 characters"
+    },
+    {
+     "case": "card f2 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f2 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "30 characters"
+    },
+    {
+     "case": "card f20 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f20 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "31 characters"
+    },
+    {
+     "case": "card f21 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f21 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "31 characters"
+    },
+    {
+     "case": "card f22 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f22 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "45 characters"
+    },
+    {
+     "case": "card f23 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f23 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "48 characters"
+    },
+    {
+     "case": "card f24 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f24 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "51 characters"
+    },
+    {
+     "case": "card f25 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f25 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "32 characters"
+    },
+    {
+     "case": "card f26 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f26 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "38 characters"
+    },
+    {
+     "case": "card f27 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f27 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "48 characters"
+    },
+    {
+     "case": "card f28 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f28 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "27 characters"
+    },
+    {
+     "case": "card f29 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f29 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "33 characters"
+    },
+    {
+     "case": "card f3 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f3 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "29 characters"
+    },
+    {
+     "case": "card f30 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f30 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "25 characters"
+    },
+    {
+     "case": "card f31 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f31 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "31 characters"
+    },
+    {
+     "case": "card f32 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f32 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "52 characters"
+    },
+    {
+     "case": "card f4 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f4 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "22 characters"
+    },
+    {
+     "case": "card f5 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f5 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "26 characters"
+    },
+    {
+     "case": "card f6 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f6 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "34 characters"
+    },
+    {
+     "case": "card f7 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f7 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "31 characters"
+    },
+    {
+     "case": "card f8 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f8 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "31 characters"
+    },
+    {
+     "case": "card f9 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card f9 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "31 characters"
+    },
+    {
+     "case": "card lyra_scheduler exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card lyra_scheduler within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "208 characters"
+    },
+    {
+     "case": "card nexus_api exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card nexus_api within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "211 characters"
+    },
+    {
+     "case": "card orion_db exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card orion_db within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "212 characters"
+    },
+    {
+     "case": "card project_iota exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card project_iota within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "217 characters"
+    },
+    {
+     "case": "card titan_node_4 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card titan_node_4 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "195 characters"
+    },
+    {
+     "case": "card vector_sync exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card vector_sync within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "199 characters"
+    },
+    {
+     "case": "card z_drive_10 exists and is dated",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "card z_drive_10 within 900 characters",
+     "status": "PASS",
+     "ok": true,
+     "note": "172 characters"
+    }
+   ],
+   "counts": {
+    "PASS": 80,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "cards": 40,
+    "corrections": 0,
+    "aliases": 0,
+    "aliases_tried": 0
+   },
+   "warnings": []
+  },
+  {
+   "name": "updates",
+   "weight": 10,
+   "score": 0.5,
+   "cases": [
+    {
+     "case": "sandbox: a new value retires the old one on its own",
+     "status": "FAIL",
+     "ok": false,
+     "note": ""
+    },
+    {
+     "case": "sandbox: with the relation declared functional, the newest value is the only live one",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "sandbox: the retired values never reach the door again",
+     "status": "FAIL",
+     "ok": false,
+     "note": ""
+    },
+    {
+     "case": "sandbox: restating the current value leaves one fact, not two",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    }
+   ],
+   "counts": {
+    "PASS": 2,
+    "FAIL": 2,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "superseded_live": 0,
+    "relations_live": 32,
+    "archive_by_reason": {
+     "assert": 32,
+     "create": 46,
+     "merge": 32,
+     "merge_entities": 6
+    },
+    "functional_relations": [],
+    "open_contradictions": 0,
+    "sandbox_test": "2/4"
+   },
+   "warnings": [
+    "updates scored from the adapter's own sandbox test: the harness probe, the same for every memory, needs the optional write_fact",
+    "no trace of updates in live memory: the dedup has not worked yet or found no pairs"
+   ]
+  },
+  {
+   "name": "time",
+   "weight": 10,
+   "score": 0.5,
+   "cases": [
+    {
+     "case": "semantic memories carry their age (210/480)",
+     "status": "FAIL",
+     "ok": false,
+     "note": "44%"
+    },
+    {
+     "case": "day filter 2026-11-03 returns only that day's episodes",
+     "status": "PASS",
+     "ok": true,
+     "note": "10 episodes"
+    },
+    {
+     "case": "an imported memory reaches the door with its original date",
+     "status": "SKIP",
+     "ok": false,
+     "note": "no import path in this adapter (import_memory / forget_memory)"
+    },
+    {
+     "case": "episodes signed by another machine",
+     "status": "SKIP",
+     "ok": false,
+     "note": "none in this memory"
+    }
+   ],
+   "counts": {
+    "PASS": 1,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 2
+   },
+   "measures": {
+    "share_of_memories_with_age": 0.438,
+    "facts_with_event_date": "28/32",
+    "days_tried": [
+     "2026-11-03"
+    ],
+    "signed_episodes": 0,
+    "signed_question": "what did pc2 do?"
+   },
+   "warnings": []
+  },
+  {
+   "name": "live_state",
+   "weight": 10,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "canary written to working memory",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "the canary just written is served through the retrieval door",
+     "status": "PASS",
+     "ok": true,
+     "note": "write-to-serve 2829 ms"
+    },
+    {
+     "case": "…and reaches the text of door 'recall'",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "3 canaries served within the budget",
+     "status": "PASS",
+     "ok": true,
+     "note": "p50 2829 ms · p95 4047 ms"
+    },
+    {
+     "case": "after overwriting the canary the door serves the new value, never the old one",
+     "status": "PASS",
+     "ok": true,
+     "note": "overwrite-to-visible 3369 ms"
+    },
+    {
+     "case": "two writes in quick succession: the door settles on the second, never back on the first",
+     "status": "PASS",
+     "ok": true,
+     "note": "second write visible in 3408 ms",
+     "timeline": null
+    },
+    {
+     "case": "cleanup: adebench session empty at the end of the run",
+     "status": "PASS",
+     "ok": true,
+     "note": ""
+    },
+    {
+     "case": "live-state key freshness",
+     "status": "SKIP",
+     "ok": false,
+     "note": "no live-state key configured (ADEBENCH_LIVE_STATE_KEY)"
+    }
+   ],
+   "counts": {
+    "PASS": 7,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 1
+   },
+   "measures": {
+    "live_state_age_min": null,
+    "write_to_serve_ms": 2829,
+    "write_to_serve_p50_ms": 2829,
+    "write_to_serve_p95_ms": 4047,
+    "write_to_serve_samples": 3,
+    "write_to_serve_budget_s": 30,
+    "overwrite_to_visible_ms": 3369,
+    "stale_reads_after_overwrite": 0,
+    "repeated_writes_settle_ms": 3408,
+    "out_of_order_reads": 0,
+    "repeated_writes_timeline": [
+     {
+      "t_ms": 0,
+      "event": "first write"
+     },
+     {
+      "t_ms": 1363,
+      "event": "second write"
+     },
+     {
+      "t_ms": 5682,
+      "event": "poll",
+      "first": false,
+      "second": true
+     },
+     {
+      "t_ms": 9765,
+      "event": "poll",
+      "first": false,
+      "second": true
+     },
+     {
+      "t_ms": 14174,
+      "event": "poll",
+      "first": false,
+      "second": true
+     }
+    ]
+   },
+   "warnings": []
+  },
+  {
+   "name": "abstention",
+   "weight": 10,
+   "score": 0.6111,
+   "cases": [
+    {
+     "case": "What is the primary function of the Zoltaris module?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "20 keyword facts for something that does not exist",
+     "fraction": 0.6666666666666666
+    },
+    {
+     "case": "Does Vornak interface with the Nexus API?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "produced an entity card; 20 keyword facts for something that does not exist",
+     "fraction": 0.3333333333333333
+    },
+    {
+     "case": "How many Glimmox units are installed in Sector G?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "20 keyword facts for something that does not exist",
+     "fraction": 0.6666666666666666
+    },
+    {
+     "case": "Is Brakit compatible with Lyra Scheduler?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "20 keyword facts for something that does not exist",
+     "fraction": 0.6666666666666666
+    },
+    {
+     "case": "Who designed the Krelin processor?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "20 keyword facts for something that does not exist",
+     "fraction": 0.6666666666666666
+    },
+    {
+     "case": "When was the Duxo firmware last updated?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "20 keyword facts for something that does not exist",
+     "fraction": 0.6666666666666666
+    },
+    {
+     "case": "Does Jalvor require access to Orion DB?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "produced an entity card; 20 keyword facts for something that does not exist",
+     "fraction": 0.3333333333333333
+    },
+    {
+     "case": "What is the encryption level of Moxie?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "20 keyword facts for something that does not exist",
+     "fraction": 0.6666666666666666
+    },
+    {
+     "case": "Is the Plynth sensor calibrated?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "20 keyword facts for something that does not exist",
+     "fraction": 0.6666666666666666
+    },
+    {
+     "case": "Where is the Quarx server located?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "20 keyword facts for something that does not exist",
+     "fraction": 0.6666666666666666
+    },
+    {
+     "case": "What protocol does Riften use?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "20 keyword facts for something that does not exist",
+     "fraction": 0.6666666666666666
+    },
+    {
+     "case": "Is Skalo active in the West Wing?",
+     "status": "FAIL",
+     "ok": false,
+     "note": "20 keyword facts for something that does not exist",
+     "fraction": 0.6666666666666666
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 12,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "questions": 12,
+    "leaked_entities": 0
+   },
+   "warnings": []
+  },
+  {
+   "name": "file_search",
+   "weight": 10,
+   "score": 0.0,
+   "cases": [
+    {
+     "case": "check_protocol → nexus_utils.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "schedule_backup → db_monitor.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "verify_engine → db_monitor.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "set_orchestration_port → scheduler_core.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "check_drive_status → db_monitor.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "get_api_version → nexus_utils.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "run_rust_task → scheduler_core.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "log_response → nexus_utils.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    },
+    {
+     "case": "get_current_v → scheduler_core.py",
+     "status": "FAIL",
+     "ok": false,
+     "note": "top5: []"
+    }
+   ],
+   "counts": {
+    "PASS": 0,
+    "FAIL": 9,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "indexable_functions": 9,
+    "tried": 9
+   },
+   "warnings": []
+  },
+  {
+   "name": "graph",
+   "weight": 10,
+   "score": 1.0,
+   "cases": [
+    {
+     "case": "elara_bot: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "3 edges"
+    },
+    {
+     "case": "f1: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f10: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f11: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f12: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f13: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f14: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f15: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f16: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f17: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f18: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f19: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f2: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f20: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f21: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f22: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f23: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f24: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f25: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f26: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f27: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f28: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f29: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f3: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f30: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f31: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f32: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f4: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f5: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f6: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f7: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f8: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "f9: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "1 edges"
+    },
+    {
+     "case": "lyra_scheduler: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "6 edges"
+    },
+    {
+     "case": "nexus_api: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "6 edges"
+    },
+    {
+     "case": "orion_db: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "3 edges"
+    },
+    {
+     "case": "project_iota: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "3 edges"
+    },
+    {
+     "case": "titan_node_4: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "4 edges"
+    },
+    {
+     "case": "vector_sync: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "3 edges"
+    },
+    {
+     "case": "z_drive_10: edges in the graph",
+     "status": "PASS",
+     "ok": true,
+     "note": "4 edges"
+    },
+    {
+     "case": "orphan fact nodes = 0",
+     "status": "PASS",
+     "ok": true,
+     "note": "0 orphans out of 32"
+    }
+   ],
+   "counts": {
+    "PASS": 41,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+   },
+   "measures": {
+    "nodes": 40,
+    "edges": 32,
+    "orphan_fact_nodes": "0 orphans out of 32"
+   },
+   "warnings": []
+  },
+  {
+   "name": "health",
+   "weight": 0,
+   "score": null,
+   "cases": [],
+   "counts": {},
+   "measures": {
+    "nodes": 40,
+    "edges": 32,
+    "chunks": 40,
+    "superseded_relations": 0,
+    "functional_relations": 0
+   },
+   "warnings": [
+    "no functional relation declared: a second value for the same relation is kept next to the first until something calls supersede",
+    "chunks are not deletable: what the benchmark writes goes away with the dataset"
+   ]
+  },
+  {
+   "name": "doors",
+   "weight": 0,
+   "score": null,
+   "cases": [],
+   "counts": {},
+   "measures": {
+    "recall": {
+     "calls": 46,
+     "http_errors": 0,
+     "ms_p50": 3142,
+     "ms_p95": 4046,
+     "mean_chars": 9810
+    }
+   },
+   "warnings": []
+  }
+ ],
+ "delta": {
+  "total": 0.0,
+  "sections": {
+   "door": 0.0,
+   "cards": 0.0,
+   "updates": 0.0,
+   "time": 0.0,
+   "live_state": 0.0,
+   "abstention": 0.0,
+   "file_search": 0.0,
+   "graph": 0.0
+  },
+  "against": "2026-11-03T11:36:26"
+ }
+}
