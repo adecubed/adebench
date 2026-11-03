@@ -13,6 +13,7 @@ imported.
     docker run -d -p 127.0.0.1:8888:8888 -e HINDSIGHT_API_LLM_PROVIDER=gemini \\
         -e HINDSIGHT_API_LLM_API_KEY=... -e HINDSIGHT_API_LLM_MODEL=gemini-3.5-flash-lite \\
         -v hindsight-data:/home/hindsight/.pg0 ghcr.io/vectorize-io/hindsight:latest
+    pip install "mcp>=1.24"             # the MCP client SDK, the adapter's one dependency
     python examples/hindsight_import.py
     python -m adebench --adapter adebench.hindsight:HindsightAdapter --cases sets/quick/cases
 
@@ -87,9 +88,11 @@ class _Mcp:
     async def _open(self):
         from contextlib import AsyncExitStack
         from mcp import ClientSession
-        from mcp.client.streamable_http import streamablehttp_client
+        from mcp.client.streamable_http import create_mcp_http_client, streamable_http_client
         self._stack = AsyncExitStack()
-        r, w, _ = await self._stack.enter_async_context(streamablehttp_client(self.url, headers=self.headers))
+        http = await self._stack.enter_async_context(create_mcp_http_client(headers=self.headers))
+        streams = await self._stack.enter_async_context(streamable_http_client(self.url, http_client=http))
+        r, w = streams[0], streams[1]   # mcp 1.x yields a third item (the session-id getter), 2.x does not
         self.session = await self._stack.enter_async_context(ClientSession(r, w))
         await self.session.initialize()
         self.tools = (await self.session.list_tools()).tools

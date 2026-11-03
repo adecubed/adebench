@@ -10,6 +10,7 @@ from episodes, deterministic, no model), `session_manifest` and
 
     docker run --network host ghcr.io/jscott3201/aionforge-memory:0.4.0 \\
         --config /config.toml serve http --listen 127.0.0.1:3918
+    pip install "mcp>=1.24"             # the MCP client SDK, the adapter's one dependency
     python examples/aionforge_import.py
     python -m adebench --adapter adebench.aionforge:AionforgeAdapter --cases sets/quick/cases
 
@@ -82,9 +83,11 @@ class _Mcp:
     async def _open(self):
         from contextlib import AsyncExitStack
         from mcp import ClientSession
-        from mcp.client.streamable_http import streamablehttp_client
+        from mcp.client.streamable_http import create_mcp_http_client, streamable_http_client
         self._stack = AsyncExitStack()
-        r, w, _ = await self._stack.enter_async_context(streamablehttp_client(self.url, headers=self.headers))
+        http = await self._stack.enter_async_context(create_mcp_http_client(headers=self.headers))
+        streams = await self._stack.enter_async_context(streamable_http_client(self.url, http_client=http))
+        r, w = streams[0], streams[1]   # mcp 1.x yields a third item (the session-id getter), 2.x does not
         self.session = await self._stack.enter_async_context(ClientSession(r, w))
         await self.session.initialize()
         self.tools = (await self.session.list_tools()).tools
