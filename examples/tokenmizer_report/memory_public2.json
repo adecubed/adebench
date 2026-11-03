@@ -1,0 +1,10 @@
+{
+ "version": "TokenMizer 0.6.0 from PyPI (the quick row is main at 3c1a19f, 6 Oct 2026: quick was not re-run)",
+ "mode": "OpenAI-compatible proxy: the set is said to it as a conversation, one turn per memory; read through its HTTP API and its MCP server (tokenmizer-mcp over stdio)",
+ "door": "resume: the resume_context of GET /api/resume/{session}?level=full (live graph), then the text of the MCP tool why_decision for the question; nothing re-rendered",
+ "results": "the resume block is capped by max_resume_tokens 400 (the default); why_decision answers only decisions; no cut",
+ "model": "chat through the proxy: gemini-3-flash-preview (Google); extraction: the same model, TokenMizer's own default since 0.6.0 (extraction_max_tokens 2048)",
+ "embeddings": "none configured (semantic_retrieval auto)",
+ "storage": "SQLite checkpoints in the build's storage_dir, state_backend memory (the default)",
+ "not_default": "use_llm_extraction true (the shipped config has it off). Provider gemini with the gemini extra (google-genai), other providers' keys removed from the server's environment. The full config is examples/tokenmizer.yaml. live_state not run: TokenMizer has none"
+}
