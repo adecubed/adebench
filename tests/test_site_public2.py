@@ -94,6 +94,7 @@ def test_the_board_shows_public2_beside_and_the_holdout_on_the_page(examples, mo
     site.build()
     index = (site.OUT / "index.html").read_text(encoding="utf-8")
     assert "public2 &middot; 55" in index and "synthetic golden set" in index
+    assert '<th class="n">public2 &middot; 55</th>' in index   # shown on a phone too
     assert "waits for a Docker host" in index and "Not yet run" not in index
     assert "no drop detected (±5.7)" in (site.OUT / "a" / "index.html").read_text(encoding="utf-8")
     assert (site.OUT / "d" / "index.html").exists()

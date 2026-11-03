@@ -56,7 +56,7 @@ MEMORIES = [
      "cfg": "0.4.0 Docker image, embeddings gemini-embedding-001 (3072) behind a loopback shim",
      "access": "MCP", "model_on_write": "embeddings only", "key": "embedding provider",
      "where": "self-hosted", "license": "Apache-2.0", "deterministic": "yes"},
-    {"name": "Jev-Mem", "folder": "jevmem_report", "pending": "public2 run in progress", "repo": "https://github.com/libingzheren/Jev-Mem",
+    {"name": "Jev-Mem", "folder": "jevmem_report", "repo": "https://github.com/libingzheren/Jev-Mem",
      "what": "graph memory whose decisions are taken by a small System-One model",
      "cfg": "Laya local decisions (config/laya_mem.json), embeddings all-MiniLM-L6-v2, no answer model",
      "access": "Python library", "model_on_write": "yes: a small System-One model (Laya, local)", "key": "none (Laya)",
@@ -312,6 +312,7 @@ vertical-align:.02em;animation:blink 1s steps(1) infinite}
 padding:10px 8px 8px;border-bottom:1px solid var(--soft);vertical-align:bottom}
 .board td{padding:12px 8px;border-bottom:1px solid var(--soft);vertical-align:top}
 .board .n{text-align:right;white-space:nowrap}
+.board .pend{white-space:normal;min-width:8em}
 .board .rank{font-family:var(--display);font-size:clamp(22px,2.6vw,30px);line-height:1;color:var(--muted);text-align:left;padding-right:2px}
 .name{font-family:var(--display);font-size:clamp(30px,4vw,46px);line-height:.95;text-transform:uppercase;white-space:nowrap}
 .name:before{content:"\\2731";font-size:.55em;vertical-align:.35em;margin-right:.18em}
@@ -457,7 +458,7 @@ def board_rows(rows: list[dict]) -> list[dict]:
 
 def public_cell(r: dict) -> str:
     if r["p2_core"] is None:
-        return f'<div class="sm">{esc(r.get("pending", "not run yet"))}</div>'
+        return f'<div class="sm pend">{esc(r.get("pending", "not run yet"))}</div>'
     spread = (f"same in {r['p2_runs']} runs" if r["p2_lo"] == r["p2_hi"] else f"{r['p2_lo']}–{r['p2_hi']} · {r['p2_runs']} runs")         if r["p2_runs"] > 1 else "1 run"
     return f'<div class="score plain">{pct(r["p2_core"], 55)}</div><div class="sm">{r["p2_core"]} / 55 · {spread}</div>'
 
@@ -481,7 +482,7 @@ def build() -> None:
         rank = f"{r['rank']}{'=' if r['rank'] in tied else ''}"
         trs.append(f"""<tr><td class="n rank">{rank}</td><td><a href="/{slug(r['name'])}/"><div class="name">{esc(r['name'])}</div></a><div class="what hide-sm">{esc(r['what'])}</div>{f'<div class="sm">{esc(r["note"])}</div>' if r.get("note") else ""}</td>
 <td class="n"><div class="score">{pct(r['core_mean'], cw)}</div><div class="sm">{esc(core_note)}</div></td>
-<td class="n hide-sm">{public_cell(r)}</td>
+<td class="n">{public_cell(r)}</td>
 <td class="n"><div class="score plain">{pct(r['total_mean'], r['measured'])}</div><div class="sm">{esc(full_note)}</div></td>
 <td class="n hide-sm">{fmt_chars(mm['chars'])}</td>
 <td class="n hide-sm">{fmt_ms(mm['write_ms'])}</td>
@@ -500,7 +501,7 @@ def build() -> None:
     body = f"""<h1 class="hero"><span class="type" aria-hidden="true">{typed}</span><span class="sr">ADEBENCH — agent memory benchmark and leaderboard</span></h1>
 <p class="lede">A benchmark for agent memory. It scores the text a memory actually delivers to the model, on one golden set, with no LLM judge.</p>
 <div class="label">Leaderboard &middot; synthetic golden set</div>
-<div class="wrap"><table class="board"><thead><tr><th class="n">#</th><th>Memory</th><th class="n">Core &middot; 55</th><th class="n hide-sm">{PUBLIC} &middot; 55</th><th class="n">Full</th>
+<div class="wrap"><table class="board"><thead><tr><th class="n">#</th><th>Memory</th><th class="n">Core &middot; 55</th><th class="n">{PUBLIC} &middot; 55</th><th class="n">Full</th>
 <th class="n hide-sm">Chars per answer</th><th class="n hide-sm">Write &rarr; visible</th><th class="hide-md">Reached through</th></tr></thead>
 <tbody>{''.join(trs)}</tbody></table></div>
 <p class="note"><b>Core</b> is what every memory can be measured on, a write and a read through the door: door 25, updates 10,
