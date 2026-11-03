@@ -16,6 +16,7 @@ mentions) read Engram's SQLite file, opened read-only. No Engram code is linked.
     # Windows release binary, v2.2.1, checked against the release's checksums.txt
     set ENGRAM_BIN=C:/.../engram.exe
     set ENGRAM_DATA_DIR=C:/.../engram-data      # a FRESH scratch store, not ~/.engram
+    pip install mcp                             # the MCP client SDK, the adapter's one dependency
     python examples/engram_import.py
     python -m adebench --adapter adebench.engram:EngramAdapter --cases sets/quick/cases
 
@@ -221,6 +222,7 @@ class EngramAdapter:
     def _conn(self) -> _Mcp:
         if self._mcp is None:
             try:
+                os.makedirs(self.data_dir, exist_ok=True)   # the server's cwd; a fresh store may not exist yet
                 self._mcp = _Mcp(self.bin, ["mcp", f"--tools={TOOLS}", "--project", self.project],
                                  self._env(), self.data_dir)
             except Exception as e:  # noqa: BLE001
@@ -245,6 +247,7 @@ class EngramAdapter:
     def _cli(self, args: list[str], timeout: float = 120) -> str:
         t0 = time.perf_counter()
         try:
+            os.makedirs(self.data_dir, exist_ok=True)   # the CLI's cwd, as in _conn
             r = subprocess.run([self.bin] + args, capture_output=True, text=True, encoding="utf-8",
                                errors="replace", timeout=timeout, env=self._env(), cwd=self.data_dir)
         except (OSError, subprocess.TimeoutExpired) as e:
