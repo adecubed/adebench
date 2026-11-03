@@ -419,52 +419,54 @@ def _fill(m: dict, d: dict, rep: dict | None, ref: dict | None) -> None:
         m["total_mean"], m["total_lo"], m["total_hi"] = m["total"], m["total"], m["total"]
 
 
-def _quick_core(m: dict) -> float | None:
-    if not m["dq"]:
-        return None
-    w = core(m["dq"])[1]
-    return _on55(m["repq"]["core"]["mean"] if m["repq"] else core(m["dq"])[0], w)
+def _public_core(m: dict) -> None:
+    """The memory's core on public2, on 55 points: mean and range of its runs there."""
+    d, rep = m["d"], m["rep"]
+    m["p2_core"] = m["p2_lo"] = m["p2_hi"] = None
+    if not d:
+        return
+    w = core(d)[1]
+    if rep:
+        m["p2_core"], m["p2_lo"], m["p2_hi"] = (_on55(rep["core"][k], w) for k in ("mean", "min", "max"))
+        m["p2_runs"] = rep["builds"]
+    else:
+        m["p2_core"] = m["p2_lo"] = m["p2_hi"] = _on55(core(d)[0], w)
+        m["p2_runs"] = 1
 
 
-def board_rows(rows: list[dict]) -> tuple[list[dict], list[dict]]:
-    """Ranked: the memories run on public2, ordered by their core on 55 points, ties within the
-    wider range or one probe of public2. Unranked: the ones with only a quick number, which keep
-    their page on it."""
-    from adebench.repeats import probe_of, ranks   # repeats reads site.core: imported here, not at the top
-    ref = next((m["d"] for m in rows if m["name"] == REFERENCE and m["d"]), None)
+def board_rows(rows: list[dict]) -> list[dict]:
+    """The board: every memory with a quick reference, ranked on its quick core as before (ties
+    within the wider range or one probe), with its public2 core beside it when it has one."""
+    from adebench.repeats import ranks   # repeats reads site.core: imported here, not at the top
     refq = next((m["dq"] for m in rows if m["name"] == REFERENCE and m["dq"]), None)
-    ranked, unranked = [], []
+    ranked = []
     for m in rows:
-        m["quick_core"] = _quick_core(m)
-        if m["d"]:
-            _fill(m, m["d"], m["rep"], ref)
-            ranked.append(m)
-        elif m["dq"]:
-            _fill(m, m["dq"], m["repq"], refq)
-            unranked.append(m)
+        if not m["dq"]:
+            continue
+        _fill(m, m["dq"], m["repq"], refq)
+        _public_core(m)
+        ranked.append(m)
     # order: the core, the same 55 points for everyone; a SKIP elsewhere costs nothing
     on55 = lambda r: _on55(r["core_mean"], r["core"][1])  # noqa: E731
-    probe = max((probe_of(r["d"]) for r in ranked), default=1.8)
     ranked.sort(key=lambda r: -on55(r))
-    for r, rank in zip(ranked, ranks([(on55(r), r["core_hi"] - r["core_lo"]) for r in ranked], probe)):
-        r["rank"], r["probe"] = rank, probe
+    for r, rank in zip(ranked, ranks([(on55(r), r["core_hi"] - r["core_lo"]) for r in ranked])):
+        r["rank"] = rank
     ranked.sort(key=lambda r: (r["rank"], -on55(r)))   # a wide range can tie a memory with ones above its mean
-    unranked.sort(key=lambda r: -(r["quick_core"] or 0))
-    return ranked, unranked
+    return ranked
 
 
-
-def quick_cell(r: dict) -> str:
-    q = r.get("quick_core")
-    return "—" if q is None else f'<div class="score plain">{pct(q, 55)}</div><div class="sm">{q} / 55</div>'
+def public_cell(r: dict) -> str:
+    if r["p2_core"] is None:
+        return f'<div class="sm">{esc(r.get("pending", "not run yet"))}</div>'
+    spread = (f"same in {r['p2_runs']} runs" if r["p2_lo"] == r["p2_hi"] else f"{r['p2_lo']}–{r['p2_hi']} · {r['p2_runs']} runs")         if r["p2_runs"] > 1 else "1 run"
+    return f'<div class="score plain">{pct(r["p2_core"], 55)}</div><div class="sm">{r["p2_core"]} / 55 · {spread}</div>'
 
 
 def build() -> None:
     OUT.mkdir(exist_ok=True)
     for old in OUT.glob("*_report.html"):   # the pre-0.2.16 flat pages
         old.unlink()
-    rows, unranked = board_rows(loaded())
-    probe = rows[0]["probe"] if rows else 1.8
+    rows = board_rows(loaded())
     tied = {r["rank"] for r in rows if sum(1 for x in rows if x["rank"] == r["rank"]) > 1}
 
     def spread(lo, hi, n) -> str:
@@ -479,14 +481,11 @@ def build() -> None:
         rank = f"{r['rank']}{'=' if r['rank'] in tied else ''}"
         trs.append(f"""<tr><td class="n rank">{rank}</td><td><a href="/{slug(r['name'])}/"><div class="name">{esc(r['name'])}</div></a><div class="what hide-sm">{esc(r['what'])}</div>{f'<div class="sm">{esc(r["note"])}</div>' if r.get("note") else ""}</td>
 <td class="n"><div class="score">{pct(r['core_mean'], cw)}</div><div class="sm">{esc(core_note)}</div></td>
-<td class="n hide-sm">{quick_cell(r)}</td>
+<td class="n hide-sm">{public_cell(r)}</td>
 <td class="n"><div class="score plain">{pct(r['total_mean'], r['measured'])}</div><div class="sm">{esc(full_note)}</div></td>
 <td class="n hide-sm">{fmt_chars(mm['chars'])}</td>
 <td class="n hide-sm">{fmt_ms(mm['write_ms'])}</td>
 <td class="hide-md">{esc(r['access'])}</td></tr>""")
-
-    later = [f"""<tr><td><a href="/{slug(r['name'])}/"><div class="name">{esc(r['name'])}</div></a><div class="what hide-sm">{esc(r['what'])}</div></td>
-<td class="n">{quick_cell(r)}</td><td class="sm">{esc(r.get('pending', 'not run yet'))}</td></tr>""" for r in unranked]
 
     own = own_data()
     own_trs = []
@@ -499,9 +498,9 @@ def build() -> None:
 
     typed = "".join(f'<span style="--i:{i}">{c}</span>' for i, c in enumerate("ADEBENCH"))
     body = f"""<h1 class="hero"><span class="type" aria-hidden="true">{typed}</span><span class="sr">ADEBENCH — agent memory benchmark and leaderboard</span></h1>
-<p class="lede">A benchmark for agent memory. It scores the text a memory actually delivers to the model, on the same public questions for every memory, with no LLM judge.</p>
-<div class="label">Leaderboard &middot; {PUBLIC} set (24 door and 12 abstention questions)</div>
-<div class="wrap"><table class="board"><thead><tr><th class="n">#</th><th>Memory</th><th class="n">Core &middot; 55</th><th class="n hide-sm">Quick &middot; 55</th><th class="n">Full</th>
+<p class="lede">A benchmark for agent memory. It scores the text a memory actually delivers to the model, on one golden set, with no LLM judge.</p>
+<div class="label">Leaderboard &middot; synthetic golden set</div>
+<div class="wrap"><table class="board"><thead><tr><th class="n">#</th><th>Memory</th><th class="n">Core &middot; 55</th><th class="n hide-sm">{PUBLIC} &middot; 55</th><th class="n">Full</th>
 <th class="n hide-sm">Chars per answer</th><th class="n hide-sm">Write &rarr; visible</th><th class="hide-md">Reached through</th></tr></thead>
 <tbody>{''.join(trs)}</tbody></table></div>
 <p class="note"><b>Core</b> is what every memory can be measured on, a write and a read through the door: door 25, updates 10,
@@ -509,19 +508,17 @@ time 10, abstention 10. The ranking is on it. <b>Full</b> adds what a memory has
 search, graph), over the points it could be measured on. <b>Chars per answer</b> is what the model receives for one question:
 the same score at 300 characters and at 20,000 is not the same memory. <b>Write &rarr; visible</b> is how long a value just
 written takes to reach the door. Scores are the <b>mean</b> of the runs kept for each memory, with their range;
-two memories closer than the wider of their ranges (never less than one probe, {probe:g} points) share a rank, marked =, and
+two memories closer than the wider of their ranges (never less than one probe, 1.8 points) share a rank, marked =, and
 no memory ranks above one with a higher mean.</p>
-<p class="note">The <b>{PUBLIC}</b> set was written by another model (Gemini) from a fixed specification and accepted only by a
-mechanical validator: 24 door questions and 12 invented entities, three times the first set. <b>Quick</b> is the core on that
-first set, 8 door and 4 abstention questions. A <b>private set</b> of the same size, which no session that develops a memory
-can read, checks each memory's public number: its outcome is on the memory's page.</p>
-<div class="label">Not yet run on {PUBLIC}</div>
-<div class="wrap"><table class="board"><thead><tr><th>Memory</th><th class="n">Quick &middot; 55</th><th>Status</th></tr></thead>
-<tbody>{''.join(later)}</tbody></table></div>
+<p class="note"><b>{PUBLIC}</b> is the core on a second public set, three times larger: 24 door questions and 12 invented
+entities, written by another model (Gemini) from a fixed specification and accepted only by a mechanical validator. It is
+shown beside the board as each memory is run on it, and does not change the ranking. A <b>private set</b> of the same
+size, which no session that develops a memory can read, checks each memory's {PUBLIC} number: its outcome is on the
+memory's page.</p>
 <div class="label">On their own data</div>
 <div class="wrap"><table class="board"><thead><tr><th>Memory</th><th class="n">Score</th><th class="n">Probes</th><th class="n hide-sm">Run</th></tr></thead>
 <tbody>{''.join(own_trs)}</tbody></table></div>
-<p class="note">The public sets are small on purpose, so they run anywhere. The bench was built for something else: a memory measured on
+<p class="note">The golden set is small on purpose, so it runs anywhere. The bench was built for something else: a memory measured on
 <b>its owner's</b> data, with probes written on the facts it really holds, rerun after every change. Not comparable across
 memories, and the number that tells an owner whether a change helped. Totals only: the probes are the owner's facts.</p>
 <div class="cols">
@@ -537,7 +534,7 @@ Each memory's author is told when its results go up; if we ran it wrong, we fix 
 </div>"""
     names = ", ".join(r["name"] for r in rows)
     desc = (f"Open benchmark for AI agent memory: {len(rows)} memory systems ({names}) scored on the text they "
-            "actually deliver to the model. Same public set, no LLM judge.")
+            "actually deliver to the model. Same golden set, no LLM judge.")
     ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "adebench", "url": BASE + "/",
            "description": desc},
           {"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "adebench",
@@ -549,9 +546,8 @@ Each memory's author is told when its results go up; if we ran it wrong, we fix 
     (OUT / "index.html").write_text(page("adebench — agent memory benchmark and leaderboard", body, desc, "/", ld),
                                     encoding="utf-8")
 
-    for r in rows + unranked:
+    for r in rows:
         d, mm = r["shown"], r["m"]
-        on = PUBLIC if r["d"] else "quick"
         cpts, cw, cmiss = r["core"]
         secs = sections(d)
         srows = []
@@ -584,10 +580,11 @@ Each memory's author is told when its results go up; if we ran it wrong, we fix 
                      if r["runs"] > 1 else "1 · no range measured yet")
         core_fact = (f"{pct(r['core_mean'], cw)} · {r['core_mean']} / {cw}" + (" (mean)" if r["runs"] > 1 else "")
                      + (f" · no {', '.join(cmiss)}" if cmiss else ""))
-        q = r["quick_core"]
-        facts = [(f"Core ({PUBLIC})", core_fact if r["d"] else r.get("pending", "not run yet")),
-                 ("Core (quick)", f"{pct(q, 55)} · {q} / 55" if q is not None else "not run"),
-                 ("Private set", holdout_line(r["ho"]) if r["d"] else "after the public2 runs"),
+        p2 = (f"{pct(r['p2_core'], 55)} · {r['p2_core']} / 55" + (" (mean)" if r["p2_runs"] > 1 else "")
+              if r["p2_core"] is not None else r.get("pending", "not run yet"))
+        facts = [("Core", core_fact),
+                 (f"Core ({PUBLIC})", p2),
+                 ("Private set", holdout_line(r["ho"]) if r["d"] else f"after the {PUBLIC} runs"),
                  ("Full", f"{pct(r['total_mean'], r['measured'])} · {r['total_mean']} / {r['measured']} · {r['measured']} of {r['cov']} measured"),
                  ("Runs", runs_fact),
                  ("Common with " + REFERENCE, f"{cm[0]} vs {cm[1]} on {cm[2]}" if cm else "reference"),
@@ -598,7 +595,7 @@ Each memory's author is told when its results go up; if we ran it wrong, we fix 
                  ("Key needed", r["key"]), ("Where it runs", r["where"]), ("License", r["license"]),
                  ("Deterministic", r["deterministic"])]
         facts_html = "".join(f"<div><dt>{esc(k)}</dt><dd>{esc(v)}</dd></div>" for k, v in facts)
-        cfg = load_config(r["folder"], r.get("file", "reference") + (f"_{PUBLIC}" if r["d"] else "")) or {}
+        cfg = load_config(r["folder"], r.get("file", "reference")) or {}
         cfg_rows = "".join(f"<tr><td class='sm' style='white-space:nowrap'>{esc(CONFIG_LABELS[f])}</td><td>{esc(cfg.get(f, 'not stated'))}</td></tr>"
                            for f in CONFIG_FIELDS)
         body = f"""<p style="margin:10px 0 0"><a href="/">&larr; leaderboard</a></p>
@@ -610,11 +607,11 @@ Each memory's author is told when its results go up; if we ran it wrong, we fix 
 <div class="wrap"><table class="board"><tbody>{cfg_rows}</tbody></table></div>
 <p class="note"><b>Notes:</b> {esc(r['cfg'])}. <b>Run</b> {esc(str(d.get('when', ''))[:10])}, door <code>{esc(d.get('config', {}).get('door', ''))}</code>,
 fingerprint <code>{esc(str(d.get('config', {}).get('fingerprint', ''))[:12])}</code>. <b>Report:</b>
-<a href="https://github.com/adecubed/adebench/blob/main/{esc(d['_file'])}" style="color:var(--hot)"{click("out-report-" + slug(r['name']))}>{esc(d['_file'])}</a>{f' · <b>All runs:</b> <a href="https://github.com/adecubed/adebench/blob/main/{esc(rep["_file"])}" style="color:var(--hot)">{esc(rep["_file"])}</a>' if rep else ""}</p>
-<div class="label">Sections &middot; {on} set</div>
+<a href="https://github.com/adecubed/adebench/blob/main/{esc(d['_file'])}" style="color:var(--hot)"{click("out-report-" + slug(r['name']))}>{esc(d['_file'])}</a>{f' · <b>All runs:</b> <a href="https://github.com/adecubed/adebench/blob/main/{esc(rep["_file"])}" style="color:var(--hot)">{esc(rep["_file"])}</a>' if rep else ""}{f' · <b>{PUBLIC}:</b> <a href="https://github.com/adecubed/adebench/blob/main/{esc(r["d"]["_file"])}" style="color:var(--hot)">{esc(r["d"]["_file"])}</a>' if r["d"] else ""}</p>
+<div class="label">Sections</div>
 <div class="wrap"><table class="board"><tbody>{''.join(srows)}</tbody></table></div>"""
         sl = slug(r["name"])
-        desc = (f"{r['name']} on adebench: {pct(r['core_mean'], cw)} on the core ({on} set), {pct(r['total_mean'], r['measured'])} full "
+        desc = (f"{r['name']} on adebench: {pct(r['core_mean'], cw)} on the core, {pct(r['total_mean'], r['measured'])} full "
                 f"({r['total_mean']}/{r['measured']}), {fmt_chars(mm['chars'])} characters per answer. {r['what']}.")
         ld = [{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
                   {"@type": "ListItem", "position": 1, "name": "adebench", "item": BASE + "/"},
@@ -627,8 +624,8 @@ fingerprint <code>{esc(str(d.get('config', {}).get('fingerprint', ''))[:12])}</c
         if (ASSETS / f).exists():
             shutil.copyfile(ASSETS / f, OUT / f)
     day = lambda d: str(d.get("when", ""))[:10]  # noqa: E731
-    latest = max((day(r["shown"]) for r in rows + unranked), default="")
-    urls = [(BASE + "/", latest)] + [(f"{BASE}/{slug(r['name'])}/", day(r["shown"])) for r in rows + unranked]
+    latest = max((day(r["shown"]) for r in rows), default="")
+    urls = [(BASE + "/", latest)] + [(f"{BASE}/{slug(r['name'])}/", day(r["shown"])) for r in rows]
     (OUT / "sitemap.xml").write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
         + "".join(f"<url><loc>{u}</loc><lastmod>{m}</lastmod></url>\n" for u, m in urls) + "</urlset>\n", encoding="utf-8")
@@ -638,7 +635,7 @@ fingerprint <code>{esc(str(d.get('config', {}).get('fingerprint', ''))[:12])}</c
                                        "Page not found", "/404.html", index=False), encoding="utf-8")
     (OUT / "CNAME").write_text(DOMAIN + "\n", encoding="utf-8")
     (OUT / ".nojekyll").write_text("", encoding="utf-8")
-    print(f"site: {len(rows)} ranked on {PUBLIC}, {len(unranked)} not yet -> {OUT}")
+    print(f"site: {len(rows)} memories, {sum(1 for r in rows if r['p2_core'] is not None)} on {PUBLIC} -> {OUT}")
 
 
 if __name__ == "__main__":

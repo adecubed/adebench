@@ -1,11 +1,11 @@
-"""The board ranks on public2; quick is a second column; the holdout outcome is on each page."""
+"""The board ranks on quick as before; public2 is a column beside it; the holdout outcome is on each page."""
 from __future__ import annotations
 
 import json
 
 import pytest
 
-from adebench import repeats, site
+from adebench import site
 
 
 def _report(door, cases=24):
@@ -40,34 +40,24 @@ def _two(monkeypatch, second="B"):
     monkeypatch.setattr(site, "MEMORIES", [_row("A"), _row(second, pending="waits for a Docker host")])
 
 
-def test_probe_is_the_core_weight_over_core_cases():
-    assert repeats.probe_of(_report(0.5)) == pytest.approx(55 / (24 + 9 + 9 + 12), abs=0.01)
-
-
-def test_ranks_take_the_set_probe():
-    # 2 points apart: level with a 1.8 probe? no; with a 2.5 probe, yes
-    assert repeats.ranks([(40.0, 0.0), (38.0, 0.0)]) == [1, 2]
-    assert repeats.ranks([(40.0, 0.0), (38.0, 0.0)], probe=2.5) == [1, 1]
-
-
-def test_ranked_on_public2_with_quick_beside(examples, monkeypatch):
+def test_ranked_on_quick_with_public2_beside(examples, monkeypatch):
     _two(monkeypatch)
     for folder, door_quick, door_p2 in (("a_report", 1.0, 0.4), ("b_report", 0.5, 0.9)):
         _write(examples, folder, "reference", _report(door_quick, 8))
         _write(examples, folder, "reference_public2", _report(door_p2))
-    ranked, unranked = site.board_rows(site.loaded())
-    assert [r["name"] for r in ranked] == ["B", "A"] and unranked == []
-    assert ranked[0]["quick_core"] < ranked[1]["quick_core"]
+    rows = site.board_rows(site.loaded())
+    assert [r["name"] for r in rows] == ["A", "B"]   # quick decides, public2 does not move it
+    assert rows[0]["p2_core"] < rows[1]["p2_core"]
 
 
-def test_unranked_memories_keep_their_quick_number(examples, monkeypatch):
+def test_a_memory_without_public2_stays_on_the_board(examples, monkeypatch):
     _two(monkeypatch, "D")
     _write(examples, "a_report", "reference_public2", _report(0.5))
     _write(examples, "a_report", "reference", _report(0.5, 8))
     _write(examples, "d_report", "reference", _report(0.9, 8))
-    ranked, unranked = site.board_rows(site.loaded())
-    assert [r["name"] for r in ranked] == ["A"] and [r["name"] for r in unranked] == ["D"]
-    assert unranked[0]["quick_core"] > 0
+    rows = site.board_rows(site.loaded())
+    assert [r["name"] for r in rows] == ["D", "A"]
+    assert rows[0]["p2_core"] is None and rows[1]["p2_core"] > 0
 
 
 def test_public2_rows_share_the_memory_config(examples):
@@ -93,7 +83,7 @@ def test_holdout_line_says_lower_or_no_drop_without_judging():
     assert site.holdout_line(None) == "not run yet"
 
 
-def test_the_board_shows_quick_the_unranked_table_and_the_holdout(examples, monkeypatch):
+def test_the_board_shows_public2_beside_and_the_holdout_on_the_page(examples, monkeypatch):
     _two(monkeypatch, "D")
     _write(examples, "a_report", "reference_public2", _report(0.5))
     _write(examples, "a_report", "reference", _report(0.5, 8))
@@ -103,10 +93,9 @@ def test_the_board_shows_quick_the_unranked_table_and_the_holdout(examples, monk
     _write(examples, "d_report", "reference", _report(0.9, 8))
     site.build()
     index = (site.OUT / "index.html").read_text(encoding="utf-8")
-    assert "Quick &middot; 55" in index and "public2" in index
-    assert "Not yet run on public2" in index and "waits for a Docker host" in index
+    assert "public2 &middot; 55" in index and "synthetic golden set" in index
+    assert "waits for a Docker host" in index and "Not yet run" not in index
     assert "no drop detected (±5.7)" in (site.OUT / "a" / "index.html").read_text(encoding="utf-8")
-    # an unranked memory keeps its page, on its quick numbers
     assert (site.OUT / "d" / "index.html").exists()
 
 

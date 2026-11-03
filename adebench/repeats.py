@@ -25,7 +25,6 @@ from pathlib import Path
 from adebench.site import core
 
 PROBE = 1.8   # 55 core points over the core probes of the synthetic set, about one probe
-CORE_SECTIONS = ("door", "updates", "time", "abstention")
 
 
 def summarize(runs: list[dict]) -> dict:
@@ -66,21 +65,11 @@ def write(folder: Path, runs_dir: str = "runs") -> dict:
     return s
 
 
-def probe_of(report: dict) -> float:
-    """What one core case is worth in this report's set: the core weight over its core cases."""
-    w, n = 0, 0
-    for s in report.get("sections", []):
-        if s.get("name") in CORE_SECTIONS and s.get("score") is not None:
-            w += int(s.get("weight") or 0)
-            n += sum(1 for c in s.get("cases", []) if c.get("status") != "SKIP")
-    return round(w / n, 2) if n else PROBE
-
-
-def ranks(board: list[tuple[float, float]], probe: float = PROBE) -> list[int]:
+def ranks(board: list[tuple[float, float]]) -> list[int]:
     """board: (mean core points, range) per memory. A memory's rank is one plus
     the number of memories clearly ahead of it: ahead by more than the wider of
     the two bands, each band at least one probe."""
-    band = [max(spread, probe) for _, spread in board]
+    band = [max(spread, PROBE) for _, spread in board]
     rank = [1 + sum(1 for j, (mj, _) in enumerate(board) if mj - mi > max(band[i], band[j]))
             for i, (mi, _) in enumerate(board)]
     # a wide range ties a memory with more of the ones above it; it must not
