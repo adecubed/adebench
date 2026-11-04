@@ -111,8 +111,8 @@ independent draws, and resampling them does not cover the difference between two
 each memory's difference is taken against the shift, the median point gap of the *other*
 memories measured on both sets, and an outcome is written only once at least four other
 memories have both. A drop every memory shares is the set; a memory that drops beyond it does
-worse on questions it has not seen. On `holdout-v1` the shift is about −2 core points (five
-memories, 3 Nov 2026).
+worse on questions it has not seen. On `holdout-v1` the shift is about −2 core points (six
+memories, 4 Nov 2026).
 
 **What "lower" says.** It says a memory scores lower on unseen questions than the set explains,
 not why. gbrain, which nobody could have tuned to `public2`, is lower by 6 points: its drop is

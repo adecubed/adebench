@@ -312,7 +312,7 @@ vertical-align:.02em;animation:blink 1s steps(1) infinite}
 padding:10px 8px 8px;border-bottom:1px solid var(--soft);vertical-align:bottom}
 .board td{padding:12px 8px;border-bottom:1px solid var(--soft);vertical-align:top}
 .board .n{text-align:right;white-space:nowrap}
-.board .pend{white-space:normal;min-width:8em}
+.board .n .sm{white-space:normal;min-width:9em}
 .board .rank{font-family:var(--display);font-size:clamp(22px,2.6vw,30px);line-height:1;color:var(--muted);text-align:left;padding-right:2px}
 .name{font-family:var(--display);font-size:clamp(30px,4vw,46px);line-height:.95;text-transform:uppercase;white-space:nowrap}
 .name:before{content:"\\2731";font-size:.55em;vertical-align:.35em;margin-right:.18em}
@@ -458,7 +458,7 @@ def board_rows(rows: list[dict]) -> list[dict]:
 
 def public_cell(r: dict) -> str:
     if r["p2_core"] is None:
-        return f'<div class="sm pend">{esc(r.get("pending", "not run yet"))}</div>'
+        return f'<div class="sm">{esc(r.get("pending", "not run yet"))}</div>'
     spread = (f"same in {r['p2_runs']} runs" if r["p2_lo"] == r["p2_hi"] else f"{r['p2_lo']}–{r['p2_hi']} · {r['p2_runs']} runs")         if r["p2_runs"] > 1 else "1 run"
     return f'<div class="score plain">{pct(r["p2_core"], 55)}</div><div class="sm">{r["p2_core"]} / 55 · {spread}</div>'
 
