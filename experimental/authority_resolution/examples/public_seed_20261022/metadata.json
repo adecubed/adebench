@@ -1,0 +1,1 @@
+{"case_count":12,"classification":"PUBLIC_SYNTHETIC","count_per_pattern":2,"generator_version":"0.2.0","patterns":["AR-01","AR-02","AR-03","AR-04","AR-05","AR-06"],"prng":"python.random.Random","python_version":"3.13.5","schema_version":"2.0","seed":20261022,"source_inventory_is_not_measured_delivery":true}
